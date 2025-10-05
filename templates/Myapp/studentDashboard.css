@@ -1,0 +1,358 @@
+body {
+  background: #f7f9fc;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  color: #222;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 56px 18px 36px;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  box-shadow: 0 2px 16px rgba(0,198,255,0.12);
+  transition: box-shadow 0.3s;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #00c6ff;
+  gap: 10px;
+}
+
+.logo i {
+  font-size: 1.7rem;
+}
+
+nav {
+  display: flex;
+  gap: 32px;
+}
+
+nav a {
+  text-decoration: none;
+  color: #555;
+  font-weight: 500;
+  font-size: 1rem;
+  padding-bottom: 6px;
+  border-bottom: 2px solid transparent;
+  transition: border 0.2s, color 0.2s;
+}
+
+nav a.active, nav a:focus, nav a:hover {
+  color: #00c6ff;
+  border-bottom: 2px solid #00c6ff;
+  outline: none;
+}
+
+.search-profile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.top-search {
+  border: 1px solid #ddd;
+  border-radius: 24px;
+  padding: 7px 18px;
+  background: #f7f9fc;
+  font-size: 1rem;
+  width: 235px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.top-search:focus {
+  border: 2px solid #00c6ff;
+  box-shadow: 0 0 8px rgba(0,198,255,0.18);
+  outline: none;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+  object-fit: cover;
+  transition: border-color 0.2s;
+}
+
+.avatar:focus, .avatar:hover {
+  border-color: #00c6ff;
+  outline: none;
+}
+
+.dashboard-title {
+  text-align: center;
+  margin: 36px 0 22px 0;
+}
+
+.dashboard-title h1 {
+  font-weight: 700;
+  font-size: 2.2rem;
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+}
+
+.dashboard-title .highlight {
+  color: #00c6ff;
+  background: linear-gradient(to right, #00c6ff, #ff9a9e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.dashboard-title p {
+  color: #666;
+  font-size: 1.12rem;
+  margin-top: 2px;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: center;
+  gap: 38px;
+  margin: 0 auto 36px auto;
+  width: fit-content;
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: 13px;
+  box-shadow: 0 4px 18px rgba(0,198,255,0.11);
+  padding: 22px 32px;
+  text-align: center;
+  min-width: 110px;
+  transition: box-shadow 0.3s;
+}
+
+.stat-card:hover, .stat-card:focus {
+  box-shadow: 0 6px 27px rgba(0,198,255,0.18);
+  outline: none;
+}
+
+.stat-num {
+  font-size: 1.65rem;
+  font-weight: bold;
+  color: #00c6ff;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  font-size: 1rem;
+  color: #888;
+}
+
+.search-filter-row {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.search-box {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.09);
+  padding: 12px 19px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 420px;
+}
+
+.search-box i {
+  color: #00c6ff;
+  font-size: 1.18rem;
+}
+
+.search-box input {
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  outline: none;
+  width: 100%;
+}
+
+.filter-dropdown {
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 1rem;
+  color: #555;
+  min-width: 155px;
+  transition: border-color 0.2s;
+}
+
+.filter-dropdown:focus {
+  border-color: #00c6ff;
+  outline: none;
+}
+
+.opportunity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 28px;
+  max-width: 980px;
+  margin: 0 auto 60px auto;
+}
+
+.opp-card {
+  background: #fff;
+  border-radius: 13px;
+  box-shadow: 0 4px 14px rgba(0,198,255,0.09);
+  padding: 32px 27px 24px 27px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  min-height: 250px;
+  position: relative;
+  transition: box-shadow 0.23s, transform 0.23s;
+}
+.opp-card:hover, .opp-card:focus-within {
+  box-shadow: 0 7px 32px rgba(0,198,255,0.16);
+  transform: translateY(-3px) scale(1.015);
+  outline: none;
+}
+
+.opp-header h3 {
+  font-size: 1.18rem;
+  margin: 0;
+  color: #272b33;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.opp-org {
+  font-size: 0.97rem;
+  color: #666;
+  margin-left: 4px;
+}
+
+.opp-desc {
+  font-size: 1.01rem;
+  color: #333;
+  margin: 5px 0 1px 0;
+}
+
+.opp-tags {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin-bottom: 5px;
+}
+.opp-tags span {
+  background: #e6f7ff;
+  color: #00c6ff;
+  padding: 4px 12px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  margin-bottom: 2px;
+}
+
+.opp-details {
+  display: flex;
+  gap: 17px;
+  align-items: center;
+  font-size: 0.96rem;
+  margin-bottom: 4px;
+}
+
+.opp-type {
+  color: #00c6ff;
+  font-weight: 500;
+}
+
+.opp-applicants {
+  color: #888;
+}
+
+.opp-badge {
+  background: #fff4f4;
+  color: #d60044;
+  font-size: 0.83rem;
+  border-radius: 7px;
+  padding: 3px 10px;
+  border: 1px solid #fee3ec;
+  font-weight: 700;
+  margin-left: auto;
+  letter-spacing: 0.02em;
+}
+
+.apply-btn {
+  background: linear-gradient(to right, #00c6ff, #ff9a9e);
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  padding: 13px 0;
+  font-size: 1.02rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,198,255,0.07);
+  transition: opacity 0.2s, box-shadow 0.2s, outline 0.2s;
+  margin-top: 7px;
+  outline: none;
+}
+.apply-btn:hover, .apply-btn:focus {
+  opacity: 0.91;
+  box-shadow: 0 2px 20px rgba(0,198,255,0.18);
+  outline: 2px solid #00c6ff;
+  outline-offset: 2px;
+}
+
+@media (max-width: 1100px) {
+  .header {
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-start;
+    padding: 14px 10vw 14px 8vw;
+  }
+}
+@media (max-width: 900px) {
+  .opportunity-grid {
+    grid-template-columns: 1fr;
+    max-width: 99vw;
+  }
+  .stats-row {
+    flex-direction: column;
+    gap: 22px;
+    align-items: center;
+  }
+  .header, .dashboard-title {
+    padding: 18px 14px;
+  }
+}
+@media (max-width: 600px) {
+  .header {
+    padding: 10px 3vw;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .dashboard-title h1 {
+    font-size: 1.15rem;
+  }
+  .dashboard-title p {
+    font-size: 0.97rem;
+  }
+  .stats-row {
+    gap: 14px;
+  }
+  .opportunity-grid {
+    padding: 0 2vw;
+  }
+  .opp-card {
+    padding: 20px 7vw;
+  }
+}
