@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url  # make sure installed: pip install dj-database-url
+from decouple import config
 
 # Load .env file
 load_dotenv()
@@ -9,9 +10,9 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Secret key, debug, allowed hosts from .env
-SECRET_KEY = os.getenv("SECRET_KEY")
-DEBUG = os.getenv("DEBUG") == "True"
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
+SECRET_KEY = config("SECRET_KEY", default=os.getenv("SECRET_KEY"))
+DEBUG = config("DEBUG", default=(os.getenv("DEBUG") == "True"), cast=bool)
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default=os.getenv("ALLOWED_HOSTS", "")).split(",")
 
 # Application definition
 INSTALLED_APPS = [
