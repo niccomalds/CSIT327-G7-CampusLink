@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-import dj_database_url  # make sure installed: pip install dj-database-url
+import dj_database_url
 from decouple import config
 
 # Load .env file
@@ -9,12 +9,10 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Secret key, debug, allowed hosts from .env
 SECRET_KEY = config("SECRET_KEY", default=os.getenv("SECRET_KEY"))
 DEBUG = config("DEBUG", default=(os.getenv("DEBUG") == "True"), cast=bool)
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default=os.getenv("ALLOWED_HOSTS", "")).split(",")
 
-# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -54,12 +52,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'CampusLink.wsgi.application'
 
-# Database
+# --- DATABASE FIX ---
 DATABASES = {
-    'default': dj_database_url.parse(os.getenv("DATABASE_URL"))
+    'default': dj_database_url.parse(
+        os.getenv("DATABASE_URL"),
+        engine="django.db.backends.postgresql_psycopg2"
+    )
 }
 
-# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -67,13 +67,11 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files
 STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
