@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusLink – Student Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    /* ============================ */
+    /* GLOBAL STYLING */
+    /* ============================ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: #f4f6f9;
+      color: #1f2937;
+      font-size: 16px;
+    }
+
+    /* ============================ */
+    /* HEADER / NAVBAR */
+    /* ============================ */
+    .navbar, .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 48px;
+      background: #ffffff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-radius: 0 0 16px 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo img, .logo i {
+      height: 36px;
+      width: 36px;
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgba(0, 198, 255, 0.25);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .logo span {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #00c6ff;
+    }
+
+    nav a {
+      margin: 0 16px;
+      text-decoration: none;
+      color: #4b5563;
+      font-weight: 500;
+      font-size: 1rem;
+      padding-bottom: 4px;
+      transition: color 0.3s, border-bottom 0.3s;
+      border-bottom: 2px solid transparent;
+    }
+
+    nav a:hover, nav a.active {
+      color: #00c6ff;
+      border-bottom: 2px solid #00c6ff;
+    }
+
+    .search-profile {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .search-profile input {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      outline: none;
+      width: 220px;
+      transition: 0.3s;
+    }
+
+    .search-profile input:focus {
+      border-color: #00c6ff;
+      box-shadow: 0 0 10px rgba(0,198,255,0.25);
+    }
+
+    .search-profile .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #d1d5db;
+      object-fit: cover;
+      transition: 0.3s;
+    }
+
+    .search-profile .avatar:hover {
+      border-color: #00c6ff;
+      transform: scale(1.05);
+    }
+
+    /* ============================ */
+    /* DASHBOARD TITLE */
+    /* ============================ */
+    .dashboard-title {
+      margin: 36px 50px 24px;
+    }
+
+    .dashboard-title h1 {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .dashboard-title .highlight {
+      color: #00c6ff;
+    }
+
+    .dashboard-title p {
+      color: #6b7280;
+      font-size: 1rem;
+      margin-top: 4px;
+    }
+
+    /* ============================ */
+    /* STATS ROW */
+    /* ============================ */
+    .stats-row {
+      display: flex;
+      gap: 24px;
+      margin: 24px 50px;
+      flex-wrap: wrap;
+    }
+
+    .stat-card {
+      background: #fff;
+      padding: 24px;
+      border-radius: 16px;
+      flex: 1;
+      min-width: 160px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .stat-num {
+      font-size: 2rem;
+      font-weight: 700;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .stat-label {
+      color: #6b7280;
+      font-size: 1rem;
+    }
+
+    /* ============================ */
+    /* SEARCH + FILTER */
+    /* ============================ */
+    .search-filter-row {
+      display: flex;
+      gap: 16px;
+      margin: 24px 50px;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6b7280;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 8px 12px 8px 32px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      outline: none;
+    }
+
+    .filter-dropdown {
+      padding: 8px 14px;
+      border-radius: 12px;
+      border: 1px solid #d1d5db;
+      outline: none;
+    }
+
+    /* ============================ */
+    /* OPPORTUNITY GRID */
+    /* ============================ */
+    .opportunity-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin: 24px 50px 50px;
+    }
+
+    .opp-card {
+      background: #fff;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .opp-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+    }
+
+    .opp-header h3 {
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 4px;
+    }
+
+    .opp-org {
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+
+    .opp-desc {
+      margin: 12px 0;
+      color: #4b5563;
+    }
+
+    .opp-tags span {
+      display: inline-block;
+      background: #e0f2ff;
+      color: #00c6ff;
+      font-size: 0.8rem;
+      padding: 4px 8px;
+      border-radius: 12px;
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+
+    .opp-details {
+      display: flex;
+      gap: 12px;
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .apply-btn {
+      background: linear-gradient(135deg, #00c6ff, #ff7e5f);
+      border: none;
+      color: #fff;
+      padding: 10px 22px;
+      font-weight: 600;
+      font-size: 1rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .apply-btn:hover {
+      opacity: 0.95;
+      transform: translateY(-2px);
+    }
+
+    /* ============================ */
+    /* RESPONSIVE */
+    /* ============================ */
+    @media (max-width: 900px) {
+      .dashboard-title {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .stats-row {
+        flex-direction: column;
+      }
+
+      .search-filter-row {
+        flex-direction: column;
+      }
+
+      .opportunity-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .navbar, .header {
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px 24px;
+      }
+
+      .search-profile input {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="logo">
+      <i class="fa-solid fa-graduation-cap"></i>
+      <span>CampusLink</span>
+    </div>
+    <nav>
+      <a href="#" class="active">Home</a>
+      <a href="MyApplication.html">My Applications</a>
+      <a href="profile.html">Profile</a>
+      <a href="#">Notifications</a>
+    </nav>
+    <div class="search-profile">
+      <input type="text" class="top-search" placeholder="Search opportunities...">
+      <img src="profile.jpg" alt="Profile" class="avatar">
+    </div>
+  </header>
+  <main>
+    <div class="dashboard-title">
+      <h1>Discover Your Next <span class="highlight">Opportunity</span></h1>
+      <p>Explore internships, research positions, and part-time jobs tailored for your academic journey.</p>
+    </div>
+    <section class="stats-row">
+      <div class="stat-card"><span class="stat-num">100</span><span class="stat-label">Active Opportunities</span></div>
+      <div class="stat-card"><span class="stat-num">1.5k</span><span class="stat-label">Students Connected</span></div>
+      <div class="stat-card"><span class="stat-num">90%</span><span class="stat-label">Success Rate</span></div>
+      <div class="stat-card"><span class="stat-num">1</span><span class="stat-label">Applications Pending</span></div>
+    </section>
+    <section class="search-filter-row">
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Search by title, organization, or skills..." />
+      </div>
+      <select class="filter-dropdown">
+        <option>All Categories</option>
+        <option>Internship</option>
+        <option>Research</option>
+        <option>Part-time</option>
+      </select>
+    </section>
+    <section class="opportunity-grid">
+      <div class="opp-card">
+        <div class="opp-header">
+          <h3>Software Engineering Intern</h3>
+          <span class="opp-org">Tech Innovations Lab</span>
+        </div>
+        <div class="opp-desc">Join our dynamic team to work on cutting-edge software solutions.</div>
+        <div class="opp-tags">
+          <span>React</span>
+          <span>Node.js</span>
+          <span>TypeScript</span>
+        </div>
+        <div class="opp-details">
+          <span class="opp-type"><i class="fa-solid fa-laptop"></i> Remote</span>
+          <span class="opp-applicants">24 applicants</span>
+          <span class="opp-badge">Today</span>
+        </div>
+        <button class="apply-btn">Apply Now</button>
+      </div>
+
+      <div class="opp-card">
+        <div class="opp-header">
+          <h3>Research Assistant – AI</h3>
+          <span class="opp-org">Computer Science Department</span>
+        </div>
+        <div class="opp-desc">Assist in groundbreaking AI research projects with faculty.</div>
+        <div class="opp-tags">
+          <span>Python</span>
+          <span>Machine Learning</span>
+          <span>Research</span>
+        </div>
+        <div class="opp-details">
+          <span class="opp-type"><i class="fa-solid fa-building-columns"></i> On Campus</span>
+          <span class="opp-applicants">12 applicants</span>
+          <span class="opp-badge">Today</span>
+        </div>
+        <button class="apply-btn">Apply Now</button>
+      </div>
+
+      <div class="opp-card">
+        <div class="opp-header">
+          <h3>Marketing Coordinator</h3>
+          <span class="opp-org">Student Union</span>
+        </div>
+        <div class="opp-desc">Help promote campus events and student activities.</div>
+        <div class="opp-tags">
+          <span>Marketing</span>
+          <span>Social Media</span>
+          <span>Events</span>
+        </div>
+        <div class="opp-details">
+          <span class="opp-type"><i class="fa-solid fa-building-columns"></i> On Campus</span>
+          <span class="opp-applicants">18 applicants</span>
+          <span class="opp-badge">Today</span>
+        </div>
+        <button class="apply-btn">Apply Now</button>
+      </div>
+
+      <div class="opp-card">
+        <div class="opp-header">
+          <h3>Data Science Fellowship</h3>
+          <span class="opp-org">Data Analytics Club</span>
+        </div>
+        <div class="opp-desc">Intensive data science program with industry mentors.</div>
+        <div class="opp-tags">
+          <span>Data Science</span>
+          <span>Analytics</span>
+          <span>Mentorship</span>
+        </div>
+        <div class="opp-details">
+          <span class="opp-type"><i class="fa-solid fa-laptop"></i> Hybrid</span>
+          <span class="opp-applicants">31 applicants</span>
+          <span class="opp-badge">Today</span>
+        </div>
+        <button class="apply-btn">Apply Now</button>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

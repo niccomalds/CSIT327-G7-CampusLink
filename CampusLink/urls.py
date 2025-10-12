@@ -1,7 +1,10 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include  # include is important
+from MyLogin import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('MyLogin.urls')),  # Connect MyLogin app
+    
+    # Include MyLogin app URLs
+    path('', include('MyLogin.urls')),  
 ]

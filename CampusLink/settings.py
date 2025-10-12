@@ -3,6 +3,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
 from decouple import config
+from dotenv import load_dotenv
 
 # Load .env file
 load_dotenv()
@@ -20,8 +21,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'MyLogin',
+    'MyLogin',   # ✅ lowercase, matches folder name
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -53,11 +55,9 @@ TEMPLATES = [
 WSGI_APPLICATION = 'CampusLink.wsgi.application'
 
 # --- DATABASE FIX ---
+load_dotenv()
 DATABASES = {
-    'default': dj_database_url.parse(
-        os.getenv("DATABASE_URL"),
-        engine="django.db.backends.postgresql_psycopg2"
-    )
+    'default': dj_database_url.parse(os.getenv('DATABASE_URL'), conn_max_age=600)
 }
 
 AUTH_PASSWORD_VALIDATORS = [
