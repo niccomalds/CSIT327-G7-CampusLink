@@ -8,6 +8,12 @@ urlpatterns = [
     path('home/', views.home_view, name='home'),
 
     # Dashboard URLs
-    path('student/dashboard/', views.student_dashboard_view, name='student_dashboard'),
+    path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
     path('organization/dashboard/', views.organization_dashboard, name='organization_dashboard'),
 ]
+
+
+
+
+
+

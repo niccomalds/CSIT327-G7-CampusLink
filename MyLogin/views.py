@@ -105,3 +105,14 @@ def student_dashboard_view(request):
 # Organization dashboard view
 def organization_dashboard(request):
     return render(request, 'organization_dashboard.html')  # create this template
+from django.shortcuts import render
+
+def student_dashboard(request):
+    return render(request, 'student_dashboard.html')
+
+def profile(request):
+    return render(request, 'profile.html')
+
+def my_applications(request):
+    return render(request, 'my_applications.html')
+
