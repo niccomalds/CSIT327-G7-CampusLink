@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CampusLink – Student Profile</title>
+  <link rel="stylesheet" href="profile.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body>
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-graduation-cap"></i> CampusLink</div>
+    <nav>
+      <a href="student_dashboard.html">Home</a>
+      <a href="#">My Applications</a>
+      <a href="#" class="active">Profile</a>
+      <a href="#">Notifications</a>
+    </nav>
+    <div class="search-profile" id="userMenuWrap">
+      <input type="text" class="top-search" placeholder="Search opportunities...">
+      <button id="userToggle" aria-expanded="false" aria-controls="userDropdown" class="avatar-btn">
+        <img src="profile.jpg" alt="User avatar" class="avatar"/>
+      </button>
+      <div id="userDropdown" class="dropdown-menu" role="menu" aria-label="User menu" hidden>
+        <div class="dropdown-item dropdown-user" role="menuitem">Student</div>
+        <hr class="dropdown-separator"/>
+        <div class="dropdown-item" role="menuitem" id="profileBtn"><i class="fa-regular fa-user"></i> Profile</div>
+        <div class="dropdown-item" role="menuitem" id="settingsBtn"><i class="fa-solid fa-gear"></i> Settings</div>
+        <div class="dropdown-item" role="menuitem" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Log out</div>
+      </div>
+    </div>
+  </header>
+  <main class="profile-main">
+    <button id="editBtn" class="edit-profile-btn"><i class="fa-solid fa-pen-to-square"></i> Edit Profile</button>
+    <button id="saveBtn" class="edit-profile-btn" style="display:none; background: #34d399;">Save Changes</button>
+    <div class="profile-layout">
+      <aside class="profile-side">
+        <div class="profile-card">
+          <img src="profile.jpg" class="profile-photo" alt="Student Avatar">
+          <div class="profile-major-year" id="majorYearView">Computer Science • 3rd Year</div>
+          <div class="profile-info-list" id="infoListView">
+            <div><i class="fa-regular fa-envelope"></i> <span id="emailView">student@university.edu</span></div>
+            <div><i class="fa-solid fa-phone"></i> <span id="phoneView">+1 (555) 123-4567</span></div>
+            <div><i class="fa-solid fa-graduation-cap"></i> <span id="majorView">Computer Science</span></div>
+            <div><i class="fa-regular fa-calendar"></i> <span id="yearView">3rd Year</span></div>
+          </div>
+          <hr>
+          <div class="profile-links" id="portfolioLinksView">
+            <strong> </strong><br>
+            <div id="linksListView"></div>
+          </div>
+          <hr>
+          <div class="profile-resume">
+            <strong>Resume</strong>
+            <button class="resume-btn" disabled id="resumeBtnView">
+              <i class="fa-regular fa-file"></i> Upload Resume
+            </button>
+          </div>
+        </div>
+      </aside>
+      <section class="profile-form-section">
+        <form class="profile-form" autocomplete="off" onsubmit="return false;">
+          <fieldset>
+            <legend><strong><i class="fa-regular fa-address-card"></i> Personal Information</strong></legend>
+            <div class="profile-form-row">
+              <div class="profile-form-group">
+                <label for="fullName">Full Name</label>
+                <input type="text" id="fullName" value="Student Name" disabled>
+              </div>
+              <div class="profile-form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" value="student@university.edu" disabled>
+              </div>
+            </div>
+            <div class="profile-form-row">
+              <div class="profile-form-group">
+                <label for="phone">Phone</label>
+                <input type="tel" id="phone" value="+1 (555) 123-4567" disabled>
+              </div>
+              <div class="profile-form-group">
+                <label for="year">Academic Year</label>
+                <input type="text" id="year" value="3rd Year" disabled>
+              </div>
+            </div>
+            <div class="profile-form-row">
+              <div class="profile-form-group">
+                <label for="major">Course/Major</label>
+                <input type="text" id="major" value="Computer Science" disabled>
+              </div>
+            </div>
+            <div class="profile-form-row">
+              <div class="profile-form-group" style="flex:2;">
+                <label for="bio">Bio</label>
+                <textarea id="bio" rows="3" disabled>
+
+                </textarea>
+              </div>
+            </div>
+          </fieldset>
+        </form>
+        <div class="profile-skills">
+          <fieldset>
+            <legend><strong><i class="fa-solid fa-lightbulb"></i> Skills</strong></legend>
+            <div class="skills-desc">Add skills that showcase your expertise to potential organizations.</div>
+            <div class="skills-list" id="skillsList"></div>
+            <div id="skillInputWrap" style="display:none; margin-top:10px;">
+              <input type="text" id="newSkill" placeholder="Add a skill..." />
+              <button type="button" id="addSkillBtn">+</button>
+            </div>
+          </fieldset>
+        </div>
+        <!-- Only visible in edit mode -->
+        <div id="portfolioLinkEditBlock" style="display:none;">
+          <fieldset>
+            <legend><strong><i class="fa-solid fa-link"></i> Add Portfolio Link</strong></legend>
+            <input type="text" id="portfolioName" placeholder="Link name (e.g. GitHub)" style="width:40%;" />
+            <input type="url" id="portfolioURL" placeholder="URL" style="width:59%;" />
+            <button type="button" id="addLinkBtn" style="margin-left:5px;">Add Link</button>
+          </fieldset>
+          <div id="portfolioLinksEdit" style="margin-top:10px;"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+  <script>
+    let data = {
+      fullName: "Student Name",
+      email: "student@university.edu",
+      phone: "+1 (555) 123-4567",
+      year: "3rd Year",
+      major: "information management",
+      bio: "hatdog",
+      skills: ["React", "TypeScript", "Python", "Node.js", "Machine Learning", "SQL"],
+      links: [
+       
+      ]
+    };
+    function renderSkills(editMode=false) {
+      const skillsList = document.getElementById('skillsList');
+      skillsList.innerHTML = '';
+      data.skills.forEach((skill, idx) => {
+        const span = document.createElement('span');
+        span.className = 'skill-tag';
+        span.innerHTML = skill;
+        if (editMode) {
+          const removeBtn = document.createElement('button');
+          removeBtn.textContent = '×';
+          removeBtn.type = 'button';
+          removeBtn.style.marginLeft = '4px';
+          removeBtn.onclick = () => { data.skills.splice(idx,1); renderSkills(true); };
+          span.appendChild(removeBtn);
+        }
+        skillsList.appendChild(span);
+      });
+    }
+    function renderLinks(editMode=false) {
+      const linksListView = document.getElementById('linksListView');
+      if (linksListView) {
+        linksListView.innerHTML = '';
+        data.links.forEach(link => {
+          const a = document.createElement('a');
+          a.href = link.url;
+          a.textContent = link.name;
+          a.target = "_blank";
+          a.style.display = "block";
+          linksListView.appendChild(a);
+        });
+      }
+      const portfolioLinksEdit = document.getElementById('portfolioLinksEdit');
+      if (portfolioLinksEdit) {
+        portfolioLinksEdit.innerHTML = '';
+        if (editMode) {
+          data.links.forEach((link, idx) => {
+            const div = document.createElement('div');
+            div.style.marginBottom = "4px";
+            const a = document.createElement('a');
+            a.href = link.url;
+            a.textContent = link.name;
+            a.target = "_blank";
+            div.appendChild(a);
+            const removeBtn = document.createElement('button');
+            removeBtn.textContent = '×';
+            removeBtn.type = 'button';
+            removeBtn.style.marginLeft = '8px';
+            removeBtn.onclick = () => { data.links.splice(idx, 1); renderLinks(true); };
+            div.appendChild(removeBtn);
+            portfolioLinksEdit.appendChild(div);
+          });
+        }
+      }
+    }
+    function fillForm(editMode=false) {
+      document.getElementById('fullName').value = data.fullName;
+      document.getElementById('email').value = data.email;
+      document.getElementById('phone').value = data.phone;
+      document.getElementById('year').value = data.year;
+      document.getElementById('major').value = data.major;
+      document.getElementById('bio').value = data.bio;
+      ['fullName','email','phone','year','major','bio'].forEach(id=>{
+        document.getElementById(id).disabled = !editMode;
+      });
+      document.getElementById('resumeBtnView').disabled = !editMode;
+      document.getElementById('newSkill').disabled = !editMode;
+    }
+    function renderSidebar() {
+      document.getElementById('majorYearView').textContent = `${data.major} • ${data.year}`;
+      document.getElementById('emailView').textContent = data.email;
+      document.getElementById('phoneView').textContent = data.phone;
+      document.getElementById('majorView').textContent = data.major;
+      document.getElementById('yearView').textContent = data.year;
+    }
+    document.getElementById('editBtn').onclick = function() {
+      document.getElementById('editBtn').style.display = "none";
+      document.getElementById('saveBtn').style.display = "";
+      document.getElementById('portfolioLinkEditBlock').style.display = "";
+      fillForm(true);
+      renderSkills(true);
+      renderLinks(true);
+      document.getElementById('skillInputWrap').style.display = "";
+    };
+    document.getElementById('saveBtn').onclick = function() {
+      document.getElementById('editBtn').style.display = "";
+      document.getElementById('saveBtn').style.display = "none";
+      document.getElementById('portfolioLinkEditBlock').style.display = "none";
+      data.fullName = document.getElementById('fullName').value;
+      data.email = document.getElementById('email').value;
+      data.phone = document.getElementById('phone').value;
+      data.year = document.getElementById('year').value;
+      data.major = document.getElementById('major').value;
+      data.bio = document.getElementById('bio').value;
+      fillForm(false);
+      renderSkills(false);
+      renderLinks(false);
+      document.getElementById('skillInputWrap').style.display = "none";
+      renderSidebar();
+    };
+    document.getElementById('addSkillBtn').onclick = function() {
+      const val = document.getElementById('newSkill').value.trim();
+      if(val && !data.skills.includes(val)) {
+        data.skills.push(val);
+        document.getElementById('newSkill').value = "";
+        renderSkills(true);
+      }
+    };
+    document.getElementById('addLinkBtn').onclick = function() {
+      const name = document.getElementById('portfolioName').value.trim();
+      const url = document.getElementById('portfolioURL').value.trim();
+      if(name && url) {
+        data.links.push({name, url});
+        document.getElementById('portfolioName').value = "";
+        document.getElementById('portfolioURL').value = "";
+        renderLinks(true);
+      }
+    };
+    window.onload = function() {
+      fillForm(false);
+      renderSkills(false);
+      renderLinks(false);
+      renderSidebar();
+      document.getElementById('skillInputWrap').style.display = "none";
+      document.getElementById('portfolioLinkEditBlock').style.display = "none";
+    };
+
+    // --- Avatar Dropdown Script ---
+    (function(){
+      const toggleBtn = document.getElementById('userToggle');
+      const dropdown  = document.getElementById('userDropdown');
+      if (!toggleBtn || !dropdown) return;
+      let open = false;
+      function setOpen(state){
+        open = state;
+        dropdown.hidden = !state;
+        toggleBtn.setAttribute('aria-expanded', String(state));
+      }
+      toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setOpen(!open);
+      });
+      document.addEventListener('click', (e) => {
+        if (open && !dropdown.contains(e.target) && e.target !== toggleBtn) {
+          setOpen(false);
+        }
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && open) {
+          setOpen(false);
+          toggleBtn.focus();
+        }
+      });
+      document.getElementById('profileBtn')?.addEventListener('click', ()=> { setOpen(false); });
+      document.getElementById('settingsBtn')?.addEventListener('click', ()=> { setOpen(false); });
+      document.getElementById('logoutBtn')?.addEventListener('click', ()=> { setOpen(false); });
+    })();
+  </script>
+</body>
+</html>
