@@ -10,6 +10,8 @@ urlpatterns = [
     # Dashboard URLs
     path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
     path('organization/dashboard/', views.organization_dashboard, name='organization_dashboard'),
+     path('student/profile/', views.profile, name='profile'),
+
 ]
 
 
