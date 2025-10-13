@@ -1,4 +1,3 @@
-CampusLink
 CampusLink is a web-based engagement and opportunity system that centralizes campus opportunities such as assistantships, volunteer work, leadership roles, and sports team tryouts. It enables students to easily find opportunities that match their skills and interests, while providing schools and organizations with efficient tools to post, manage, and track applications.
 
 🧰 Technology Stack
