@@ -11,7 +11,6 @@
 
     body {
       min-height: 100vh;
-      /* removed campus.jpg */
       background: linear-gradient(to right, rgba(0,198,255,0.7) 50%, #f7f9fc 50%);
       display: flex;
       justify-content: flex-end;
@@ -100,6 +99,26 @@
     <div class="form-card">
       <h2>Welcome Back!</h2>
       <p>Sign in as a <span class="badge" id="roleBadge">Student</span></p>
+
+      {% if messages %}
+        <div style="margin-bottom: 15px; width: 100%;">
+          {% for message in messages %}
+            <div style="
+              background: linear-gradient(to right, #e6f7ff, #fff);
+              border-left: 4px solid {% if message.tags == 'success' %}#00c851{% elif message.tags == 'error' %}#ff4444{% else %}#ffbb33{% endif %};
+              padding: 10px 14px;
+              border-radius: 8px;
+              font-size: 0.9rem;
+              font-weight: 500;
+              color: {% if message.tags == 'success' %}#007e33{% elif message.tags == 'error' %}#cc0000{% else %}#ff8800{% endif %};
+              box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+              margin-bottom: 8px;">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
       <form method="post">
         {% csrf_token %}
         <div class="input-box">

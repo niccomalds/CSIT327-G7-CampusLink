@@ -21,9 +21,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'MyLogin',   # ✅ lowercase, matches folder name
+    'MyLogin',   # ✅ your app
 ]
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -33,6 +32,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # ✅ Custom middleware for auto logout
+    'MyLogin.middleware.auto_logout.AutoLogoutMiddleware',
 ]
 
 ROOT_URLCONF = 'CampusLink.urls'
@@ -75,3 +77,9 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ✅ Auto logout configuration (5 minutes)
+AUTO_LOGOUT_DELAY = 300  # seconds
+
+# Optional (recommended for safety)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
