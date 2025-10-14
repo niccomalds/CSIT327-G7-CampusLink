@@ -3,6 +3,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
 from decouple import config
+from dotenv import load_dotenv
 
 # Load .env file
 load_dotenv()
@@ -13,7 +14,6 @@ SECRET_KEY = config("SECRET_KEY", default=os.getenv("SECRET_KEY"))
 DEBUG = config("DEBUG", default=(os.getenv("DEBUG") == "True"), cast=bool)
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default=os.getenv("ALLOWED_HOSTS", "")).split(",")
 
-# --- INSTALLED APPS ---
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -23,9 +23,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'MyLogin',   # App for login and templates
     'Myapp',     # App containing static files (profile.css, etc.)
+    'MyLogin',   # ✅ your app
 ]
 
-# --- MIDDLEWARE ---
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -34,6 +34,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # ✅ Custom middleware for auto logout
+    'MyLogin.middleware.auto_logout.AutoLogoutMiddleware',
 ]
 
 ROOT_URLCONF = 'CampusLink.urls'
@@ -47,7 +50,6 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -90,3 +92,9 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # --- DEFAULT PRIMARY KEY FIELD TYPE ---
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ✅ Auto logout configuration (5 minutes)
+AUTO_LOGOUT_DELAY = 300  # seconds
+
+# Optional (recommended for safety)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
