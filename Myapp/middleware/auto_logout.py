@@ -11,14 +11,24 @@ class AutoLogoutMiddleware:
         if not request.user.is_authenticated:
             return self.get_response(request)
 
-        now = datetime.datetime.now()
+        now = datetime.datetime.now(datetime.timezone.utc)  # use timezone-aware datetime
         last_activity = request.session.get('last_activity')
 
         if last_activity:
-            elapsed = (now - datetime.datetime.fromisoformat(last_activity)).total_seconds()
-            if elapsed > getattr(settings, 'AUTO_LOGOUT_DELAY', 300):  # 5 minutes
-                logout(request)
-                return redirect('login')  # redirect to your login route name
+            try:
+                last_activity_time = datetime.datetime.fromisoformat(last_activity)
+                # Make sure it's timezone-aware too
+                if last_activity_time.tzinfo is None:
+                    last_activity_time = last_activity_time.replace(tzinfo=datetime.timezone.utc)
+
+                elapsed = (now - last_activity_time).total_seconds()
+                if elapsed > getattr(settings, 'AUTO_LOGOUT_DELAY', 300):  # default 5 mins
+                    logout(request)
+                    return redirect('login')
+
+            except (ValueError, TypeError):
+                # If session data is malformed, reset it safely
+                request.session['last_activity'] = now.isoformat()
 
         request.session['last_activity'] = now.isoformat()
         return self.get_response(request)

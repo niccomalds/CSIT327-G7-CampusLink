@@ -11,10 +11,10 @@ urlpatterns = [
     path('home/', views.home_view, name='home'),
 
     # --- Student pages ---
-    path('student/dashboard/', views.student_dashboard_view, name='student_dashboard'),
+    path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
     path('student/dashboard/profile/', views.profile, name='profile'),
-    path('student/dashboard/profile/', views.student_profile_view, name='student_profile'),
+    path('student/dashboard/profile/', views.profile, name='student_profile'),
 
     # --- Organization pages ---
-    path('organization/dashboard/', views.organization_dashboard, name='organization_dashboard'),
+    #path('organization/dashboard/', views.organization_dashboard, name='organization_dashboard'),
 ]

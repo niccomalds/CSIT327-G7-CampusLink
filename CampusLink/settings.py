@@ -23,7 +23,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'MyLogin',   # App for login and templates
     'Myapp',     # App containing static files (profile.css, etc.)
-    'MyLogin',   # ✅ your app
 ]
 
 MIDDLEWARE = [
@@ -36,7 +35,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     # ✅ Custom middleware for auto logout
-    'MyLogin.middleware.auto_logout.AutoLogoutMiddleware',
+    'Myapp.middleware.auto_logout.AutoLogoutMiddleware',
+
 ]
 
 ROOT_URLCONF = 'CampusLink.urls'
