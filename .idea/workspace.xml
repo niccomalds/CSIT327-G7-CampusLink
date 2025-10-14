@@ -4,8 +4,21 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29799fea-26ea-4cb1-8211-396ee70a3035" name="Changes" comment="2nd Initial commit with connection with supabase">
+    <list default="true" id="b5894da8-b193-41ac-8534-1a54971e4796" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/DjangoProject.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CampusLink/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/CampusLink/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MyLogin/templates/profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/MyLogin/templates/profile.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MyLogin/templates/student_dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/MyLogin/templates/student_dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MyLogin/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/MyLogin/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MyLogin/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/MyLogin/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Myapp/static/Myapp/profile.css" beforeDir="false" afterPath="$PROJECT_DIR$/Myapp/static/Myapp/profile.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Myapp/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/Myapp/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -16,49 +29,43 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="CSS File" />
-        <option value="HTML File" />
-        <option value="Python Script" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/IMProject" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
     &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;M0BIUS1&quot;
+    &quot;assignee&quot;: &quot;Josh20003&quot;
   }
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/M0BIUS1/IMProject&quot;,
+    &quot;url&quot;: &quot;https://github.com/niccomalds/CSIT327-G7-CampusLink&quot;,
     &quot;accountId&quot;: &quot;b067c8ea-97c5-4d2a-88f5-a72f0233ac00&quot;
   }
 }</component>
-  <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
-  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 6
 }</component>
-  <component name="ProjectId" id="33ZDNYBFuSIKDlW2P0hnJtho26j" />
+  <component name="ProjectId" id="342dCPbXfRk4OQ4u4y6liKeGJP8" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;Django Server.DjangoProject.executor&quot;: &quot;Run&quot;,
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.manage.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;django.template.preview.state&quot;: &quot;SHOW_EDITOR&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Josh/Desktop/IMProject/templates/Myapp&quot;,
+    &quot;django.template.preview.state&quot;: &quot;SHOW_EDITOR_AND_PREVIEW&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Josh/Desktop/CSIT327-G7-CampusLink/MyLogin/templates&quot;,
     &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -70,18 +77,40 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\Josh\Desktop\IMProject\templates\Myapp" />
+      <recent name="C:\Users\Josh\Desktop\CSIT327-G7-CampusLink\MyLogin\templates" />
     </key>
   </component>
-  <component name="RunManager">
-    <configuration name="DjangoProject" type="Python.DjangoServer" factoryName="Django server">
-      <module name="DjangoProject" />
+  <component name="RunManager" selected="Python.manage">
+    <configuration name="manage" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="CSIT327-G7-CampusLink" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
-        <env name="DJANGO_SETTINGS_MODULE" value="IMProject.settings" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/manage.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="CSIT327-G7-CampusLink" type="Python.DjangoServer" factoryName="Django server">
+      <module name="CSIT327-G7-CampusLink" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="" />
@@ -99,6 +128,11 @@
       <option name="customRunCommand" value="" />
       <method v="2" />
     </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.manage" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -110,59 +144,21 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="29799fea-26ea-4cb1-8211-396ee70a3035" name="Changes" comment="" />
-      <created>1759515660732</created>
+      <changelist id="b5894da8-b193-41ac-8534-1a54971e4796" name="Changes" comment="" />
+      <created>1760415472172</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1759515660732</updated>
-      <workItem from="1759515661813" duration="2747000" />
-      <workItem from="1759544879922" duration="5601000" />
-      <workItem from="1759662251716" duration="780000" />
+      <updated>1760415472172</updated>
+      <workItem from="1760415473212" duration="14123000" />
+      <workItem from="1760434706405" duration="988000" />
+      <workItem from="1760435732380" duration="1401000" />
     </task>
-    <task id="LOCAL-00001" summary="1st Iniatial commit">
-      <option name="closed" value="true" />
-      <created>1759545141176</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1759545141176</updated>
-    </task>
-    <task id="LOCAL-00002" summary="1st Iniatial commit">
-      <option name="closed" value="true" />
-      <created>1759551225257</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1759551225257</updated>
-    </task>
-    <task id="LOCAL-00003" summary="2nd Initial commit with connection with supabase">
-      <option name="closed" value="true" />
-      <created>1759551259633</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1759551259633</updated>
-    </task>
-    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="1st Iniatial commit" />
-    <MESSAGE value="2nd Initial commit with connection with supabase" />
-    <option name="LAST_COMMIT_MESSAGE" value="2nd Initial commit with connection with supabase" />
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/CSIT327_G7_CampusLink$manage.coverage" NAME="manage Coverage Results" MODIFIED="1760434162094" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

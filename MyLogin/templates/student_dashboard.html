@@ -5,11 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CampusLink – Student Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
+
   <style>
-    /* ============================ */
-    /* GLOBAL STYLING */
-    /* ============================ */
     * {
       margin: 0;
       padding: 0;
@@ -23,9 +20,6 @@
       font-size: 16px;
     }
 
-    /* ============================ */
-    /* HEADER / NAVBAR */
-    /* ============================ */
     .navbar, .header {
       display: flex;
       align-items: center;
@@ -44,7 +38,6 @@
       align-items: center;
       gap: 12px;
     }
-
     .logo img, .logo i {
       height: 36px;
       width: 36px;
@@ -54,13 +47,11 @@
       justify-content: center;
       align-items: center;
     }
-
     .logo span {
       font-size: 1.6rem;
       font-weight: 700;
       color: #00c6ff;
     }
-
     nav a {
       margin: 0 16px;
       text-decoration: none;
@@ -71,7 +62,6 @@
       transition: color 0.3s, border-bottom 0.3s;
       border-bottom: 2px solid transparent;
     }
-
     nav a:hover, nav a.active {
       color: #00c6ff;
       border-bottom: 2px solid #00c6ff;
@@ -81,8 +71,8 @@
       display: flex;
       align-items: center;
       gap: 16px;
+      position: relative;
     }
-
     .search-profile input {
       padding: 8px 14px;
       border-radius: 999px;
@@ -91,58 +81,108 @@
       width: 220px;
       transition: 0.3s;
     }
-
     .search-profile input:focus {
       border-color: #00c6ff;
       box-shadow: 0 0 10px rgba(0,198,255,0.25);
     }
 
-    .search-profile .avatar {
+    /* Make the dropdown trigger area a circle */
+    .profile-dropdown {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #fff;
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(0,198,255,0.10);
+    }
+    .profile-dropdown:hover {
+      box-shadow: 0 4px 16px rgba(0,198,255,0.18);
+    }
+
+    /* PROFILE AVATAR (CIRCLE) */
+    .profile-dropdown .avatar {
       width: 40px;
       height: 40px;
       border-radius: 50%;
       border: 2px solid #d1d5db;
       object-fit: cover;
       transition: 0.3s;
+      background: #fff;
+      display: block;
     }
-
-    .search-profile .avatar:hover {
+    .profile-dropdown .avatar:hover {
       border-color: #00c6ff;
       transform: scale(1.05);
     }
-
-    /* ============================ */
+    /* DROPDOWN AREA */
+    .profile-dropdown .dropdown-menu {
+      position: absolute;
+      right: 0;
+      top: 60px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.10);
+      display: none;
+      flex-direction: column;
+      min-width: 220px;
+      z-index: 200;
+      overflow: hidden;
+      border: 1px solid #f3f4f6;
+    }
+    .profile-dropdown.show .dropdown-menu {
+      display: flex;
+    }
+    .dropdown-menu .dropdown-header {
+      font-weight: 700;
+      padding: 14px 18px 8px 18px;
+      color: #374151;
+      border-bottom: 1px solid #f3f4f6;
+      background: transparent;
+      font-size: 1rem;
+    }
+    .profile-dropdown .dropdown-menu a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      color: #374151;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background 0.18s, color 0.18s;
+      font-size: 0.96rem;
+    }
+    .profile-dropdown .dropdown-menu a:hover {
+      background: #eaf8ff;
+      color: #00c6ff;
+    }
     /* DASHBOARD TITLE */
-    /* ============================ */
     .dashboard-title {
       margin: 36px 50px 24px;
     }
-
     .dashboard-title h1 {
       font-size: 2rem;
       font-weight: 700;
     }
-
     .dashboard-title .highlight {
       color: #00c6ff;
     }
-
     .dashboard-title p {
       color: #6b7280;
       font-size: 1rem;
       margin-top: 4px;
     }
-
-    /* ============================ */
     /* STATS ROW */
-    /* ============================ */
     .stats-row {
       display: flex;
       gap: 24px;
       margin: 24px 50px;
       flex-wrap: wrap;
     }
-
     .stat-card {
       background: #fff;
       padding: 24px;
@@ -152,38 +192,30 @@
       box-shadow: 0 8px 20px rgba(0,0,0,0.05);
       transition: transform 0.3s, box-shadow 0.3s;
     }
-
     .stat-card:hover {
       transform: translateY(-4px);
     }
-
     .stat-num {
       font-size: 2rem;
       font-weight: 700;
       display: block;
       margin-bottom: 6px;
     }
-
     .stat-label {
       color: #6b7280;
       font-size: 1rem;
     }
-
-    /* ============================ */
     /* SEARCH + FILTER */
-    /* ============================ */
     .search-filter-row {
       display: flex;
       gap: 16px;
       margin: 24px 50px;
       flex-wrap: wrap;
     }
-
     .search-box {
       flex: 1;
       position: relative;
     }
-
     .search-box i {
       position: absolute;
       left: 12px;
@@ -191,7 +223,6 @@
       transform: translateY(-50%);
       color: #6b7280;
     }
-
     .search-box input {
       width: 100%;
       padding: 8px 12px 8px 32px;
@@ -199,24 +230,19 @@
       border: 1px solid #d1d5db;
       outline: none;
     }
-
     .filter-dropdown {
       padding: 8px 14px;
       border-radius: 12px;
       border: 1px solid #d1d5db;
       outline: none;
     }
-
-    /* ============================ */
     /* OPPORTUNITY GRID */
-    /* ============================ */
     .opportunity-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 24px;
       margin: 24px 50px 50px;
     }
-
     .opp-card {
       background: #fff;
       padding: 24px;
@@ -224,28 +250,23 @@
       box-shadow: 0 8px 20px rgba(0,0,0,0.05);
       transition: transform 0.3s, box-shadow 0.3s;
     }
-
     .opp-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 12px 28px rgba(0,0,0,0.1);
     }
-
     .opp-header h3 {
       font-weight: 600;
       color: #374151;
       margin-bottom: 4px;
     }
-
     .opp-org {
       color: #6b7280;
       font-size: 0.9rem;
     }
-
     .opp-desc {
       margin: 12px 0;
       color: #4b5563;
     }
-
     .opp-tags span {
       display: inline-block;
       background: #e0f2ff;
@@ -256,7 +277,6 @@
       margin-right: 6px;
       margin-bottom: 6px;
     }
-
     .opp-details {
       display: flex;
       gap: 12px;
@@ -265,7 +285,6 @@
       margin-bottom: 12px;
       flex-wrap: wrap;
     }
-
     .apply-btn {
       background: linear-gradient(135deg, #00c6ff, #ff7e5f);
       border: none;
@@ -277,41 +296,32 @@
       cursor: pointer;
       transition: transform 0.2s, opacity 0.2s;
     }
-
     .apply-btn:hover {
       opacity: 0.95;
       transform: translateY(-2px);
     }
-
-    /* ============================ */
     /* RESPONSIVE */
-    /* ============================ */
     @media (max-width: 900px) {
       .dashboard-title {
         flex-direction: column;
         align-items: flex-start;
       }
-
       .stats-row {
         flex-direction: column;
       }
-
       .search-filter-row {
         flex-direction: column;
       }
-
       .opportunity-grid {
         grid-template-columns: 1fr;
       }
     }
-
     @media (max-width: 600px) {
       .navbar, .header {
         flex-direction: column;
         gap: 12px;
         padding: 12px 24px;
       }
-
       .search-profile input {
         width: 100%;
       }
@@ -327,12 +337,22 @@
     <nav>
       <a href="#" class="active">Home</a>
       <a href="MyApplication.html">My Applications</a>
-      <a href="profile.html">Profile</a>
+      <a href="{% url 'profile' %}">Profile</a>
       <a href="#">Notifications</a>
     </nav>
     <div class="search-profile">
       <input type="text" class="top-search" placeholder="Search opportunities...">
-      <img src="profile.jpg" alt="Profile" class="avatar">
+
+      <!-- PROFILE DROPDOWN -->
+      <div class="profile-dropdown">
+        <img src="profile.jpg" alt="Profile" class="avatar" id="profileAvatar">
+        <div class="dropdown-menu" id="profileMenu">
+          <div class="dropdown-header">Student</div>
+          <a href="{% url 'profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
+          <a href="#"><i class="fa-solid fa-gear"></i> Settings</a>
+          <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
+        </div>
+      </div>
     </div>
   </header>
   <main>
@@ -377,7 +397,6 @@
         </div>
         <button class="apply-btn">Apply Now</button>
       </div>
-
       <div class="opp-card">
         <div class="opp-header">
           <h3>Research Assistant – AI</h3>
@@ -396,7 +415,6 @@
         </div>
         <button class="apply-btn">Apply Now</button>
       </div>
-
       <div class="opp-card">
         <div class="opp-header">
           <h3>Marketing Coordinator</h3>
@@ -415,7 +433,6 @@
         </div>
         <button class="apply-btn">Apply Now</button>
       </div>
-
       <div class="opp-card">
         <div class="opp-header">
           <h3>Data Science Fellowship</h3>
@@ -436,5 +453,17 @@
       </div>
     </section>
   </main>
+  <script>
+    const avatar = document.getElementById('profileAvatar');
+    const menu = document.getElementById('profileMenu');
+    avatar.addEventListener('click', () => {
+      menu.parentElement.classList.toggle('show');
+    });
+    window.addEventListener('click', (e) => {
+      if (!avatar.contains(e.target) && !menu.contains(e.target)) {
+        menu.parentElement.classList.remove('show');
+      }
+    });
+  </script>
 </body>
 </html>

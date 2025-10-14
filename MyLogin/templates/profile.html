@@ -1,17 +1,19 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CampusLink – Student Profile</title>
-  <link rel="stylesheet" href="profile.css"/>
+  <link rel="stylesheet" href="{% static 'Myapp/profile.css' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 </head>
 <body>
+  <!-- Header -->
   <header class="header">
     <div class="logo"><i class="fa-solid fa-graduation-cap"></i> CampusLink</div>
     <nav>
-      <a href="student_dashboard.html">Home</a>
+      <a href="{% url 'student_dashboard' %}">Home</a>
       <a href="#">My Applications</a>
       <a href="#" class="active">Profile</a>
       <a href="#">Notifications</a>
@@ -19,7 +21,7 @@
     <div class="search-profile" id="userMenuWrap">
       <input type="text" class="top-search" placeholder="Search opportunities...">
       <button id="userToggle" aria-expanded="false" aria-controls="userDropdown" class="avatar-btn">
-        <img src="profile.jpg" alt="User avatar" class="avatar"/>
+        <img src="{% static 'Myapp/profile.jpg' %}" alt="User avatar" class="avatar"/>
       </button>
       <div id="userDropdown" class="dropdown-menu" role="menu" aria-label="User menu" hidden>
         <div class="dropdown-item dropdown-user" role="menuitem">Student</div>
@@ -30,13 +32,16 @@
       </div>
     </div>
   </header>
+
+  <!-- Profile Section -->
   <main class="profile-main">
     <button id="editBtn" class="edit-profile-btn"><i class="fa-solid fa-pen-to-square"></i> Edit Profile</button>
     <button id="saveBtn" class="edit-profile-btn" style="display:none; background: #34d399;">Save Changes</button>
     <div class="profile-layout">
+      <!-- Sidebar -->
       <aside class="profile-side">
         <div class="profile-card">
-          <img src="profile.jpg" class="profile-photo" alt="Student Avatar">
+          <img src="{% static 'Myapp/profile.jpg' %}" class="profile-photo" alt="Student Avatar">
           <div class="profile-major-year" id="majorYearView">Computer Science • 3rd Year</div>
           <div class="profile-info-list" id="infoListView">
             <div><i class="fa-regular fa-envelope"></i> <span id="emailView">student@university.edu</span></div>
@@ -46,7 +51,7 @@
           </div>
           <hr>
           <div class="profile-links" id="portfolioLinksView">
-            <strong> </strong><br>
+            <strong>Portfolio Links</strong><br>
             <div id="linksListView"></div>
           </div>
           <hr>
@@ -58,6 +63,7 @@
           </div>
         </div>
       </aside>
+      <!-- Form Section -->
       <section class="profile-form-section">
         <form class="profile-form" autocomplete="off" onsubmit="return false;">
           <fieldset>
@@ -91,13 +97,12 @@
             <div class="profile-form-row">
               <div class="profile-form-group" style="flex:2;">
                 <label for="bio">Bio</label>
-                <textarea id="bio" rows="3" disabled>
-
-                </textarea>
+                <textarea id="bio" rows="3" placeholder="Write something about yourself..." disabled></textarea>
               </div>
             </div>
           </fieldset>
         </form>
+        <!-- Skills -->
         <div class="profile-skills">
           <fieldset>
             <legend><strong><i class="fa-solid fa-lightbulb"></i> Skills</strong></legend>
@@ -109,188 +114,124 @@
             </div>
           </fieldset>
         </div>
-        <!-- Only visible in edit mode -->
+        <!-- Portfolio Links: Redesigned Block -->
         <div id="portfolioLinkEditBlock" style="display:none;">
-          <fieldset>
-            <legend><strong><i class="fa-solid fa-link"></i> Add Portfolio Link</strong></legend>
-            <input type="text" id="portfolioName" placeholder="Link name (e.g. GitHub)" style="width:40%;" />
-            <input type="url" id="portfolioURL" placeholder="URL" style="width:59%;" />
-            <button type="button" id="addLinkBtn" style="margin-left:5px;">Add Link</button>
+          <fieldset class="portfolio-fieldset">
+            <legend>
+              <strong><i class="fa-solid fa-link"></i> Add Portfolio Link</strong>
+            </legend>
+            <div class="portfolio-form-row">
+              <input type="text" id="portfolioName" class="portfolio-input" placeholder="Link name (e.g. GitHub)" />
+              <input type="url" id="portfolioURL" class="portfolio-input" placeholder="URL" />
+              <button type="button" id="addLinkBtn" class="portfolio-add-btn">Add Link</button>
+            </div>
+            <div id="portfolioLinksEdit" style="margin-top:16px;"></div>
           </fieldset>
-          <div id="portfolioLinksEdit" style="margin-top:10px;"></div>
         </div>
       </section>
     </div>
   </main>
+  <!-- ✅ Scripts -->
   <script>
-    let data = {
-      fullName: "Student Name",
-      email: "student@university.edu",
-      phone: "+1 (555) 123-4567",
-      year: "3rd Year",
-      major: "information management",
-      bio: "hatdog",
-      skills: ["React", "TypeScript", "Python", "Node.js", "Machine Learning", "SQL"],
-      links: [
-       
-      ]
-    };
-    function renderSkills(editMode=false) {
-      const skillsList = document.getElementById('skillsList');
-      skillsList.innerHTML = '';
-      data.skills.forEach((skill, idx) => {
-        const span = document.createElement('span');
-        span.className = 'skill-tag';
-        span.innerHTML = skill;
-        if (editMode) {
-          const removeBtn = document.createElement('button');
-          removeBtn.textContent = '×';
-          removeBtn.type = 'button';
-          removeBtn.style.marginLeft = '4px';
-          removeBtn.onclick = () => { data.skills.splice(idx,1); renderSkills(true); };
-          span.appendChild(removeBtn);
-        }
-        skillsList.appendChild(span);
-      });
-    }
-    function renderLinks(editMode=false) {
-      const linksListView = document.getElementById('linksListView');
-      if (linksListView) {
-        linksListView.innerHTML = '';
-        data.links.forEach(link => {
-          const a = document.createElement('a');
-          a.href = link.url;
-          a.textContent = link.name;
-          a.target = "_blank";
-          a.style.display = "block";
-          linksListView.appendChild(a);
-        });
+    // Dropdown Toggle
+    const userToggle = document.getElementById("userToggle");
+    const userDropdown = document.getElementById("userDropdown");
+    userToggle.addEventListener("click", () => {
+      const isHidden = userDropdown.hasAttribute("hidden");
+      if (isHidden) {
+        userDropdown.removeAttribute("hidden");
+        userToggle.setAttribute("aria-expanded", "true");
+      } else {
+        userDropdown.setAttribute("hidden", "");
+        userToggle.setAttribute("aria-expanded", "false");
       }
-      const portfolioLinksEdit = document.getElementById('portfolioLinksEdit');
-      if (portfolioLinksEdit) {
-        portfolioLinksEdit.innerHTML = '';
-        if (editMode) {
-          data.links.forEach((link, idx) => {
-            const div = document.createElement('div');
-            div.style.marginBottom = "4px";
-            const a = document.createElement('a');
-            a.href = link.url;
-            a.textContent = link.name;
-            a.target = "_blank";
-            div.appendChild(a);
-            const removeBtn = document.createElement('button');
-            removeBtn.textContent = '×';
-            removeBtn.type = 'button';
-            removeBtn.style.marginLeft = '8px';
-            removeBtn.onclick = () => { data.links.splice(idx, 1); renderLinks(true); };
-            div.appendChild(removeBtn);
-            portfolioLinksEdit.appendChild(div);
-          });
-        }
+    });
+    // Edit / Save Profile
+    const editBtn = document.getElementById("editBtn");
+    const saveBtn = document.getElementById("saveBtn");
+    const inputs = document.querySelectorAll("input, textarea");
+    const skillInputWrap = document.getElementById("skillInputWrap");
+    const portfolioBlock = document.getElementById("portfolioLinkEditBlock");
+    editBtn.addEventListener("click", () => {
+      inputs.forEach(i => i.disabled = false);
+      editBtn.style.display = "none";
+      saveBtn.style.display = "inline-block";
+      skillInputWrap.style.display = "flex";
+      portfolioBlock.style.display = "block";
+    });
+    saveBtn.addEventListener("click", () => {
+      inputs.forEach(i => i.disabled = true);
+      editBtn.style.display = "inline-block";
+      saveBtn.style.display = "none";
+      skillInputWrap.style.display = "none";
+      portfolioBlock.style.display = "none";
+      alert("Profile changes saved!");
+    });
+    // Skills
+    const skillsList = document.getElementById("skillsList");
+    const addSkillBtn = document.getElementById("addSkillBtn");
+    const newSkill = document.getElementById("newSkill");
+    addSkillBtn.addEventListener("click", () => {
+      const skill = newSkill.value.trim();
+      if (skill) {
+        const skillDiv = document.createElement("div");
+        skillDiv.classList.add("skill-item");
+        skillDiv.textContent = skill;
+        const removeBtn = document.createElement("span");
+        removeBtn.textContent = "×";
+        removeBtn.classList.add("remove-skill");
+        removeBtn.onclick = () => skillDiv.remove();
+        skillDiv.appendChild(removeBtn);
+        skillsList.appendChild(skillDiv);
+        newSkill.value = "";
       }
-    }
-    function fillForm(editMode=false) {
-      document.getElementById('fullName').value = data.fullName;
-      document.getElementById('email').value = data.email;
-      document.getElementById('phone').value = data.phone;
-      document.getElementById('year').value = data.year;
-      document.getElementById('major').value = data.major;
-      document.getElementById('bio').value = data.bio;
-      ['fullName','email','phone','year','major','bio'].forEach(id=>{
-        document.getElementById(id).disabled = !editMode;
-      });
-      document.getElementById('resumeBtnView').disabled = !editMode;
-      document.getElementById('newSkill').disabled = !editMode;
-    }
-    function renderSidebar() {
-      document.getElementById('majorYearView').textContent = `${data.major} • ${data.year}`;
-      document.getElementById('emailView').textContent = data.email;
-      document.getElementById('phoneView').textContent = data.phone;
-      document.getElementById('majorView').textContent = data.major;
-      document.getElementById('yearView').textContent = data.year;
-    }
-    document.getElementById('editBtn').onclick = function() {
-      document.getElementById('editBtn').style.display = "none";
-      document.getElementById('saveBtn').style.display = "";
-      document.getElementById('portfolioLinkEditBlock').style.display = "";
-      fillForm(true);
-      renderSkills(true);
-      renderLinks(true);
-      document.getElementById('skillInputWrap').style.display = "";
-    };
-    document.getElementById('saveBtn').onclick = function() {
-      document.getElementById('editBtn').style.display = "";
-      document.getElementById('saveBtn').style.display = "none";
-      document.getElementById('portfolioLinkEditBlock').style.display = "none";
-      data.fullName = document.getElementById('fullName').value;
-      data.email = document.getElementById('email').value;
-      data.phone = document.getElementById('phone').value;
-      data.year = document.getElementById('year').value;
-      data.major = document.getElementById('major').value;
-      data.bio = document.getElementById('bio').value;
-      fillForm(false);
-      renderSkills(false);
-      renderLinks(false);
-      document.getElementById('skillInputWrap').style.display = "none";
-      renderSidebar();
-    };
-    document.getElementById('addSkillBtn').onclick = function() {
-      const val = document.getElementById('newSkill').value.trim();
-      if(val && !data.skills.includes(val)) {
-        data.skills.push(val);
-        document.getElementById('newSkill').value = "";
-        renderSkills(true);
-      }
-    };
-    document.getElementById('addLinkBtn').onclick = function() {
-      const name = document.getElementById('portfolioName').value.trim();
-      const url = document.getElementById('portfolioURL').value.trim();
-      if(name && url) {
-        data.links.push({name, url});
-        document.getElementById('portfolioName').value = "";
-        document.getElementById('portfolioURL').value = "";
-        renderLinks(true);
-      }
-    };
-    window.onload = function() {
-      fillForm(false);
-      renderSkills(false);
-      renderLinks(false);
-      renderSidebar();
-      document.getElementById('skillInputWrap').style.display = "none";
-      document.getElementById('portfolioLinkEditBlock').style.display = "none";
+    });
+    // Portfolio Links
+    const addLinkBtn = document.getElementById("addLinkBtn");
+    const portfolioName = document.getElementById("portfolioName");
+    const portfolioURL = document.getElementById("portfolioURL");
+    const linksListView = document.getElementById("linksListView");
+    const portfolioLinksEdit = document.getElementById("portfolioLinksEdit");
+
+    // Create link without delete button for view mode
+    const createViewLink = (name, url) => {
+      const linkEl = document.createElement("div");
+      linkEl.classList.add("portfolio-link");
+      linkEl.innerHTML = `<a href="${url}" target="_blank">${name}</a>`;
+      return linkEl;
     };
 
-    // --- Avatar Dropdown Script ---
-    (function(){
-      const toggleBtn = document.getElementById('userToggle');
-      const dropdown  = document.getElementById('userDropdown');
-      if (!toggleBtn || !dropdown) return;
-      let open = false;
-      function setOpen(state){
-        open = state;
-        dropdown.hidden = !state;
-        toggleBtn.setAttribute('aria-expanded', String(state));
+    // Create link with delete button for edit mode
+    const createEditLink = (name, url) => {
+      const linkEl = document.createElement("div");
+      linkEl.classList.add("portfolio-link");
+      linkEl.innerHTML = `
+        <a href="${url}" target="_blank">${name}</a>
+        <button type="button" class="remove-link" style="margin-left: 8px; color: #dc2626; background: none; border: none; cursor: pointer; font-weight: bold;">×</button>
+      `;
+      linkEl.querySelector(".remove-link").addEventListener("click", () => {
+        linkEl.remove();
+      });
+      return linkEl;
+    };
+
+    addLinkBtn.addEventListener("click", () => {
+      const name = portfolioName.value.trim();
+      const url = portfolioURL.value.trim();
+      if (name && url) {
+        // Add link without delete button to view section
+        const viewLink = createViewLink(name, url);
+        linksListView.appendChild(viewLink);
+
+        // Add link with delete button to edit section
+        const editLink = createEditLink(name, url);
+        portfolioLinksEdit.appendChild(editLink);
+
+        // Clear inputs
+        portfolioName.value = "";
+        portfolioURL.value = "";
       }
-      toggleBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        setOpen(!open);
-      });
-      document.addEventListener('click', (e) => {
-        if (open && !dropdown.contains(e.target) && e.target !== toggleBtn) {
-          setOpen(false);
-        }
-      });
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && open) {
-          setOpen(false);
-          toggleBtn.focus();
-        }
-      });
-      document.getElementById('profileBtn')?.addEventListener('click', ()=> { setOpen(false); });
-      document.getElementById('settingsBtn')?.addEventListener('click', ()=> { setOpen(false); });
-      document.getElementById('logoutBtn')?.addEventListener('click', ()=> { setOpen(false); });
-    })();
+    });
   </script>
 </body>
 </html>

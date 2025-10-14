@@ -138,3 +138,8 @@ def student_dashboard_view(request):
 
 def organization_dashboard(request):
     return render(request, 'organization_dashboard.html')
+
+
+@login_required
+def profile(request):
+    return render(request, 'profile.html')
