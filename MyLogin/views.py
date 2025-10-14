@@ -1,138 +1,55 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.contrib.auth import login, logout
-from .models import Profile  # import the Profile model
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate
+from django.urls import reverse
+from django.utils import timezone
+from datetime import timedelta
 
-# Login view with role-based redirect
+# --- Session timeout (10 minutes AFK limit) ---
+SESSION_TIMEOUT = 600  # 600 seconds = 10 minutes
+
+
 def login_view(request):
+    # ✅ Check if redirected after inactivity
+    if request.method == 'GET' and 'session_expired' in request.GET:
+        messages.warning(request, "You were logged out due to inactivity.")
+
     if request.method == 'POST':
-        email = request.POST.get('email').strip()
+        email = request.POST.get('email')
         password = request.POST.get('password')
 
-        try:
-            user_obj = User.objects.get(email=email)
-            user = authenticate(username=user_obj.username, password=password)
-            if user:
-                login(request, user)
-
-                try:
-                    role = user.profile.role
-                except Profile.DoesNotExist:
-                    role = None
-
-                if role == "Student":
-                    return redirect('student_dashboard')
-                elif role == "Organization":
-                    return redirect('organization_dashboard')
-                else:
-                    messages.warning(request, "No role assigned. Redirecting to home.")
-                    return redirect('home')
-
-            else:
-                messages.error(request, "Invalid email or password.")
-        except User.DoesNotExist:
-            messages.error(request, "Email not registered.")
+        user = authenticate(request, username=email, password=password)
+        if user is not None:
+            login(request, user)
+            request.session['last_activity'] = timezone.now().timestamp()
+            return redirect('student_dashboard')  # or your dashboard URL
+        else:
+            messages.error(request, "Invalid email or password.")
 
     return render(request, 'login.html')
 
 
-# Updated Register view with role-specific fields
-def register_view(request):
-    if request.method == 'POST':
-        role = request.POST.get('role', 'Student')
-
-        # Role-based fields
-        if role == "Student":
-            first_name = request.POST.get('first_name', '').strip()
-            last_name = request.POST.get('last_name', '').strip()
-            org_name = ''
-        else:
-            first_name = ''
-            last_name = ''
-            org_name = request.POST.get('organization_name', '').strip()
-
-        email = request.POST.get('email', '').strip()
-        password = request.POST.get('password', '')
-        confirm_password = request.POST.get('confirm_password', '')
-
-        errors = {}
-
-        # Validation
-        if role == "Student":
-            if not first_name:
-                errors['first_name'] = 'First name is required'
-            if not last_name:
-                errors['last_name'] = 'Last name is required'
-        else:
-            if not org_name:
-                errors['organization_name'] = 'Organization name is required'
-
-        if not email:
-            errors['email'] = 'Email is required'
-        elif User.objects.filter(email=email).exists():
-            errors['email'] = 'Email already registered'
-        if not password:
-            errors['password'] = 'Password is required'
-        elif len(password) < 8:
-            errors['password'] = 'Password must be at least 8 characters'
-        if password != confirm_password:
-            errors['confirm_password'] = 'Passwords do not match'
-
-        if errors:
-            return render(request, 'register.html', {
-                'errors': errors,
-                'role': role,
-                'first_name': first_name,
-                'last_name': last_name,
-                'organization_name': org_name,
-                'email': email
-            })
-
-        # Create user
-        if role == "Student":
-            username = email.split('@')[0]
-            user = User.objects.create_user(username=username, email=email, password=password,
-                                            first_name=first_name, last_name=last_name)
-        else:
-            username = email.split('@')[0]
-            user = User.objects.create_user(username=username, email=email, password=password,
-                                            first_name=org_name)
-
-        # Create profile
-        Profile.objects.create(user=user, role=role)
-
-        messages.success(request, f'Account created successfully as {role}! Please login.')
-        return redirect('login')
-
-    # GET request
-    return render(request, 'register.html', {
-        'role': 'Student',
-        'first_name': '',
-        'last_name': '',
-        'organization_name': '',
-        'email': '',
-        'errors': {}
-    })
-
-
-# Logout view
 def logout_view(request):
     logout(request)
+    messages.info(request, "You have been logged out.")
     return redirect('login')
 
 
-# Home view (fallback)
-def home_view(request):
-    return render(request, 'home.html')
+def student_dashboard(request):
+    # ✅ If not logged in, redirect to login
+    if not request.user.is_authenticated:
+        return redirect('login')
 
+    # ✅ Check inactivity
+    last_activity = request.session.get('last_activity')
+    now = timezone.now().timestamp()
 
-@login_required
-def student_dashboard_view(request):
-    return render(request, 'student_dashboard.html')
+    if last_activity and now - last_activity > SESSION_TIMEOUT:
+        logout(request)
+        return redirect(f"{reverse('login')}?session_expired=1")
 
+    # Update last activity timestamp
+    request.session['last_activity'] = now
 
-def organization_dashboard(request):
-    return render(request, 'organization_dashboard.html')
+    # Render the dashboard
+    return render(request, 'student/dashboard.html')
