@@ -12,14 +12,12 @@ def login_view(request):
         email = request.POST.get('email').strip()
         password = request.POST.get('password')
 
-        # Try to get the user by email
         try:
             user_obj = User.objects.get(email=email)
             user = authenticate(username=user_obj.username, password=password)
             if user:
                 login(request, user)
 
-                # Redirect based on role
                 try:
                     role = user.profile.role
                 except Profile.DoesNotExist:
@@ -41,20 +39,37 @@ def login_view(request):
     return render(request, 'login.html')
 
 
-# Register view with Profile role
+# Updated Register view with role-specific fields
 def register_view(request):
     if request.method == 'POST':
-        name = request.POST.get('name', '').strip()
+        role = request.POST.get('role', 'Student')
+
+        # Role-based fields
+        if role == "Student":
+            first_name = request.POST.get('first_name', '').strip()
+            last_name = request.POST.get('last_name', '').strip()
+            org_name = ''
+        else:
+            first_name = ''
+            last_name = ''
+            org_name = request.POST.get('organization_name', '').strip()
+
         email = request.POST.get('email', '').strip()
         password = request.POST.get('password', '')
         confirm_password = request.POST.get('confirm_password', '')
-        role = request.POST.get('role', 'Student')
 
         errors = {}
 
         # Validation
-        if not name:
-            errors['name'] = 'Full Name is required'
+        if role == "Student":
+            if not first_name:
+                errors['first_name'] = 'First name is required'
+            if not last_name:
+                errors['last_name'] = 'Last name is required'
+        else:
+            if not org_name:
+                errors['organization_name'] = 'Organization name is required'
+
         if not email:
             errors['email'] = 'Email is required'
         elif User.objects.filter(email=email).exists():
@@ -69,22 +84,38 @@ def register_view(request):
         if errors:
             return render(request, 'register.html', {
                 'errors': errors,
-                'name': name,
-                'email': email,
+                'role': role,
+                'first_name': first_name,
+                'last_name': last_name,
+                'organization_name': org_name,
+                'email': email
             })
 
         # Create user
-        username = email.split('@')[0]
-        user = User.objects.create_user(username=username, email=email, password=password, first_name=name)
+        if role == "Student":
+            username = email.split('@')[0]
+            user = User.objects.create_user(username=username, email=email, password=password,
+                                            first_name=first_name, last_name=last_name)
+        else:
+            username = email.split('@')[0]
+            user = User.objects.create_user(username=username, email=email, password=password,
+                                            first_name=org_name)
 
-        # Create Profile with role
+        # Create profile
         Profile.objects.create(user=user, role=role)
 
         messages.success(request, f'Account created successfully as {role}! Please login.')
         return redirect('login')
 
     # GET request
-    return render(request, 'register.html', {'name': '', 'email': '', 'errors': {}})
+    return render(request, 'register.html', {
+        'role': 'Student',
+        'first_name': '',
+        'last_name': '',
+        'organization_name': '',
+        'email': '',
+        'errors': {}
+    })
 
 
 # Logout view
@@ -95,14 +126,13 @@ def logout_view(request):
 
 # Home view (fallback)
 def home_view(request):
-    return render(request, 'home.html')  # create this template
+    return render(request, 'home.html')
 
 
 @login_required
 def student_dashboard_view(request):
     return render(request, 'student_dashboard.html')
 
-# Organization dashboard view
-def organization_dashboard(request):
-    return render(request, 'organization_dashboard.html')  # create this template
 
+def organization_dashboard(request):
+    return render(request, 'organization_dashboard.html')
