@@ -52,7 +52,8 @@ def register_view(request):
         else:
             first_name = ''
             last_name = ''
-            org_name = request.POST.get('organization_name', '').strip()
+            # Match the HTML input name for organization
+            org_name = request.POST.get('org_name', '').strip()
 
         email = request.POST.get('email', '').strip()
         password = request.POST.get('password', '')
@@ -68,16 +69,18 @@ def register_view(request):
                 errors['last_name'] = 'Last name is required'
         else:
             if not org_name:
-                errors['organization_name'] = 'Organization name is required'
+                errors['org_name'] = 'Organization name is required'
 
         if not email:
             errors['email'] = 'Email is required'
         elif User.objects.filter(email=email).exists():
             errors['email'] = 'Email already registered'
+
         if not password:
             errors['password'] = 'Password is required'
         elif len(password) < 8:
             errors['password'] = 'Password must be at least 8 characters'
+
         if password != confirm_password:
             errors['confirm_password'] = 'Passwords do not match'
 
@@ -87,17 +90,16 @@ def register_view(request):
                 'role': role,
                 'first_name': first_name,
                 'last_name': last_name,
-                'organization_name': org_name,
+                'org_name': org_name,
                 'email': email
             })
 
         # Create user
+        username = email.split('@')[0]
         if role == "Student":
-            username = email.split('@')[0]
             user = User.objects.create_user(username=username, email=email, password=password,
                                             first_name=first_name, last_name=last_name)
         else:
-            username = email.split('@')[0]
             user = User.objects.create_user(username=username, email=email, password=password,
                                             first_name=org_name)
 
@@ -112,7 +114,7 @@ def register_view(request):
         'role': 'Student',
         'first_name': '',
         'last_name': '',
-        'organization_name': '',
+        'org_name': '',
         'email': '',
         'errors': {}
     })

@@ -5,52 +5,39 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CampusLink - Register</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
-    body { min-height: 100vh; background: linear-gradient(to right, rgba(0,198,255,0.7) 50%, #f7f9fc 50%); display: flex; justify-content: flex-end; align-items: center; padding-right: 15%; }
-    .container { width: 380px; display: flex; flex-direction: column; align-items: center; }
-    .role-card { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center; margin-bottom: 20px; width: 100%; }
-    .role-card h3 { margin-bottom: 5px; font-size: 1.2rem; color: #333; }
-    .role-card p { font-size: 0.9rem; color: #666; margin-bottom: 15px; }
-    .role-options { display: flex; justify-content: space-between; }
-    .role { flex: 1; border: 1px solid #ddd; padding: 12px; border-radius: 10px; cursor: pointer; margin: 0 5px; transition: 0.3s; background: #fafafa; }
-    .role.active { border: 2px solid #00c6ff; background: #e6f7ff; }
-    .role i { font-size: 1.6rem; color: #00c6ff; margin-bottom: 8px; }
-    .role h4 { font-size: 1rem; margin-bottom: 5px; color: #333; }
-    .role span { font-size: 0.8rem; color: #666; }
-    .tabs { display: flex; background: #f1f3f5; border-radius: 8px; overflow: hidden; margin-bottom: 20px; width: 100%; }
-    .tabs a { flex: 1; text-align: center; padding: 10px; text-decoration: none; font-size: 0.95rem; font-weight: 500; color: #555; transition: 0.3s; }
-    .tabs a.active { background: #fff; color: #333; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .form-card { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); width: 100%; margin-bottom: 20px; }
-    .form-card h2 { margin-bottom: 5px; color: #333; }
-    .form-card p { font-size: 0.9rem; color: #555; margin-bottom: 20px; }
-    .badge { background: #e6f7ff; color: #00c6ff; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
-    .input-box { margin-bottom: 18px; }
-    .input-box label { display: block; font-size: 0.9rem; margin-bottom: 6px; color: #555; }
-    .input-box input { width: 100%; height: 44px; padding: 10px; font-size: 0.95rem; border: 1px solid #ddd; border-radius: 8px; transition: border 0.2s; }
-    .input-box input:focus { border: 1px solid #00c6ff; outline: none; box-shadow: 0px 0px 5px rgba(0,198,255,0.3); }
-    .btn { width: 100%; padding: 12px; background: linear-gradient(to right, #00c6ff, #ff9a9e); border: none; border-radius: 8px; color: #fff; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1rem; }
-    .btn:hover { opacity: 0.9; }
-    .left-box { position: absolute; left: 15%; top: 50%; transform: translateY(-50%); width: 500px; }
-    .left-content { background: rgba(255, 255, 255, 0.15); padding: 30px 40px; border-radius: 16px; backdrop-filter: blur(6px); text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    .left-content h1 { font-size: 2.5rem; color: #fff; font-weight: 700; letter-spacing: 1px; }
-    .left-content .tagline { margin-top: 12px; font-size: 1.1rem; color: #f0faff; letter-spacing: 0.5px; line-height: 1.4; font-weight: 500; }
-    .left-box .below-text { margin-top: 20px; color: #ffffff; font-size: 0.95rem; line-height: 1.5; text-align: center; opacity: 0.9; white-space: nowrap; }
-    .left-content h1, .left-content .tagline { background: linear-gradient(to right, #ffffff, #ff9a9e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:"Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
+    body { min-height:100vh; background:linear-gradient(to right, rgba(0,198,255,0.7) 50%, #f7f9fc 50%); display:flex; justify-content:flex-end; align-items:center; padding-right:15%; }
+    .container { width:380px; display:flex; flex-direction:column; align-items:center; }
+    .role-card { background:#fff; padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05); text-align:center; margin-bottom:20px; width:100%; }
+    .role-card h3 { margin-bottom:5px; font-size:1.2rem; color:#333; }
+    .role-card p { font-size:0.9rem; color:#666; margin-bottom:15px; }
+    .role-options { display:flex; justify-content:space-between; }
+    .role { flex:1; border:1px solid #ddd; padding:12px; border-radius:10px; cursor:pointer; margin:0 5px; transition:0.3s; background:#fafafa; }
+    .role.active { border:2px solid #00c6ff; background:#e6f7ff; }
+    .role i { font-size:1.6rem; color:#00c6ff; margin-bottom:8px; }
+    .role h4 { font-size:1rem; margin-bottom:5px; color:#333; }
+    .role span { font-size:0.8rem; color:#666; }
+    .tabs { display:flex; background:#f1f3f5; border-radius:8px; overflow:hidden; margin-bottom:20px; width:100%; }
+    .tabs a { flex:1; text-align:center; padding:10px; text-decoration:none; font-size:0.95rem; font-weight:500; color:#555; transition:0.3s; }
+    .tabs a.active { background:#fff; color:#333; box-shadow:0 2px 5px rgba(0,0,0,0.05); }
+    .form-card { background:#fff; padding:25px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05); width:100%; margin-bottom:20px; }
+    .form-card h2 { margin-bottom:5px; color:#333; }
+    .form-card p { font-size:0.9rem; color:#555; margin-bottom:20px; }
+    .badge { background:#e6f7ff; color:#00c6ff; padding:2px 8px; border-radius:12px; font-size:0.8rem; font-weight:bold; }
+    .input-box { margin-bottom:18px; }
+    .input-box label { display:block; font-size:0.9rem; margin-bottom:6px; color:#555; }
+    .input-box input { width:100%; height:44px; padding:10px; font-size:0.95rem; border:1px solid #ddd; border-radius:8px; transition:border 0.2s; }
+    .input-box input:focus { border:1px solid #00c6ff; outline:none; box-shadow:0px 0px 5px rgba(0,198,255,0.3); }
+    .btn { width:100%; padding:12px; background:linear-gradient(to right, #00c6ff, #ff9a9e); border:none; border-radius:8px; color:#fff; font-weight:bold; cursor:pointer; transition:0.3s; font-size:1rem; }
+    .btn:hover { opacity:0.9; }
+    .error-msg { color:red; font-size:0.8rem; }
+    .hidden { display:none; }
   </style>
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-  <div class="left-box">
-    <div class="left-content">
-      <h1>CampusLink</h1>
-      <p class="tagline">Discover. Connect. Grow.</p>
-      <p class="subtext">Join now and unlock campus opportunities.</p>
-    </div>
-  </div>
-
   <div class="container">
     <!-- Role Selection -->
     <div class="role-card">
@@ -75,13 +62,13 @@
       <a href="{% url 'register' %}" class="active">Register</a>
     </div>
 
-    <!-- Registration Form -->
     <div class="form-card">
       <h2>Create Account</h2>
       <p>Sign up as a <span class="badge" id="roleBadge">Student</span></p>
 
       <form method="post">
         {% csrf_token %}
+        <input type="hidden" name="role" id="roleInput" value="Student">
 
         {% if messages %}
           <ul style="color: red; list-style: none; padding: 0;">
@@ -91,44 +78,48 @@
           </ul>
         {% endif %}
 
-        <input type="hidden" name="role" id="roleInput" value="Student">
-
-        <!-- Student Inputs -->
-        <div class="input-box student-input" id="first-name-box">
-          <label for="first_name">First Name</label>
-          <input type="text" id="first_name" name="first_name" placeholder="John" value="{{ first_name|default:'' }}">
-          <span style="color:red;font-size:0.8rem;">{% if errors.first_name %}{{ errors.first_name }}{% endif %}</span>
+        <!-- Student Fields -->
+        <div id="studentFields">
+          <div class="input-box">
+            <label for="first_name">First Name</label>
+            <input type="text" id="first_name" name="first_name" placeholder="John" value="{{ first_name|default:'' }}">
+            <span id="first_name-error" class="error-msg"></span>
+          </div>
+          <div class="input-box">
+            <label for="last_name">Last Name</label>
+            <input type="text" id="last_name" name="last_name" placeholder="Doe" value="{{ last_name|default:'' }}">
+            <span id="last_name-error" class="error-msg"></span>
+          </div>
         </div>
 
-        <div class="input-box student-input" id="last-name-box">
-          <label for="last_name">Last Name</label>
-          <input type="text" id="last_name" name="last_name" placeholder="Doe" value="{{ last_name|default:'' }}">
-          <span style="color:red;font-size:0.8rem;">{% if errors.last_name %}{{ errors.last_name }}{% endif %}</span>
+        <!-- Organization Fields -->
+        <div id="orgFields" class="hidden">
+          <div class="input-box">
+            <label for="org_name">Organization Name</label>
+            <input type="text" id="org_name" name="org_name" placeholder="Acme Corp" value="{{ org_name|default:'' }}">
+            <span id="org_name-error" class="error-msg"></span>
+          </div>
         </div>
 
-        <!-- Organization Input -->
-        <div class="input-box" id="organization-name-box" style="display:none;">
-          <label for="organization_name">Organization Name</label>
-          <input type="text" id="organization_name" name="organization_name" placeholder="Organization Name" value="{{ organization_name|default:'' }}">
-          <span style="color:red;font-size:0.8rem;">{% if errors.organization_name %}{{ errors.organization_name }}{% endif %}</span>
-        </div>
-
+        <!-- Email -->
         <div class="input-box">
           <label for="email">Email</label>
-          <input type="email" id="email" name="email" placeholder="your.email@university.edu" value="{{ email|default:'' }}">
-          <span style="color:red;font-size:0.8rem;">{% if errors.email %}{{ errors.email }}{% endif %}</span>
+          <input type="email" id="email" name="email" placeholder="your.email@university.edu" required value="{{ email|default:'' }}">
+          <span id="email-error" class="error-msg"></span>
         </div>
 
+        <!-- Password -->
         <div class="input-box">
           <label for="password">Password</label>
-          <input type="password" id="password" name="password" placeholder="******">
-          <span style="color:red;font-size:0.8rem;">{% if errors.password %}{{ errors.password }}{% endif %}</span>
+          <input type="password" id="password" name="password" placeholder="******" required>
+          <span id="password-error" class="error-msg"></span>
         </div>
 
+        <!-- Confirm Password -->
         <div class="input-box">
           <label for="confirm_password">Confirm Password</label>
-          <input type="password" id="confirm_password" name="confirm_password" placeholder="******">
-          <span style="color:red;font-size:0.8rem;">{% if errors.confirm_password %}{{ errors.confirm_password }}{% endif %}</span>
+          <input type="password" id="confirm_password" name="confirm_password" placeholder="******" required>
+          <span id="confirm_password-error" class="error-msg"></span>
         </div>
 
         <button type="submit" class="btn">Register</button>
@@ -137,29 +128,69 @@
   </div>
 
   <script>
-    // Role selection toggle
+    // Role toggle
     const roles = document.querySelectorAll(".role");
     const badge = document.getElementById("roleBadge");
     const roleInput = document.getElementById("roleInput");
-    const studentInputs = document.querySelectorAll(".student-input");
-    const orgBox = document.getElementById("organization-name-box");
+    const studentFields = document.getElementById("studentFields");
+    const orgFields = document.getElementById("orgFields");
 
     roles.forEach(role => {
       role.addEventListener("click", () => {
         roles.forEach(r => r.classList.remove("active"));
         role.classList.add("active");
-        const selectedRole = role.dataset.role;
-        badge.textContent = selectedRole;
-        roleInput.value = selectedRole;
+        badge.textContent = role.dataset.role;
+        roleInput.value = role.dataset.role;
 
-        if(selectedRole === "Organization"){
-          orgBox.style.display = "block";
-          studentInputs.forEach(box => box.style.display = "none");
+        if(role.dataset.role === "Student") {
+          studentFields.classList.remove("hidden");
+          orgFields.classList.add("hidden");
         } else {
-          orgBox.style.display = "none";
-          studentInputs.forEach(box => box.style.display = "block");
+          studentFields.classList.add("hidden");
+          orgFields.classList.remove("hidden");
         }
       });
+    });
+
+    // Validation
+    const firstName = document.getElementById('first_name');
+    const lastName = document.getElementById('last_name');
+    const orgName = document.getElementById('org_name');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmInput = document.getElementById('confirm_password');
+
+    firstName.addEventListener('blur', () => {
+      document.getElementById('first_name-error').textContent = firstName.value.trim() === '' && firstName.offsetParent !== null ? 'First name is required' : '';
+    });
+    lastName.addEventListener('blur', () => {
+      document.getElementById('last_name-error').textContent = lastName.value.trim() === '' && lastName.offsetParent !== null ? 'Last name is required' : '';
+    });
+    orgName.addEventListener('blur', () => {
+      document.getElementById('org_name-error').textContent = orgName.value.trim() === '' && orgName.offsetParent !== null ? 'Organization name is required' : '';
+    });
+    emailInput.addEventListener('input', () => {
+      const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if(emailInput.value.trim() === '') {
+        document.getElementById('email-error').textContent = 'Email is required';
+      } else if(!pattern.test(emailInput.value)) {
+        document.getElementById('email-error').textContent = 'Please enter a valid email';
+      } else {
+        document.getElementById('email-error').textContent = '';
+      }
+    });
+    passwordInput.addEventListener('input', () => {
+      const strong = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+      if(passwordInput.value.trim() === '') {
+        document.getElementById('password-error').textContent = 'Password is required';
+      } else if(!strong.test(passwordInput.value)) {
+        document.getElementById('password-error').textContent = 'Password must be 8+ chars, include uppercase, number & symbol';
+      } else {
+        document.getElementById('password-error').textContent = '';
+      }
+    });
+    confirmInput.addEventListener('input', () => {
+      document.getElementById('confirm_password-error').textContent = confirmInput.value !== passwordInput.value ? 'Passwords do not match' : '';
     });
   </script>
 </body>
