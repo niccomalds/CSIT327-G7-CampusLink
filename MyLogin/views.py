@@ -27,7 +27,15 @@ def login_view(request):
         if user is not None:
             login(request, user)
             request.session['last_activity'] = timezone.now().timestamp()
-            return redirect('student_dashboard')  # or your dashboard URL
+
+            # --- Redirect based on role ---
+            if hasattr(user, 'profile'):
+                if user.profile.role == "Student":
+                    return redirect('student_dashboard')
+                elif user.profile.role == "Organization":
+                    return redirect('organization_dashboard')
+            # fallback if no profile or unknown role
+            return redirect('home')
         else:
             messages.error(request, "Invalid email or password.")
 
@@ -108,3 +116,14 @@ def register_view(request):
 def home_view(request):
     return render(request, 'home.html')
 
+from django.contrib.auth.decorators import login_required
+
+
+@login_required
+def organization_dashboard(request):
+    # Only allow Organization users
+    if not hasattr(request.user, 'profile') or request.user.profile.role != "Organization":
+        messages.error(request, "Access denied.")
+        return redirect('login')
+
+    return render(request, 'org_dashboard.html')

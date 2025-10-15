@@ -1,0 +1,121 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CampusLink Dashboard</title>
+<link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header>
+  <div class="logo">🏫 CampusLink</div>
+
+  <nav>
+    <a href="#" class="active">Dashboard</a>
+    <a href="#">Post Opportunity</a>
+    <a href="#">Applicants</a>
+    <a href="#">Org Profile</a>
+  </nav>
+
+  <div class="nav-right">
+    <input type="text" placeholder="Search opportunities..." />
+    <button title="Notifications">🔔</button>
+    <button title="Profile">👤</button>
+  </div>
+</header>
+
+<main>
+  <section class="content">
+    <div class="dashboard-title">
+      <h1>Organization <span>Dashboard</span></h1>
+      <p>Manage your opportunities and connect with talented students.</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="card">
+        <h4>Active Postings</h4>
+        <p class="stat blue">5</p>
+        <small>+2 from last month</small>
+      </div>
+      <div class="card">
+        <h4>Total Applicants</h4>
+        <p class="stat orange">84</p>
+        <small>+12% from last week</small>
+      </div>
+      <div class="card">
+        <h4>Total Views</h4>
+        <p class="stat green">1247</p>
+        <small>+8% from last week</small>
+      </div>
+      <div class="card">
+        <h4>Acceptance Rate</h4>
+        <p class="stat">76%</p>
+        <div class="progress-bar"><div class="fill" style="width:76%"></div></div>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <div class="actions-grid">
+        <div class="action">➕ Post Opportunity</div>
+        <div class="action">👥 Review Applicants</div>
+        <div class="action">⭐ Update Profile</div>
+      </div>
+    </div>
+
+    <div class="recent-section">
+      <div class="recent-postings">
+        <h3>Recent Postings</h3>
+
+        <div class="posting-card">
+          <div class="posting-info">
+            <span class="title">Software Engineering Intern</span>
+            <span class="status active">Active</span>
+          </div>
+          <div class="details"><small>24 applicants · 156 views · Ends in 5 days</small></div>
+        </div>
+
+        <div class="posting-card">
+          <div class="posting-info">
+            <span class="title">Marketing Assistant</span>
+            <span class="status active">Active</span>
+          </div>
+          <div class="details"><small>12 applicants · 87 views · Ends in 3 days</small></div>
+        </div>
+
+        <div class="posting-card">
+          <div class="posting-info">
+            <span class="title">Research Volunteer</span>
+            <span class="status closed">Ended</span>
+          </div>
+          <div class="details"><small>8 applicants · 45 views · Ended</small></div>
+        </div>
+
+        <button class="view-all">View All Postings</button>
+      </div>
+
+      <div class="activity-summary">
+        <h3>Activity Summary</h3>
+        <ul>
+          <li><span class="dot blue"></span> New application for Software Engineering Intern · 2m ago</li>
+          <li><span class="dot orange"></span> Marketing Assistant viewed 15 times · 1h ago</li>
+          <li><span class="dot green"></span> Research Volunteer deadline reached · 3h ago</li>
+          <li><span class="dot blue"></span> Profile viewed by 8 students · 5h ago</li>
+        </ul>
+        <button class="view-all">View All Activity</button>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<script>
+  document.querySelectorAll(".action").forEach(btn=>{
+    btn.addEventListener("click",()=>alert(btn.textContent+" clicked!"));
+  });
+</script>
+
+</body>
+</html>

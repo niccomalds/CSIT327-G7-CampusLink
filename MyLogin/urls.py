@@ -16,5 +16,5 @@ urlpatterns = [
     path('student/dashboard/profile/', views.profile, name='student_profile'),
 
     # --- Organization pages ---
-    #path('organization/dashboard/', views.organization_dashboard, name='organization_dashboard'),
+    path('organization/dashboard/', views.organization_dashboard, name='organization_dashboard'),
 ]
