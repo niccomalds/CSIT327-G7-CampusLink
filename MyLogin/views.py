@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from .models import Profile
 from functools import wraps
+from Myapp.models import Posting  # Posting is in Myapp
 
 # --- Session timeout (10 minutes AFK limit) ---
 SESSION_TIMEOUT = 600  # 600 seconds = 10 minutes
@@ -64,7 +65,6 @@ def login_view(request):
     return render(request, 'login.html')
 
 
-
 def logout_view(request):
     logout(request)
     messages.info(request, "You have been logged out.")
@@ -93,6 +93,11 @@ def student_dashboard(request):
 @login_required
 @role_required(allowed_roles=['Organization'])
 def organization_dashboard(request):
+    # Only allow Organization users
+    if not hasattr(request.user, 'profile') or request.user.profile.role != "Organization":
+        messages.error(request, "Access denied.")
+        return redirect('login')
+
     return render(request, 'org_dashboard.html')
 
 
@@ -142,3 +147,76 @@ def register_view(request):
 
 def home_view(request):
     return render(request, 'home.html')
+
+
+# --- Organization/Admin Posting Management ---
+@login_required
+def manage_postings(request):
+    # Only allow Organization or Admin
+    if not hasattr(request.user, 'profile'):
+        messages.error(request, "Access denied.")
+        return redirect('home')
+
+    if request.user.profile.role == "Organization":
+        postings = Posting.objects.filter(organization=request.user)
+    elif request.user.profile.role == "Admin":
+        postings = Posting.objects.all()
+    else:
+        messages.error(request, "Access denied.")
+        return redirect('home')
+
+    return render(request, 'manage_posting.html', {'postings': postings})
+
+
+@login_required
+def edit_posting(request, post_id):
+    try:
+        posting = Posting.objects.get(id=post_id)
+    except Posting.DoesNotExist:
+        messages.error(request, "Posting not found.")
+        return redirect('manage_postings')
+
+    # Only allow owner organization or admin
+    if request.user.profile.role == "Organization" and posting.organization != request.user:
+        messages.error(request, "Access denied.")
+        return redirect('manage_postings')
+
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        deadline = request.POST.get('deadline')
+
+        if not title:
+            messages.error(request, "Title is required.")
+            return redirect('edit_posting', post_id=post_id)
+        
+        posting.title = title
+        posting.description = description
+        posting.deadline = deadline
+        posting.save()
+
+        messages.success(request, "Posting updated successfully.")
+        return redirect('manage_postings')
+
+    return render(request, 'edit_posting.html', {'posting': posting})
+
+
+@login_required
+def delete_posting(request, post_id):
+    try:
+        posting = Posting.objects.get(id=post_id)
+    except Posting.DoesNotExist:
+        messages.error(request, "Posting not found.")
+        return redirect('manage_postings')
+
+    # Only allow owner organization or admin
+    if request.user.profile.role == "Organization" and posting.organization != request.user:
+        messages.error(request, "Access denied.")
+        return redirect('manage_postings')
+
+    if request.method == 'POST':
+        posting.delete()
+        messages.success(request, "Posting deleted successfully.")
+        return redirect('manage_postings')
+
+    return render(request, 'delete_posting.html', {'posting': posting})

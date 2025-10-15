@@ -1,0 +1,43 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Edit Posting</title>
+<link rel="stylesheet" href="{% static 'Myapp/edit_posting.css' %}">
+</head>
+<body>
+
+<header>
+  <div class="logo">🏫 CampusLink</div>
+  <nav>
+    <a href="{% url 'organization_dashboard' %}">Dashboard</a>
+    <a href="{% url 'manage_postings' %}" class="active">Manage Postings</a>
+  </nav>
+</header>
+
+<main>
+  <div class="dashboard-title">
+    <h1>Edit Posting</h1>
+  </div>
+
+  <form method="POST">
+    {% csrf_token %}
+    <div class="card">
+      <label>Title</label>
+      <input type="text" name="title" value="{{ posting.title }}" required>
+
+      <label>Description</label>
+      <textarea name="description" required>{{ posting.description }}</textarea>
+
+      <label>Deadline</label>
+      <input type="date" name="deadline" value="{{ posting.deadline|date:'Y-m-d' }}" required>
+
+      <button type="submit" class="action">Save Changes</button>
+      <a href="{% url 'manage_postings' %}" class="action" style="background:#ddd; color:#111;">Cancel</a>
+    </div>
+  </form>
+</main>
+
+</body>
+</html>
