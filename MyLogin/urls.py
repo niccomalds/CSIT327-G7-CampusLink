@@ -17,4 +17,14 @@ urlpatterns = [
 
     # --- Organization pages ---
     path('organization/dashboard/', views.organization_dashboard, name='organization_dashboard'),
+
+    # Manage postings
+    path('organization/manage-postings/', views.manage_postings, name='manage_postings'),
+
+    # Edit posting
+    path('organization/edit-posting/<int:post_id>/', views.edit_posting, name='edit_posting'),
+
+    # Delete posting
+    path('organization/delete-posting/<int:post_id>/', views.delete_posting, name='delete_posting'),
+
 ]

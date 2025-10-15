@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Manage Postings - CampusLink</title>
+<link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header>
+  <div class="logo">🏫 CampusLink</div>
+
+  <nav>
+    <a href="{% url 'organization_dashboard' %}">Dashboard</a>
+    <a href="{% url 'manage_postings' %}" class="active">Manage Postings</a>
+    <a href="#">Applicants</a>
+    <a href="#">Org Profile</a>
+  </nav>
+
+  <div class="nav-right">
+    <input type="text" placeholder="Search postings..." />
+    <button title="Notifications">🔔</button>
+    <button title="Profile">👤</button>
+  </div>
+</header>
+
+<main>
+  <section class="content">
+    <div class="dashboard-title">
+      <h1>Manage <span>Postings</span></h1>
+      <p>View, edit, or delete your organization’s postings.</p>
+    </div>
+
+    <div class="recent-section">
+      <div class="recent-postings">
+        {% if postings %}
+          {% for post in postings %}
+            <div class="posting-card">
+              <div class="posting-info">
+                <span class="title">{{ post.title }}</span>
+                <span class="status {% if post.deadline|date:"Y-m-d" >= today %}active{% else %}closed{% endif %}">
+                  {% if post.deadline|date:"Y-m-d" >= today %}Active{% else %}Ended{% endif %}
+                </span>
+              </div>
+              <div class="details">
+                <small>
+                  Deadline: {{ post.deadline|date:"M d, Y" }} · Status: {{ post.status }}
+                </small>
+              </div>
+              <div class="actions-grid">
+                <a href="{% url 'edit_posting' post.id %}" class="action">✏️ Edit</a>
+                <a href="{% url 'delete_posting' post.id %}" class="action" style="background:#ef4444; color:#fff;">🗑 Delete</a>
+                <a href="#" class="action">👥 View Applicants</a>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p>No postings found. Create your first opportunity!</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </section>
+</main>
+
+</body>
+</html>

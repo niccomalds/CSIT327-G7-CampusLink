@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Delete Posting</title>
+<link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
+</head>
+<body>
+
+<header>
+  <div class="logo">🏫 CampusLink</div>
+  <nav>
+    <a href="{% url 'organization_dashboard' %}">Dashboard</a>
+    <a href="{% url 'manage_postings' %}" class="active">Manage Postings</a>
+  </nav>
+</header>
+
+<main>
+  <div class="dashboard-title">
+    <h1>Delete Posting</h1>
+    <p>Are you sure you want to delete the posting: <strong>{{ posting.title }}</strong>?</p>
+  </div>
+
+  <form method="POST">
+    {% csrf_token %}
+    <button type="submit" class="action" style="background:#ef4444; color:#fff;">Yes, Delete</button>
+    <a href="{% url 'manage_postings' %}" class="action" style="background:#ddd; color:#111;">Cancel</a>
+  </form>
+</main>
+
+</body>
+</html>
