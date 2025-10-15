@@ -2,12 +2,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Manage Postings - CampusLink</title>
-<link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Postings - CampusLink</title>
+
+  <link rel="stylesheet" href="{% static 'Myapp/manage_posting.css' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
 <header>
@@ -38,21 +40,21 @@
       <div class="recent-postings">
         {% if postings %}
           {% for post in postings %}
-            <div class="posting-card">
+            <div class="posting-card" data-id="{{ post.id }}">
               <div class="posting-info">
                 <span class="title">{{ post.title }}</span>
-                <span class="status {% if post.deadline|date:"Y-m-d" >= today %}active{% else %}closed{% endif %}">
-                  {% if post.deadline|date:"Y-m-d" >= today %}Active{% else %}Ended{% endif %}
+                <span class="status {% if post.deadline|date:'Y-m-d' >= today %}active{% else %}closed{% endif %}">
+                  {% if post.deadline|date:'Y-m-d' >= today %}Active{% else %}Ended{% endif %}
                 </span>
               </div>
+
               <div class="details">
-                <small>
-                  Deadline: {{ post.deadline|date:"M d, Y" }} · Status: {{ post.status }}
-                </small>
+                <small>Deadline: {{ post.deadline|date:"Y-m-d" }} · Status: {{ post.status }}</small>
               </div>
+
               <div class="actions-grid">
-                <a href="{% url 'edit_posting' post.id %}" class="action">✏️ Edit</a>
-                <a href="{% url 'delete_posting' post.id %}" class="action" style="background:#ef4444; color:#fff;">🗑 Delete</a>
+                <button class="action edit-btn" style="background:#3b82f6;">✏️ Edit</button>
+                <button class="action delete-btn" style="background:#ef4444;">🗑 Delete</button>
                 <a href="#" class="action">👥 View Applicants</a>
               </div>
             </div>
@@ -62,9 +64,96 @@
         {% endif %}
       </div>
     </div>
-
   </section>
 </main>
+
+<!-- Edit Modal -->
+<div id="editModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3>Edit Posting</h3>
+    <form id="editForm">
+      <label>Title:</label>
+      <input type="text" id="editTitle" required />
+
+      <label>Deadline:</label>
+      <input type="date" id="editDeadline" required />
+
+      <label>Status:</label>
+      <select id="editStatus">
+        <option value="active">Active</option>
+        <option value="closed">Closed</option>
+      </select>
+
+      <div class="modal-actions" style="margin-top:16px; display:flex; justify-content:flex-end; gap:10px;">
+        <button type="submit" class="action" style="background:#3b82f6;">Save</button>
+        <button type="button" id="cancelEdit" class="action" style="background:#6b7280;">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const editModal = document.getElementById("editModal");
+  const editForm = document.getElementById("editForm");
+  const editTitle = document.getElementById("editTitle");
+  const editDeadline = document.getElementById("editDeadline");
+  const editStatus = document.getElementById("editStatus");
+  const cancelEdit = document.getElementById("cancelEdit");
+
+  let currentCard = null;
+
+  // 🖊️ Open Edit Modal
+  document.querySelectorAll(".edit-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      currentCard = btn.closest(".posting-card");
+      const titleEl = currentCard.querySelector(".title");
+      const detailsText = currentCard.querySelector(".details small").textContent;
+      const deadlineMatch = detailsText.match(/Deadline: ([^·]+)/);
+      const deadlineText = deadlineMatch ? deadlineMatch[1].trim() : "";
+      const statusEl = currentCard.querySelector(".status");
+
+      editTitle.value = titleEl.textContent.trim();
+      editDeadline.value = deadlineText;
+      editStatus.value = statusEl.classList.contains("active") ? "active" : "closed";
+
+      editModal.style.display = "flex";
+    });
+  });
+
+  // 💾 Save Edit
+  editForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const titleEl = currentCard.querySelector(".title");
+    const detailsEl = currentCard.querySelector(".details small");
+    const statusEl = currentCard.querySelector(".status");
+
+    titleEl.textContent = editTitle.value;
+    detailsEl.textContent = `Deadline: ${editDeadline.value} · Status: ${editStatus.value}`;
+    statusEl.textContent = editStatus.value === "active" ? "Active" : "Ended";
+    statusEl.className = `status ${editStatus.value}`;
+
+    editModal.style.display = "none";
+  });
+
+  // ❌ Cancel Edit
+  cancelEdit.addEventListener("click", () => {
+    editModal.style.display = "none";
+  });
+
+  // 🗑️ Delete Posting
+  document.querySelectorAll(".delete-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const confirmDelete = confirm("Are you sure you want to delete this posting?");
+      if (confirmDelete) {
+        btn.closest(".posting-card").remove();
+      }
+    });
+  });
+});
+</script>
 
 </body>
 </html>

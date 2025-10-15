@@ -15,6 +15,7 @@
 
   <nav>
     <a href="#" class="active">Dashboard</a>
+    <a href="{% url 'manage_postings' %}">Manage Postings</a>
     <a href="#">Post Opportunity</a>
     <a href="#">Applicants</a>
     <a href="#">Org Profile</a>
@@ -58,7 +59,9 @@
     </div>
 
     <div class="quick-actions">
+      <h3>Quick Actions</h3>
       <div class="actions-grid">
+        <a href="{% url 'manage_postings' %}" class="action">📋 Manage Postings</a>
         <div class="action">➕ Post Opportunity</div>
         <div class="action">👥 Review Applicants</div>
         <div class="action">⭐ Update Profile</div>
@@ -93,7 +96,7 @@
           <div class="details"><small>8 applicants · 45 views · Ended</small></div>
         </div>
 
-        <button class="view-all">View All Postings</button>
+        <a href="{% url 'manage_postings' %}" class="view-all">View All Postings</a>
       </div>
 
       <div class="activity-summary">
@@ -107,13 +110,12 @@
         <button class="view-all">View All Activity</button>
       </div>
     </div>
-
   </section>
 </main>
 
 <script>
-  document.querySelectorAll(".action").forEach(btn=>{
-    btn.addEventListener("click",()=>alert(btn.textContent+" clicked!"));
+  document.querySelectorAll(".action").forEach(btn => {
+    btn.addEventListener("click", () => alert(btn.textContent + " clicked!"));
   });
 </script>
 

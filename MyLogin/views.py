@@ -145,7 +145,7 @@ def manage_postings(request):
         messages.error(request, "Access denied.")
         return redirect('home')
 
-    return render(request, 'manage_postings.html', {'postings': postings})
+    return render(request, 'manage_posting.html', {'postings': postings})
 
 
 @login_required
