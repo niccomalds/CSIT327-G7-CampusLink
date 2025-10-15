@@ -9,7 +9,9 @@ from django.contrib.auth.models import User
 from django.db import models
 from .models import Profile
 from datetime import datetime
-from .models import Profile, Posting
+from .models import Profile        # Profile is in MyLogin
+from Myapp.models import Posting    # Posting is in Myapp
+
 
 # --- Session timeout (10 minutes AFK limit) ---
 SESSION_TIMEOUT = 600  # 600 seconds = 10 minutes
