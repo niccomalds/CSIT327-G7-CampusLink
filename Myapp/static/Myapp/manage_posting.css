@@ -1,91 +1,57 @@
-/* Root variables */
+/* ---------- Shared root variables (copied from org_dashboard.css) ---------- */
 :root {
   --bg: #f9fafb;
   --card-bg: #ffffff;
-  --primary: #3b82f6;
+  --primary: #0072FF;
+  --primary-light: #00c6ff;
   --muted: #6b7280;
   --success: #22c55e;
   --danger: #ef4444;
-  --shadow-sm: rgba(0, 0, 0, 0.05);
-  --shadow-md: rgba(0, 0, 0, 0.1);
-  --radius: 8px;
+  --shadow-sm: rgba(0,0,0,0.05);
+  --shadow-md: rgba(0,0,0,0.1);
+  --border-radius: 12px;
+  --font-heading: 'Inter', sans-serif;
+  --font-body: 'Roboto', sans-serif;
   --gap: 16px;
 }
 
-/* Base reset */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: 'Roboto', sans-serif;
-}
+/* ---------- Base reset / typography ---------- */
+* { box-sizing: border-box; margin:0; padding:0; font-family: var(--font-body); }
+body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem; }
 
-body {
-  background: var(--bg);
-  color: #111827;
-  line-height: 1.5;
-}
-
-/* Header */
+/* ---------- Header & Navigation (copied from org_dashboard.css) ---------- */
 header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 24px;
-  background: #fff;
-  box-shadow: 0 2px 6px var(--shadow-sm);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  position: sticky; top:0; left:0; right:0; z-index:100;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:20px 40px; background:#fff;
+  box-shadow:0 4px 12px var(--shadow-sm);
 }
 
-header .logo {
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 1.2rem;
-}
+.logo { font-family: var(--font-heading); font-weight:500; font-size:1.3rem; color: var(--primary); display:flex; align-items:center; gap:8px; }
 
-header nav a {
-  margin-right: 16px;
-  text-decoration: none;
-  color: #374151;
-  font-weight: 500;
-}
+nav { display:flex; gap:28px; }
+nav a { text-decoration:none; color:#555; padding:8px 14px; border-radius:8px; font-weight:500; transition:0.3s; }
+nav a.active, nav a:hover { background: var(--primary-light); color:#fff; }
 
-header nav a.active {
-  color: var(--primary);
-}
+.nav-right { display:flex; align-items:center; gap:16px; }
+.nav-right input { padding:8px 16px; border-radius:24px; border:1px solid #ddd; outline:none; transition:0.3s; }
+.nav-right input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(0,114,255,0.2); }
+.nav-right button { background:none; border:none; cursor:pointer; font-size:1.2rem; transition:0.2s; }
+.nav-right button:hover { transform:scale(1.1); }
 
-header .nav-right input {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #d1d5db;
-  margin-right: 8px;
-}
-
-/* Main content */
-.content {
-  padding: 24px;
-}
+/* ---------- Page layout and title (kept from your manage_posting.css) ---------- */
+.content { padding: 24px; max-width:1200px; margin:auto; }
 
 .dashboard-title h1 {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-heading);
   font-weight: 600;
   font-size: 1.8rem;
   margin-bottom: 6px;
 }
+.dashboard-title h1 span { color: var(--primary); }
+.dashboard-title p { color: var(--muted); font-size: 0.95rem; margin-bottom: 24px; }
 
-.dashboard-title h1 span {
-  color: var(--primary);
-}
-
-.dashboard-title p {
-  color: var(--muted);
-  font-size: 0.9rem;
-  margin-bottom: 24px;
-}
-
-/* Postings cards */
+/* ---------- Postings cards (kept + slightly adapted) ---------- */
 .recent-postings {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -95,12 +61,14 @@ header .nav-right input {
 .posting-card {
   background: var(--card-bg);
   padding: 16px;
-  border-radius: var(--radius);
-  box-shadow: 0 2px 6px var(--shadow-sm);
+  border-radius: var(--border-radius);
+  box-shadow: 0 6px 16px var(--shadow-md);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  transition: 0.3s;
 }
+.posting-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px var(--shadow-md); }
 
 .posting-info {
   display: flex;
@@ -115,26 +83,25 @@ header .nav-right input {
 }
 
 .status {
-  padding: 2px 8px;
-  border-radius: 6px;
+  padding: 4px 10px;
+  border-radius: 8px;
   font-size: 0.75rem;
   color: #fff;
-  text-transform: uppercase;
+  font-weight: 600;
+  white-space: nowrap;
+  text-transform: none;
 }
 
-.status.active {
-  background-color: var(--success);
-}
-
-.status.closed {
-  background-color: var(--danger);
-}
+.status.active { background: var(--success); }
+.status.closed { background: var(--muted); } /* matched org dashboard closed style */
+.status.pending { background: #f59e0b; color: #fff; }
 
 .details small {
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: 0.85rem;
 }
 
+/* ---------- Actions grid/buttons ---------- */
 .actions-grid {
   display: flex;
   flex-wrap: wrap;
@@ -143,66 +110,68 @@ header .nav-right input {
 }
 
 .action {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #fff;
   text-decoration: none;
   text-align: center;
+  border: none;
 }
 
-.action.edit-btn {
-  background: var(--primary);
-}
+.action.edit-btn { background: var(--primary); }
+.action.delete-btn { background: var(--danger); }
 
-.action.delete-btn {
-  background: var(--danger);
-}
+.action:hover { opacity: 0.95; transform: translateY(-2px); }
 
-.action:hover {
-  opacity: 0.9;
-}
-
-/* Modal */
+/* ---------- Modal (kept) ---------- */
 .modal {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0,0,0,0.5);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
 .modal-content {
   background: var(--card-bg);
+  border-radius: var(--border-radius);
   padding: 24px;
-  border-radius: var(--radius);
-  min-width: 320px;
+  width: 90%;
+  max-width: 420px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
 }
 
 .modal-content h3 {
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
   margin-bottom: 16px;
 }
 
 .modal-content label {
+  font-weight: 500;
   display: block;
   margin-top: 12px;
-  font-weight: 500;
-  font-size: 0.85rem;
 }
 
 .modal-content input,
 .modal-content select {
   width: 100%;
-  padding: 6px 10px;
-  margin-top: 4px;
-  border-radius: 6px;
+  padding: 8px 10px;
   border: 1px solid #d1d5db;
+  border-radius: 6px;
+  margin-top: 4px;
+}
+
+/* ---------- Responsive tweaks ---------- */
+@media(max-width:1024px){
+  .recent-postings { grid-template-columns: 1fr; }
+  main, .content { padding: 24px; }
+  nav { flex-wrap:wrap; gap:14px; }
 }

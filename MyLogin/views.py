@@ -85,6 +85,7 @@ def register_view(request):
         role = request.POST.get('role')
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
+        org_name = request.POST.get('org_name')
         email = request.POST.get('email')
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
@@ -109,7 +110,10 @@ def register_view(request):
         )
 
         # Create profile
-        Profile.objects.create(user=user, role=role)
+        if role == "Organization":
+            Profile.objects.create(user=user, role=role, org_name=org_name)
+        else:
+            Profile.objects.create(user=user, role=role)
 
         messages.success(request, "Registration successful. You can now log in.")
         return redirect('login')
