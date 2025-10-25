@@ -44,8 +44,8 @@
             <div class="posting-card" data-id="{{ post.id }}">
               <div class="posting-info">
                 <span class="title">{{ post.title }}</span>
-                <span class="status {% if post.deadline|date:'Y-m-d' >= today %}active{% else %}closed{% endif %}">
-                  {% if post.deadline|date:'Y-m-d' >= today %}Active{% else %}Ended{% endif %}
+                <span class="status {% if post.status == 'Active' %}active{% else %}closed{% endif %}">
+                  {{ post.status }}
                 </span>
               </div>
 
@@ -153,7 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
       editTitle.value = titleEl.textContent.trim();
       editDescription.value = descriptionEl.textContent.trim();
       editDeadline.value = deadlineText;
-      editStatus.value = statusEl.classList.contains("active") ? "active" : "closed";
+      editStatus.value = statusEl.textContent.trim().toLowerCase() === "active" ? "active" : "closed";
 
       editModal.style.display = "flex";
     });
@@ -168,6 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
     formData.append('title', editTitle.value);
     formData.append('deadline', editDeadline.value);
     formData.append('description', editDescription.value);
+    formData.append('status', editStatus.value === "active" ? "Active" : "Closed");
 
     try {
       const response = await fetch(`/organization/edit-posting/${postId}/`, {
@@ -187,9 +188,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         titleEl.textContent = editTitle.value;
         descriptionEl.textContent = editDescription.value;
-        detailsEl.textContent = `Deadline: ${editDeadline.value} · Status: ${editStatus.value}`;
-        statusEl.textContent = editStatus.value === "active" ? "Active" : "Ended";
-        statusEl.className = `status ${editStatus.value}`;
+        detailsEl.textContent = `Deadline: ${editDeadline.value} · Status: ${editStatus.value === "active" ? "Active" : "Closed"}`;
+        statusEl.textContent = editStatus.value === "active" ? "Active" : "Closed";
+        statusEl.className = `status ${editStatus.value === "active" ? "active" : "closed"}`;
 
         editModal.style.display = "none";
         showMessage('Posting updated successfully!', 'success');

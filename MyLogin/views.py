@@ -138,13 +138,13 @@ def organization_dashboard(request):
     postings = Posting.objects.filter(organization=request.user)
     
     # Calculate stats
-    active_postings_count = postings.filter(deadline__gte=date.today()).count()
-    total_applicants = 0  # You'll need to add applicant tracking
-    total_views = 0  # You'll need to add view tracking
-    acceptance_rate = 0  # You'll need to add acceptance tracking
+    active_postings_count = postings.filter(deadline__gte=date.today(), status='Active').count()
+    total_applicants = 0
+    total_views = 0
+    acceptance_rate = 0
     
-    # Get recent postings (last 3)
-    recent_postings = postings.order_by('-id')[:3]  # Using -id since created_at might not exist
+    # Get recent postings - SHOW ALL (remove the [:3] limit)
+    recent_postings = postings.order_by('-id')  # ← REMOVED: [:3]
 
     context = {
         'active_postings_count': active_postings_count,
@@ -193,6 +193,7 @@ def edit_posting(request, post_id):
         title = request.POST.get('title')
         description = request.POST.get('description')
         deadline = request.POST.get('deadline')
+        status = request.POST.get('status')  # ← ADD THIS LINE
 
         # Optional: validate title and deadline
         if not title:
@@ -202,6 +203,7 @@ def edit_posting(request, post_id):
         posting.title = title
         posting.description = description
         posting.deadline = deadline
+        posting.status = status  # ← ADD THIS LINE
         posting.save()
 
         messages.success(request, "Posting updated successfully.")
