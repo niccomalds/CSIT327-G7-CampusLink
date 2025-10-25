@@ -11,6 +11,7 @@ from datetime import datetime
 from .models import Profile        # Profile is in MyLogin
 from Myapp.models import Posting    # Posting is in Myapp
 from datetime import date
+from functools import wraps
 
 
 # --- Session timeout (10 minutes AFK limit) ---
