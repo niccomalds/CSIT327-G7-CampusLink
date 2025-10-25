@@ -7,8 +7,16 @@ from datetime import datetime
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from .models import Profile
+<<<<<<< HEAD
 from functools import wraps
 from Myapp.models import Posting  # Posting is in Myapp
+=======
+from datetime import datetime
+from .models import Profile        # Profile is in MyLogin
+from Myapp.models import Posting    # Posting is in Myapp
+from datetime import date
+
+>>>>>>> feature/final_org_dashboard
 
 # --- Session timeout (10 minutes AFK limit) ---
 SESSION_TIMEOUT = 600  # 600 seconds = 10 minutes
@@ -154,6 +162,39 @@ def register_view(request):
 def home_view(request):
     return render(request, 'home.html')
 
+from django.contrib.auth.decorators import login_required
+
+
+@login_required
+def organization_dashboard(request):
+    # Only allow Organization users
+    if not hasattr(request.user, 'profile') or request.user.profile.role != "Organization":
+        messages.error(request, "Access denied.")
+        return redirect('login')
+
+    # Get organization's postings
+    postings = Posting.objects.filter(organization=request.user)
+    
+    # Calculate stats
+    active_postings_count = postings.filter(deadline__gte=date.today()).count()
+    total_applicants = 0  # You'll need to add applicant tracking
+    total_views = 0  # You'll need to add view tracking
+    acceptance_rate = 0  # You'll need to add acceptance tracking
+    
+    # Get recent postings (last 3)
+    recent_postings = postings.order_by('-id')[:3]  # Using -id since created_at might not exist
+
+    context = {
+        'active_postings_count': active_postings_count,
+        'total_applicants': total_applicants,
+        'total_views': total_views,
+        'acceptance_rate': acceptance_rate,
+        'recent_postings': recent_postings,
+        'today': date.today(),
+    }
+
+    return render(request, 'org_dashboard.html', context)
+
 
 # --- Organization/Admin Posting Management ---
 @login_required
@@ -225,4 +266,5 @@ def delete_posting(request, post_id):
         messages.success(request, "Posting deleted successfully.")
         return redirect('manage_postings')
 
-    return render(request, 'delete_posting.html', {'posting': posting})
+    # REDIRECT GET REQUESTS (since we deleted the template)
+    return redirect('manage_postings')
