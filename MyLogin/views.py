@@ -7,16 +7,11 @@ from datetime import datetime
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from .models import Profile
-<<<<<<< HEAD
-from functools import wraps
-from Myapp.models import Posting  # Posting is in Myapp
-=======
 from datetime import datetime
 from .models import Profile        # Profile is in MyLogin
 from Myapp.models import Posting    # Posting is in Myapp
 from datetime import date
 
->>>>>>> feature/final_org_dashboard
 
 # --- Session timeout (10 minutes AFK limit) ---
 SESSION_TIMEOUT = 600  # 600 seconds = 10 minutes
