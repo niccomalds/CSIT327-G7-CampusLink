@@ -55,23 +55,23 @@
     <div class="stats-grid">
       <div class="card">
         <h4>Active Postings</h4>
-        <p class="stat blue">5</p>
-        <small>+2 from last month</small>
+        <p class="stat blue">{{ active_postings_count }}</p>
+        <small>Currently active opportunities</small>
       </div>
       <div class="card">
         <h4>Total Applicants</h4>
-        <p class="stat orange">84</p>
-        <small>+12% from last week</small>
+        <p class="stat orange">{{ total_applicants }}</p>
+        <small>Total applications received</small>
       </div>
       <div class="card">
         <h4>Total Views</h4>
-        <p class="stat green">1247</p>
-        <small>+8% from last week</small>
+        <p class="stat green">{{ total_views }}</p>
+        <small>Total posting views</small>
       </div>
       <div class="card">
         <h4>Acceptance Rate</h4>
-        <p class="stat">76%</p>
-        <div class="progress-bar"><div class="fill" style="width:76%"></div></div>
+        <p class="stat">{{ acceptance_rate }}%</p>
+        <div class="progress-bar"><div class="fill" style="width:{{ acceptance_rate }}%"></div></div>
       </div>
     </div>
 
@@ -89,29 +89,32 @@
       <div class="recent-postings">
         <h3>Recent Postings</h3>
 
-        <div class="posting-card">
-          <div class="posting-info">
-            <span class="title">Software Engineering Intern</span>
-            <span class="status active">Active</span>
+        {% if recent_postings %}
+          {% for post in recent_postings %}
+            <div class="posting-card">
+              <div class="posting-info">
+                <span class="title">{{ post.title }}</span>
+                <span class="status {% if post.deadline|date:'Y-m-d' >= today %}active{% else %}closed{% endif %}">
+                  {% if post.deadline|date:'Y-m-d' >= today %}Active{% else %}Ended{% endif %}
+                </span>
+              </div>
+              <div class="description">
+                <p>{{ post.description|truncatewords:20|default:"No description provided" }}</p>
+              </div>
+              <div class="details">
+                <small>Deadline: {{ post.deadline|date:"Y-m-d" }} · Status: {{ post.status }}</small>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="posting-card">
+            <div class="posting-info">
+              <span class="title">No postings yet</span>
+              <span class="status closed">Inactive</span>
+            </div>
+            <div class="details"><small>Create your first posting to get started</small></div>
           </div>
-          <div class="details"><small>24 applicants · 156 views · Ends in 5 days</small></div>
-        </div>
-
-        <div class="posting-card">
-          <div class="posting-info">
-            <span class="title">Marketing Assistant</span>
-            <span class="status active">Active</span>
-          </div>
-          <div class="details"><small>12 applicants · 87 views · Ends in 3 days</small></div>
-        </div>
-
-        <div class="posting-card">
-          <div class="posting-info">
-            <span class="title">Research Volunteer</span>
-            <span class="status closed">Ended</span>
-          </div>
-          <div class="details"><small>8 applicants · 45 views · Ended</small></div>
-        </div>
+        {% endif %}
 
         <a href="{% url 'manage_postings' %}" class="view-all">View All Postings</a>
       </div>

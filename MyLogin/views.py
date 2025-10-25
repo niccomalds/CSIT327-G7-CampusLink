@@ -11,6 +11,7 @@ from .models import Profile
 from datetime import datetime
 from .models import Profile        # Profile is in MyLogin
 from Myapp.models import Posting    # Posting is in Myapp
+from datetime import date
 
 
 # --- Session timeout (10 minutes AFK limit) ---
@@ -133,7 +134,28 @@ def organization_dashboard(request):
         messages.error(request, "Access denied.")
         return redirect('login')
 
-    return render(request, 'org_dashboard.html')
+    # Get organization's postings
+    postings = Posting.objects.filter(organization=request.user)
+    
+    # Calculate stats
+    active_postings_count = postings.filter(deadline__gte=date.today()).count()
+    total_applicants = 0  # You'll need to add applicant tracking
+    total_views = 0  # You'll need to add view tracking
+    acceptance_rate = 0  # You'll need to add acceptance tracking
+    
+    # Get recent postings (last 3)
+    recent_postings = postings.order_by('-id')[:3]  # Using -id since created_at might not exist
+
+    context = {
+        'active_postings_count': active_postings_count,
+        'total_applicants': total_applicants,
+        'total_views': total_views,
+        'acceptance_rate': acceptance_rate,
+        'recent_postings': recent_postings,
+        'today': date.today(),
+    }
+
+    return render(request, 'org_dashboard.html', context)
 
 
 @login_required
@@ -206,4 +228,5 @@ def delete_posting(request, post_id):
         messages.success(request, "Posting deleted successfully.")
         return redirect('manage_postings')
 
-    return render(request, 'delete_posting.html', {'posting': posting})
+    # REDIRECT GET REQUESTS (since we deleted the template)
+    return redirect('manage_postings')
