@@ -94,8 +94,8 @@
             <div class="posting-card">
               <div class="posting-info">
                 <span class="title">{{ post.title }}</span>
-                <span class="status {% if post.deadline|date:'Y-m-d' >= today %}active{% else %}closed{% endif %}">
-                  {% if post.deadline|date:'Y-m-d' >= today %}Active{% else %}Ended{% endif %}
+                <span class="status {% if post.status == 'Active' %}active{% else %}closed{% endif %}">
+                  {{ post.status }}
                 </span>
               </div>
               <div class="description">
