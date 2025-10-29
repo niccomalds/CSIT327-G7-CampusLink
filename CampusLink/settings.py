@@ -1,18 +1,15 @@
 import os
 from pathlib import Path
-from dotenv import load_dotenv
 import dj_database_url
 from decouple import config
-from dotenv import load_dotenv
-
-# Load .env file
-load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = config("SECRET_KEY", default=os.getenv("SECRET_KEY"))
-DEBUG = config("DEBUG", default=(os.getenv("DEBUG") == "True"), cast=bool)
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default=os.getenv("ALLOWED_HOSTS", "")).split(",")
+SECRET_KEY = config('DJANGO_SECRET_KEY')
+DEBUG = config("DEBUG", default=False, cast=bool)
+ALLOWED_HOSTS = ['localhost','127.0.0.1','.onrender.com']
+CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -21,8 +18,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'MyLogin',   # App for login and templates
-    'Myapp',     # App containing static files (profile.css, etc.)
+    'MyLogin',   
+    'Myapp',     
 ]
 
 MIDDLEWARE = [
@@ -33,8 +30,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
-    # ✅ Custom middleware for auto logout
     'Myapp.middleware.auto_logout.AutoLogoutMiddleware',
 
 ]
@@ -62,8 +57,10 @@ WSGI_APPLICATION = 'CampusLink.wsgi.application'
 
 # --- DATABASE CONFIG ---
 DATABASES = {
-    'default': dj_database_url.parse(os.getenv('DATABASE_URL'), conn_max_age=600)
+    "default": dj_database_url.parse(config("DATABASE_URL")),
 }
+DATABASES['default']['CONN_MAX_AGE'] = config("DB_CONN_MAX_AGE", default=60, cast=int)
+
 
 # --- PASSWORD VALIDATION ---
 AUTH_PASSWORD_VALIDATORS = [
