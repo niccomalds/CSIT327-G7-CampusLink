@@ -112,9 +112,22 @@ def admin_dashboard(request):
 
 
 # --- Other views ---
+
+
 @login_required
 def profile(request):
-    return render(request, 'profile.html')
+    if request.method == "POST":
+        profile = request.user.profile
+        profile.full_name = request.POST.get("full_name")
+        profile.phone = request.POST.get("phone")
+        profile.academic_year = request.POST.get("academic_year")
+        profile.major = request.POST.get("major")
+        profile.bio = request.POST.get("bio")
+        profile.save()
+        messages.success(request, "Profile updated successfully.")
+        return redirect('profile')  # Make sure your URL name matches
+    return render(request, "profile.html")
+
 
 
 def register_view(request):

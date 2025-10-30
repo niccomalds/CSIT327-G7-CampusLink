@@ -42,12 +42,14 @@
       <aside class="profile-side">
         <div class="profile-card">
           <img src="{% static 'Myapp/profile.jpg' %}" class="profile-photo" alt="Student Avatar">
-          <div class="profile-major-year" id="majorYearView">Computer Science • 3rd Year</div>
+          <div class="profile-major-year" id="majorYearView">
+            {{ request.user.profile.major }} • {{ request.user.profile.academic_year }}
+          </div>
           <div class="profile-info-list" id="infoListView">
-            <div><i class="fa-regular fa-envelope"></i> <span id="emailView">student@university.edu</span></div>
-            <div><i class="fa-solid fa-phone"></i> <span id="phoneView">+1 (555) 123-4567</span></div>
-            <div><i class="fa-solid fa-graduation-cap"></i> <span id="majorView">Computer Science</span></div>
-            <div><i class="fa-regular fa-calendar"></i> <span id="yearView">3rd Year</span></div>
+            <div><i class="fa-regular fa-envelope"></i> <span id="emailView">{{ request.user.email }}</span></div>
+            <div><i class="fa-solid fa-phone"></i> <span id="phoneView">{{ request.user.profile.phone }}</span></div>
+            <div><i class="fa-solid fa-graduation-cap"></i> <span id="majorView">{{ request.user.profile.major }}</span></div>
+            <div><i class="fa-regular fa-calendar"></i> <span id="yearView">{{ request.user.profile.academic_year }}</span></div>
           </div>
           <hr>
           <div class="profile-links" id="portfolioLinksView">
@@ -65,44 +67,45 @@
       </aside>
       <!-- Form Section -->
       <section class="profile-form-section">
-        <form class="profile-form" autocomplete="off" onsubmit="return false;">
+        <form method="post" class="profile-form" autocomplete="off">
+          {% csrf_token %}
           <fieldset>
             <legend><strong><i class="fa-regular fa-address-card"></i> Personal Information</strong></legend>
             <div class="profile-form-row">
               <div class="profile-form-group">
-                <label for="fullName">Full Name</label>
-                <input type="text" id="fullName" value="Student Name" disabled>
+                <label for="full_name">Full Name</label>
+                <input type="text" id="full_name" name="full_name" value="{{ request.user.profile.full_name }}" disabled>
               </div>
               <div class="profile-form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" value="student@university.edu" disabled>
+                <input type="email" id="email" value="{{ request.user.email }}" disabled>
               </div>
             </div>
             <div class="profile-form-row">
               <div class="profile-form-group">
                 <label for="phone">Phone</label>
-                <input type="tel" id="phone" value="+1 (555) 123-4567" disabled>
+                <input type="tel" id="phone" name="phone" value="{{ request.user.profile.phone }}" disabled>
               </div>
               <div class="profile-form-group">
-                <label for="year">Academic Year</label>
-                <input type="text" id="year" value="3rd Year" disabled>
+                <label for="academic_year">Academic Year</label>
+                <input type="text" id="academic_year" name="academic_year" value="{{ request.user.profile.academic_year }}" disabled>
               </div>
             </div>
             <div class="profile-form-row">
               <div class="profile-form-group">
                 <label for="major">Course/Major</label>
-                <input type="text" id="major" value="Computer Science" disabled>
+                <input type="text" id="major" name="major" value="{{ request.user.profile.major }}" disabled>
               </div>
             </div>
             <div class="profile-form-row">
               <div class="profile-form-group" style="flex:2;">
                 <label for="bio">Bio</label>
-                <textarea id="bio" rows="3" placeholder="Write something about yourself..." disabled></textarea>
+                <textarea id="bio" name="bio" rows="3" placeholder="Write something about yourself..." disabled>{{ request.user.profile.bio }}</textarea>
               </div>
             </div>
           </fieldset>
         </form>
-        <!-- Skills -->
+        <!-- Skills and Portfolio Links -->
         <div class="profile-skills">
           <fieldset>
             <legend><strong><i class="fa-solid fa-lightbulb"></i> Skills</strong></legend>
@@ -114,7 +117,6 @@
             </div>
           </fieldset>
         </div>
-        <!-- Portfolio Links: Redesigned Block -->
         <div id="portfolioLinkEditBlock" style="display:none;">
           <fieldset class="portfolio-fieldset">
             <legend>
@@ -146,10 +148,10 @@
         userToggle.setAttribute("aria-expanded", "false");
       }
     });
-    // Edit / Save Profile
+    // Edit / Save Profile toggle logic
     const editBtn = document.getElementById("editBtn");
     const saveBtn = document.getElementById("saveBtn");
-    const inputs = document.querySelectorAll("input, textarea");
+    const inputs = document.querySelectorAll("input[name], textarea[name]");
     const skillInputWrap = document.getElementById("skillInputWrap");
     const portfolioBlock = document.getElementById("portfolioLinkEditBlock");
     editBtn.addEventListener("click", () => {
@@ -160,14 +162,11 @@
       portfolioBlock.style.display = "block";
     });
     saveBtn.addEventListener("click", () => {
-      inputs.forEach(i => i.disabled = true);
-      editBtn.style.display = "inline-block";
-      saveBtn.style.display = "none";
-      skillInputWrap.style.display = "none";
-      portfolioBlock.style.display = "none";
-      alert("Profile changes saved!");
+      // Submit the form on save
+      document.querySelector('.profile-form').submit();
     });
-    // Skills
+
+    // Skills logic (unchanged)
     const skillsList = document.getElementById("skillsList");
     const addSkillBtn = document.getElementById("addSkillBtn");
     const newSkill = document.getElementById("newSkill");
@@ -186,7 +185,7 @@
         newSkill.value = "";
       }
     });
-    // Portfolio Links
+    // Portfolio Links logic (unchanged)
     const addLinkBtn = document.getElementById("addLinkBtn");
     const portfolioName = document.getElementById("portfolioName");
     const portfolioURL = document.getElementById("portfolioURL");
@@ -231,6 +230,7 @@
         portfolioName.value = "";
         portfolioURL.value = "";
       }
+      
     });
   </script>
 </body>
