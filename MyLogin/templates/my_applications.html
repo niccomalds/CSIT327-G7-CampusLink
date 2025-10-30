@@ -1,0 +1,771 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusLink – My Applications</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'Myapp/my_applications.css' %}">
+</head>
+<body>
+  <header class="header">
+    <div class="logo">
+      <i class="fa-solid fa-graduation-cap"></i>
+      <span>CampusLink</span>
+    </div>
+    <nav>
+      <a href="{% url 'student_dashboard' %}">Home</a>
+      <a href="{% url 'my_applications' %}" class="active">My Applications</a>
+      <a href="{% url 'profile' %}">Profile</a>
+      <a href="#">Notifications</a>
+    </nav>
+    <div class="search-profile">
+      <input type="text" class="top-search" placeholder="Search applications...">
+
+      <!-- PROFILE DROPDOWN -->
+      <div class="profile-dropdown">
+        <img src="{% static 'Myapp/profile.jpg' %}" alt="Profile" class="avatar" id="profileAvatar">
+        <div class="dropdown-menu" id="profileMenu">
+          <div class="dropdown-header">Student</div>
+          <a href="{% url 'profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
+          <a href="#"><i class="fa-solid fa-gear"></i> Settings</a>
+          <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Page Header -->
+    <div class="dashboard-title">
+      <h1>My <span class="highlight">Applications</span></h1>
+      <p>Track your application progress and stay updated on opportunities.</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <section class="stats-row">
+      <div class="stat-card">
+        <span class="stat-num">5</span>
+        <span class="stat-label">Total</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">2</span>
+        <span class="stat-label">Submitted</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">1</span>
+        <span class="stat-label">Review</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">1</span>
+        <span class="stat-label">Accepted</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">1</span>
+        <span class="stat-label">Rejected</span>
+      </div>
+    </section>
+
+    <!-- Search and Filter -->
+    <section class="search-filter-row">
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Search applications..." id="applicationSearch">
+      </div>
+      <select class="filter-dropdown" id="statusFilter">
+        <option>All Status</option>
+        <option>Submitted</option>
+        <option>Under Review</option>
+        <option>Accepted</option>
+        <option>Rejected</option>
+        <option>Withdrawn</option>
+      </select>
+    </section>
+
+    <!-- Applications List -->
+    <section class="applications-container">
+      {% if applications %}
+        {% for application in applications %}
+        <div class="application-card" data-application-id="{{ application.id }}" data-status="{{ application.status }}">
+          <div class="app-header">
+            <div class="app-title-section">
+              <h3>{{ application.job_posting.title }}</h3>
+              <span class="app-org">{{ application.job_posting.organization.name }}</span>
+            </div>
+            <div class="app-actions">
+              <span class="status-badge status-{{ application.status }}">
+                {% if application.status == 'submitted' %}
+                  <i class="fa-regular fa-clock"></i>
+                {% elif application.status == 'under_review' %}
+                  <i class="fa-regular fa-eye"></i>
+                {% elif application.status == 'accepted' %}
+                  <i class="fa-solid fa-check"></i>
+                {% elif application.status == 'rejected' %}
+                  <i class="fa-solid fa-xmark"></i>
+                {% elif application.status == 'withdrawn' %}
+                  <i class="fa-solid fa-ban"></i>
+                {% endif %}
+                {{ application.get_status_display }}
+              </span>
+              <div class="action-buttons">
+                <button class="view-details-btn" onclick="openApplicationModal({{ application.id }})">
+                  <i class="fa-regular fa-file-lines"></i>
+                  View Details
+                </button>
+                {% if application.status == 'submitted' or application.status == 'under_review' %}
+                <button class="withdraw-btn" onclick="showWithdrawConfirmation({{ application.id }})">
+                  <i class="fa-solid fa-xmark"></i>
+                  Withdraw
+                </button>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="app-desc">{{ application.job_posting.description }}</div>
+          <div class="app-meta">
+            <span class="app-location">
+              <i class="fa-solid fa-map-marker-alt"></i>
+              {{ application.job_posting.work_mode }}
+            </span>
+            <span class="app-date">
+              <i class="fa-solid fa-calendar-check"></i>
+              Applied: {{ application.applied_date }}
+            </span>
+            <span class="app-deadline">
+              <i class="fa-solid fa-clock"></i>
+              Deadline: {{ application.job_posting.deadline }}
+            </span>
+            <span class="app-type">
+              <i class="fa-solid fa-briefcase"></i>
+              {{ application.job_posting.type }}
+            </span>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <!-- Sample Applications for Demo -->
+        <div class="application-card" data-application-id="1" data-status="submitted">
+          <div class="app-header">
+            <div class="app-title-section">
+              <h3>Software Engineering Intern</h3>
+              <span class="app-org">Tech Innovations Lab</span>
+            </div>
+            <div class="app-actions">
+              <span class="status-badge status-submitted">
+                <i class="fa-regular fa-clock"></i>
+                Submitted
+              </span>
+              <div class="action-buttons">
+                <button class="view-details-btn" onclick="openApplicationModal(1)">
+                  <i class="fa-regular fa-file-lines"></i>
+                  View Details
+                </button>
+                <button class="withdraw-btn" onclick="showWithdrawConfirmation(1)">
+                  <i class="fa-solid fa-xmark"></i>
+                  Withdraw
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="app-desc">Summer internship program focusing on full-stack development.</div>
+          <div class="app-meta">
+            <span class="app-location">
+              <i class="fa-solid fa-laptop"></i>
+              Remote
+            </span>
+            <span class="app-date">
+              <i class="fa-solid fa-calendar-check"></i>
+              Applied: Jan 15, 2024
+            </span>
+            <span class="app-deadline">
+              <i class="fa-solid fa-clock"></i>
+              Deadline: Feb 15, 2024
+            </span>
+            <span class="app-type">
+              <i class="fa-solid fa-briefcase"></i>
+              Internship
+            </span>
+          </div>
+        </div>
+
+        <div class="application-card" data-application-id="2" data-status="under_review">
+          <div class="app-header">
+            <div class="app-title-section">
+              <h3>Research Assistant - AI</h3>
+              <span class="app-org">Computer Science Department</span>
+            </div>
+            <div class="app-actions">
+              <span class="status-badge status-under_review">
+                <i class="fa-regular fa-eye"></i>
+                Under Review
+              </span>
+              <div class="action-buttons">
+                <button class="view-details-btn" onclick="openApplicationModal(2)">
+                  <i class="fa-regular fa-file-lines"></i>
+                  View Details
+                </button>
+                <button class="withdraw-btn" onclick="showWithdrawConfirmation(2)">
+                  <i class="fa-solid fa-xmark"></i>
+                  Withdraw
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="app-desc">Assist faculty in machine learning research projects.</div>
+          <div class="app-meta">
+            <span class="app-location">
+              <i class="fa-solid fa-building-columns"></i>
+              On Campus
+            </span>
+            <span class="app-date">
+              <i class="fa-solid fa-calendar-check"></i>
+              Applied: Jan 10, 2024
+            </span>
+            <span class="app-deadline">
+              <i class="fa-solid fa-clock"></i>
+              Deadline: Feb 20, 2024
+            </span>
+            <span class="app-type">
+              <i class="fa-solid fa-briefcase"></i>
+              Research
+            </span>
+          </div>
+        </div>
+
+        <div class="application-card" data-application-id="3" data-status="accepted">
+          <div class="app-header">
+            <div class="app-title-section">
+              <h3>Marketing Coordinator</h3>
+              <span class="app-org">Student Union</span>
+            </div>
+            <div class="app-actions">
+              <span class="status-badge status-accepted">
+                <i class="fa-solid fa-check"></i>
+                Accepted
+              </span>
+              <div class="action-buttons">
+                <button class="view-details-btn" onclick="openApplicationModal(3)">
+                  <i class="fa-regular fa-file-lines"></i>
+                  View Details
+                </button>
+                <!-- No withdraw button for accepted applications -->
+              </div>
+            </div>
+          </div>
+          <div class="app-desc">Coordinate marketing activities for campus events.</div>
+          <div class="app-meta">
+            <span class="app-location">
+              <i class="fa-solid fa-building-columns"></i>
+              On Campus
+            </span>
+            <span class="app-date">
+              <i class="fa-solid fa-calendar-check"></i>
+              Applied: Jan 8, 2024
+            </span>
+            <span class="app-deadline">
+              <i class="fa-solid fa-clock"></i>
+              Deadline: Feb 10, 2024
+            </span>
+            <span class="app-type">
+              <i class="fa-solid fa-briefcase"></i>
+              Part-time
+            </span>
+          </div>
+        </div>
+
+        <div class="application-card" data-application-id="4" data-status="rejected">
+          <div class="app-header">
+            <div class="app-title-section">
+              <h3>Web Developer</h3>
+              <span class="app-org">Campus Startups Inc.</span>
+            </div>
+            <div class="app-actions">
+              <span class="status-badge status-rejected">
+                <i class="fa-solid fa-xmark"></i>
+                Rejected
+              </span>
+              <div class="action-buttons">
+                <button class="view-details-btn" onclick="openApplicationModal(4)">
+                  <i class="fa-regular fa-file-lines"></i>
+                  View Details
+                </button>
+                <!-- No withdraw button for rejected applications -->
+              </div>
+            </div>
+          </div>
+          <div class="app-desc">Develop and maintain web applications for local businesses.</div>
+          <div class="app-meta">
+            <span class="app-location">
+              <i class="fa-solid fa-laptop-house"></i>
+              Hybrid
+            </span>
+            <span class="app-date">
+              <i class="fa-solid fa-calendar-check"></i>
+              Applied: Jan 5, 2024
+            </span>
+            <span class="app-deadline">
+              <i class="fa-solid fa-clock"></i>
+              Deadline: Jan 30, 2024
+            </span>
+            <span class="app-type">
+              <i class="fa-solid fa-briefcase"></i>
+              Freelance
+            </span>
+          </div>
+        </div>
+
+        <div class="application-card" data-application-id="5" data-status="submitted">
+          <div class="app-header">
+            <div class="app-title-section">
+              <h3>Data Science Fellowship</h3>
+              <span class="app-org">Data Analytics Club</span>
+            </div>
+            <div class="app-actions">
+              <span class="status-badge status-submitted">
+                <i class="fa-regular fa-clock"></i>
+                Submitted
+              </span>
+              <div class="action-buttons">
+                <button class="view-details-btn" onclick="openApplicationModal(5)">
+                  <i class="fa-regular fa-file-lines"></i>
+                  View Details
+                </button>
+                <button class="withdraw-btn" onclick="showWithdrawConfirmation(5)">
+                  <i class="fa-solid fa-xmark"></i>
+                  Withdraw
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="app-desc">Intensive fellowship program with industry mentors.</div>
+          <div class="app-meta">
+            <span class="app-location">
+              <i class="fa-solid fa-laptop-house"></i>
+              Hybrid
+            </span>
+            <span class="app-date">
+              <i class="fa-solid fa-calendar-check"></i>
+              Applied: Jan 20, 2024
+            </span>
+            <span class="app-deadline">
+              <i class="fa-solid fa-clock"></i>
+              Deadline: Mar 1, 2024
+            </span>
+            <span class="app-type">
+              <i class="fa-solid fa-briefcase"></i>
+              Fellowship
+            </span>
+          </div>
+        </div>
+      {% endif %}
+    </section>
+  </main>
+
+  <!-- Withdrawal Confirmation Modal -->
+  <div id="withdrawModal" class="modal">
+    <div class="modal-content withdraw-confirmation">
+      <div class="modal-header">
+        <h2>Withdraw Application</h2>
+        <span class="close-modal" onclick="closeWithdrawModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="warning-icon">
+          <i class="fa-solid fa-exclamation-triangle"></i>
+        </div>
+        <h3>Are you sure you want to withdraw this application?</h3>
+        <p>This action cannot be undone. You will need to re-apply if you change your mind.</p>
+        <div class="application-preview">
+          <strong id="withdrawJobTitle">Software Engineering Intern</strong>
+          <span id="withdrawOrganization">Tech Innovations Lab</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="cancel-btn" onclick="closeWithdrawModal()">Cancel</button>
+        <button class="confirm-withdraw-btn" onclick="confirmWithdrawal()">Yes, Withdraw Application</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Details Modal -->
+  <div id="applicationModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Application Details</h2>
+        <span class="close-modal" onclick="closeApplicationModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="application-info">
+          <div class="info-section">
+            <h3 id="modalJobTitle">Software Engineering Intern</h3>
+            <p id="modalOrganization" class="org-name">Tech Innovations Lab</p>
+            <div class="status-display">
+              <span id="modalStatus" class="status-badge status-submitted">
+                <i class="fa-regular fa-clock"></i>
+                Submitted
+              </span>
+            </div>
+          </div>
+
+          <div class="details-grid">
+            <div class="detail-item">
+              <label><i class="fa-solid fa-calendar-check"></i> Applied Date</label>
+              <span id="modalAppliedDate">Jan 15, 2024</span>
+            </div>
+            <div class="detail-item">
+              <label><i class="fa-solid fa-clock"></i> Deadline</label>
+              <span id="modalDeadline">Feb 15, 2024</span>
+            </div>
+            <div class="detail-item">
+              <label><i class="fa-solid fa-map-marker-alt"></i> Work Mode</label>
+              <span id="modalWorkMode">Remote</span>
+            </div>
+            <div class="detail-item">
+              <label><i class="fa-solid fa-briefcase"></i> Position Type</label>
+              <span id="modalPositionType">Internship</span>
+            </div>
+          </div>
+
+          <div class="description-section">
+            <h4>Job Description</h4>
+            <p id="modalDescription">Summer internship program focusing on full-stack development.</p>
+          </div>
+
+          <div class="submitted-materials">
+            <h4>Submitted Materials</h4>
+            
+            <div class="resume-section">
+              <div class="section-header">
+                <h5><i class="fa-solid fa-file-pdf"></i> Resume</h5>
+                <button class="download-btn" onclick="downloadResume()">
+                  <i class="fa-solid fa-download"></i> Download
+                </button>
+              </div>
+              <div class="file-preview">
+                <div class="pdf-preview">
+                  <i class="fa-solid fa-file-pdf pdf-icon"></i>
+                  <div class="pdf-info">
+                    <span class="file-name" id="resumeFileName">john_doe_resume.pdf</span>
+                    <span class="file-size">2.4 MB</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="notes-section">
+              <div class="section-header">
+                <h5><i class="fa-solid fa-note-sticky"></i> Cover Letter & Notes</h5>
+              </div>
+              <div class="notes-content">
+                <p id="modalNotes">I am excited to apply for the Software Engineering Intern position at Tech Innovations Lab. With my strong foundation in full-stack development and passion for creating innovative solutions, I believe I would be a valuable addition to your team. I have experience with React, Node.js, and modern development practices, and I'm eager to contribute to your cutting-edge projects.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="application-timeline">
+            <h4>Application Timeline</h4>
+            <div class="timeline">
+              <div class="timeline-item completed">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                  <span class="timeline-date">Jan 15, 2024</span>
+                  <span class="timeline-event">Application Submitted</span>
+                </div>
+              </div>
+              <div class="timeline-item current">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                  <span class="timeline-date">Jan 16, 2024</span>
+                  <span class="timeline-event">Under Review</span>
+                </div>
+              </div>
+              <div class="timeline-item upcoming">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                  <span class="timeline-date">Expected: Feb 1, 2024</span>
+                  <span class="timeline-event">Interview</span>
+                </div>
+              </div>
+              <div class="timeline-item upcoming">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                  <span class="timeline-date">Expected: Feb 15, 2024</span>
+                  <span class="timeline-event">Final Decision</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="close-btn" onclick="closeApplicationModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Profile dropdown functionality
+    const avatar = document.getElementById('profileAvatar');
+    const menu = document.getElementById('profileMenu');
+    
+    if (avatar && menu) {
+      avatar.addEventListener('click', () => {
+        menu.parentElement.classList.toggle('show');
+      });
+      
+      window.addEventListener('click', (e) => {
+        if (!avatar.contains(e.target) && !menu.contains(e.target)) {
+          menu.parentElement.classList.remove('show');
+        }
+      });
+    }
+
+    // Search functionality
+    const searchInput = document.getElementById('applicationSearch');
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const applications = document.querySelectorAll('.application-card');
+        
+        applications.forEach(app => {
+          const text = app.textContent.toLowerCase();
+          app.style.display = text.includes(searchTerm) ? 'block' : 'none';
+        });
+      });
+    }
+
+    // Status filter functionality
+    const statusFilter = document.getElementById('statusFilter');
+    if (statusFilter) {
+      statusFilter.addEventListener('change', function() {
+        const selectedStatus = this.value.toLowerCase().replace(' ', '_');
+        const applications = document.querySelectorAll('.application-card');
+        
+        applications.forEach(app => {
+          const statusBadge = app.querySelector('.status-badge');
+          if (selectedStatus === 'all status' || statusBadge.classList.contains('status-' + selectedStatus)) {
+            app.style.display = 'block';
+          } else {
+            app.style.display = 'none';
+          }
+        });
+      });
+    }
+
+    // Withdrawal functionality
+    let currentWithdrawApplicationId = null;
+
+    function showWithdrawConfirmation(applicationId) {
+      currentWithdrawApplicationId = applicationId;
+      
+      // Get application details for confirmation message
+      const applicationCard = document.querySelector(`[data-application-id="${applicationId}"]`);
+      const jobTitle = applicationCard.querySelector('h3').textContent;
+      const organization = applicationCard.querySelector('.app-org').textContent;
+      
+      document.getElementById('withdrawJobTitle').textContent = jobTitle;
+      document.getElementById('withdrawOrganization').textContent = organization;
+      
+      document.getElementById('withdrawModal').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeWithdrawModal() {
+      document.getElementById('withdrawModal').style.display = 'none';
+      document.body.style.overflow = 'auto';
+      currentWithdrawApplicationId = null;
+    }
+
+    function confirmWithdrawal() {
+      if (!currentWithdrawApplicationId) return;
+      
+      // In a real application, you would make an API call here
+      // For now, we'll simulate the withdrawal
+      simulateWithdrawal(currentWithdrawApplicationId);
+      
+      closeWithdrawModal();
+    }
+
+    function simulateWithdrawal(applicationId) {
+      const applicationCard = document.querySelector(`[data-application-id="${applicationId}"]`);
+      const statusBadge = applicationCard.querySelector('.status-badge');
+      const withdrawButton = applicationCard.querySelector('.withdraw-btn');
+      
+      // Update status to withdrawn
+      applicationCard.setAttribute('data-status', 'withdrawn');
+      statusBadge.className = 'status-badge status-withdrawn';
+      statusBadge.innerHTML = '<i class="fa-solid fa-ban"></i> Withdrawn';
+      
+      // Remove withdraw button
+      if (withdrawButton) {
+        withdrawButton.remove();
+      }
+      
+      // Show success message
+      alert('Application withdrawn successfully!');
+      
+      // Update statistics (in a real app, this would come from the backend)
+      updateStatistics();
+    }
+
+    function updateStatistics() {
+      // In a real application, this would fetch updated stats from the backend
+      console.log('Statistics would be updated here');
+    }
+
+    // Application Details Modal Functions
+    const modal = document.getElementById('applicationModal');
+
+    function openApplicationModal(applicationId) {
+      // In a real application, you would fetch data from your backend
+      // For now, we'll use sample data based on the application ID
+      const sampleData = getSampleApplicationData(applicationId);
+      populateModalData(sampleData);
+      modal.style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeApplicationModal() {
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
+    function getSampleApplicationData(id) {
+      const sampleData = {
+        1: {
+          jobTitle: "Software Engineering Intern",
+          organization: "Tech Innovations Lab",
+          status: "submitted",
+          appliedDate: "Jan 15, 2024",
+          deadline: "Feb 15, 2024",
+          workMode: "Remote",
+          positionType: "Internship",
+          description: "Summer internship program focusing on full-stack development using React, Node.js, and modern development practices. Join our dynamic team to work on cutting-edge software solutions.",
+          resumeFile: "john_doe_resume.pdf",
+          notes: "I am excited to apply for the Software Engineering Intern position at Tech Innovations Lab. With my strong foundation in full-stack development and passion for creating innovative solutions, I believe I would be a valuable addition to your team. I have experience with React, Node.js, and modern development practices, and I'm eager to contribute to your cutting-edge projects."
+        },
+        2: {
+          jobTitle: "Research Assistant - AI",
+          organization: "Computer Science Department",
+          status: "under_review",
+          appliedDate: "Jan 10, 2024",
+          deadline: "Feb 20, 2024",
+          workMode: "On Campus",
+          positionType: "Research",
+          description: "Assist faculty in machine learning research projects. Work with cutting-edge AI technologies and contribute to groundbreaking research in artificial intelligence and data science.",
+          resumeFile: "research_assistant_resume.pdf",
+          notes: "I am particularly interested in the machine learning research being conducted in your department. My academic background in computer science and hands-on experience with Python and TensorFlow make me well-suited for this research assistant role."
+        },
+        3: {
+          jobTitle: "Marketing Coordinator",
+          organization: "Student Union",
+          status: "accepted",
+          appliedDate: "Jan 8, 2024",
+          deadline: "Feb 10, 2024",
+          workMode: "On Campus",
+          positionType: "Part-time",
+          description: "Coordinate marketing activities for campus events and student activities. Perfect for students interested in marketing, event management, and social media strategy.",
+          resumeFile: "marketing_coordinator_resume.pdf",
+          notes: "As an active member of campus life, I'm excited about the opportunity to promote student events and activities. My experience with social media management and event planning aligns well with this role."
+        },
+        4: {
+          jobTitle: "Web Developer",
+          organization: "Campus Startups Inc.",
+          status: "rejected",
+          appliedDate: "Jan 5, 2024",
+          deadline: "Jan 30, 2024",
+          workMode: "Hybrid",
+          positionType: "Freelance",
+          description: "Develop and maintain web applications for local businesses. Work with modern web technologies and contribute to real-world projects while building your portfolio.",
+          resumeFile: "web_developer_resume.pdf",
+          notes: "I was drawn to this position because of the opportunity to work with local businesses and gain practical web development experience. My portfolio includes several projects using React and Node.js."
+        },
+        5: {
+          jobTitle: "Data Science Fellowship",
+          organization: "Data Analytics Club",
+          status: "submitted",
+          appliedDate: "Jan 20, 2024",
+          deadline: "Mar 1, 2024",
+          workMode: "Hybrid",
+          positionType: "Fellowship",
+          description: "Intensive data science program with industry mentors and real-world projects. Develop skills in machine learning, data analysis, and business intelligence.",
+          resumeFile: "data_science_fellowship_resume.pdf",
+          notes: "The Data Science Fellowship represents an incredible opportunity to deepen my skills in machine learning and data analysis. I'm particularly excited about the mentorship component and real-world project experience."
+        }
+      };
+      
+      return sampleData[id] || sampleData[1];
+    }
+
+    function populateModalData(data) {
+      document.getElementById('modalJobTitle').textContent = data.jobTitle;
+      document.getElementById('modalOrganization').textContent = data.organization;
+      document.getElementById('modalAppliedDate').textContent = data.appliedDate;
+      document.getElementById('modalDeadline').textContent = data.deadline;
+      document.getElementById('modalWorkMode').textContent = data.workMode;
+      document.getElementById('modalPositionType').textContent = data.positionType;
+      document.getElementById('modalDescription').textContent = data.description;
+      document.getElementById('resumeFileName').textContent = data.resumeFile;
+      document.getElementById('modalNotes').textContent = data.notes;
+
+      // Update status badge
+      const statusBadge = document.getElementById('modalStatus');
+      statusBadge.className = `status-badge status-${data.status}`;
+      
+      // Update status icon and text
+      let iconClass, statusText;
+      switch(data.status) {
+        case 'submitted':
+          iconClass = 'fa-regular fa-clock';
+          statusText = 'Submitted';
+          break;
+        case 'under_review':
+          iconClass = 'fa-regular fa-eye';
+          statusText = 'Under Review';
+          break;
+        case 'accepted':
+          iconClass = 'fa-solid fa-check';
+          statusText = 'Accepted';
+          break;
+        case 'rejected':
+          iconClass = 'fa-solid fa-xmark';
+          statusText = 'Rejected';
+          break;
+        case 'withdrawn':
+          iconClass = 'fa-solid fa-ban';
+          statusText = 'Withdrawn';
+          break;
+      }
+      
+      statusBadge.innerHTML = `<i class="${iconClass}"></i> ${statusText}`;
+    }
+
+    function downloadResume() {
+      const fileName = document.getElementById('resumeFileName').textContent;
+      alert(`Downloading resume: ${fileName}\n\nIn a real application, this would download the actual PDF file.`);
+    }
+
+    // Close modals when clicking outside
+    window.addEventListener('click', (e) => {
+      if (e.target === document.getElementById('withdrawModal')) {
+        closeWithdrawModal();
+      }
+      if (e.target === document.getElementById('applicationModal')) {
+        closeApplicationModal();
+      }
+    });
+
+    // Close modals with Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (document.getElementById('withdrawModal').style.display === 'block') {
+          closeWithdrawModal();
+        }
+        if (document.getElementById('applicationModal').style.display === 'block') {
+          closeApplicationModal();
+        }
+      }
+    });
+  </script>
+</body>
+</html>

@@ -266,3 +266,16 @@ def delete_posting(request, post_id):
 
     # REDIRECT GET REQUESTS (since we deleted the template)
     return redirect('manage_postings')
+
+
+@login_required
+@role_required(allowed_roles=['Student'])
+def my_applications(request):
+    """
+    Display the My Applications page for students
+    """
+    applications = []  # Empty for now - Mahinay will add real data later
+    
+    return render(request, 'my_applications.html', {
+        'applications': applications
+    })
