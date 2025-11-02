@@ -14,6 +14,7 @@ urlpatterns = [
     path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
     path('student/dashboard/profile/', views.profile, name='profile'),
     path('student/dashboard/profile/', views.profile, name='student_profile'),
+    path('my-applications/', views.my_applications, name='my_applications'),
 
     # --- Organization pages ---
     path('organization/dashboard/', views.organization_dashboard, name='organization_dashboard'),
