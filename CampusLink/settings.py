@@ -5,7 +5,7 @@ from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = config('DJANGO_SECRET_KEY')
+SECRET_KEY = config('SECRET_KEY')
 DEBUG = config("DEBUG", default=False, cast=bool)
 ALLOWED_HOSTS = ['localhost','127.0.0.1','.onrender.com']
 CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
