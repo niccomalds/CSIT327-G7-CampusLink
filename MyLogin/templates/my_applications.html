@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CampusLink – My Applications</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="{% static 'Myapp/my_applications.css' %}">
+  <link rel="stylesheet" href="{% static 'Myapp/my_applications.css' %}?v=1.0">
 </head>
 <body>
   <header class="header">
@@ -535,22 +535,34 @@
     }
 
     // Status filter functionality
-    const statusFilter = document.getElementById('statusFilter');
-    if (statusFilter) {
-      statusFilter.addEventListener('change', function() {
-        const selectedStatus = this.value.toLowerCase().replace(' ', '_');
-        const applications = document.querySelectorAll('.application-card');
+    // Status filter functionality - FIXED
+const statusFilter = document.getElementById('statusFilter');
+if (statusFilter) {
+  statusFilter.addEventListener('change', function() {
+    const selectedStatus = this.value.toLowerCase();
+    const applications = document.querySelectorAll('.application-card');
+    
+    applications.forEach(app => {
+      if (selectedStatus === 'all status') {
+        // Show all applications
+        app.style.display = 'block';
+      } else {
+        // Get the actual status from data attribute or badge class
+        const appStatus = app.getAttribute('data-status') || 
+                         app.querySelector('.status-badge').className.match(/status-(\w+)/)[1];
         
-        applications.forEach(app => {
-          const statusBadge = app.querySelector('.status-badge');
-          if (selectedStatus === 'all status' || statusBadge.classList.contains('status-' + selectedStatus)) {
-            app.style.display = 'block';
-          } else {
-            app.style.display = 'none';
-          }
-        });
-      });
-    }
+        // Convert selected status to match data attribute format
+        const formattedSelectedStatus = selectedStatus.replace(' ', '_');
+        
+        if (appStatus === formattedSelectedStatus) {
+          app.style.display = 'block';
+        } else {
+          app.style.display = 'none';
+        }
+      }
+    });
+  });
+}
 
     // Withdrawal functionality
     let currentWithdrawApplicationId = null;
