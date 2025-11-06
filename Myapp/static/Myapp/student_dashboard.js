@@ -242,6 +242,11 @@ handleAllFilters() {
     } else {
         this.hideNoResults();
     }
+    
+    // NEW: Refresh sorting after filtering to maintain sort order
+    if (window.opportunitySorterInstance) {
+        window.opportunitySorterInstance.refreshSort();
+    }
     }
 }
 
@@ -561,24 +566,26 @@ class TypeFilter {
     }
     
     updateResultsDisplay(visibleCount) {
-        const resultsCount = document.getElementById('resultsCount');
-        const noResults = document.getElementById('noResults');
-        const opportunityGrid = document.getElementById('opportunityGrid');
-        const searchResultsInfo = document.getElementById('searchResultsInfo');
+    const resultsCount = document.getElementById('resultsCount');
+    const noResults = document.getElementById('noResults');
+    const opportunityGrid = document.getElementById('opportunityGrid');
+    const searchResultsInfo = document.getElementById('searchResultsInfo');
 
-        resultsCount.textContent = visibleCount;
+    resultsCount.textContent = visibleCount;
 
-        if (visibleCount === 0) {
-            noResults.style.display = 'block';
-            opportunityGrid.style.display = 'none';
-        } else {
-            noResults.style.display = 'none';
-            opportunityGrid.style.display = 'grid';
-        }
-        if (this.getSelectedTypes().length > 0) {
-            searchResultsInfo.style.display = 'block';
-        }
+    if (visibleCount === 0) {
+        noResults.style.display = 'block';
+        opportunityGrid.style.display = 'none';
+    } else {
+        noResults.style.display = 'none';
+        opportunityGrid.style.display = 'grid';
     }
+
+    // Show results info when filtered
+    if (this.categoryDropdown.value !== '') {
+        searchResultsInfo.style.display = 'block';
+    }
+}
     
     updateTypeCounts() {
         const counts = {
@@ -634,17 +641,261 @@ class TypeFilter {
     }
 }
 
+// ===== SORTING FUNCTIONALITY =====
+class OpportunitySorter {
+    constructor() {
+        this.currentSort = 'recent';
+        this.sortDirection = 'desc';
+        this.sortDropdown = document.getElementById('sortDropdown');
+        this.opportunityGrid = document.getElementById('opportunityGrid');
+        
+        this.init();
+    }
+    
+    init() {
+        this.attachEventListeners();
+        this.applySort('recent', 'desc'); // Default sort
+    }
+    
+    attachEventListeners() {
+        this.sortDropdown.addEventListener('change', (e) => {
+            this.handleSortChange(e.target.value);
+        });
+    }
+    
+    handleSortChange(sortType) {
+        this.currentSort = sortType;
+        
+        // Set default direction based on sort type
+        switch(sortType) {
+            case 'recent':
+                this.sortDirection = 'desc'; // Newest first
+                break;
+            case 'deadline':
+                this.sortDirection = 'asc'; // Soonest first
+                break;
+            case 'organization':
+            case 'title':
+                this.sortDirection = 'asc'; // A-Z
+                break;
+        }
+        
+        this.applySort(sortType, this.sortDirection);
+        this.updateSortIndicator();
+    }
+    
+    applySort(sortType, direction) {
+        const opportunities = Array.from(this.opportunityGrid.querySelectorAll('.opp-card'));
+        const sortedOpportunities = this.sortOpportunities(opportunities, sortType, direction);
+        
+        // Clear and re-append sorted opportunities
+        this.opportunityGrid.innerHTML = '';
+        sortedOpportunities.forEach(opp => {
+            this.opportunityGrid.appendChild(opp);
+        });
+    }
+    
+    sortOpportunities(opportunities, sortType, direction) {
+        return opportunities.sort((a, b) => {
+            let aValue, bValue;
+            
+            switch(sortType) {
+                case 'recent':
+                    aValue = new Date(a.getAttribute('data-posted'));
+                    bValue = new Date(b.getAttribute('data-posted'));
+                    break;
+                case 'deadline':
+                    aValue = new Date(a.getAttribute('data-deadline'));
+                    bValue = new Date(b.getAttribute('data-deadline'));
+                    break;
+                case 'organization':
+                    aValue = a.querySelector('.opp-org').textContent.toLowerCase();
+                    bValue = b.querySelector('.opp-org').textContent.toLowerCase();
+                    break;
+                case 'title':
+                    aValue = a.querySelector('.opp-header h3').textContent.toLowerCase();
+                    bValue = b.querySelector('.opp-header h3').textContent.toLowerCase();
+                    break;
+                default:
+                    return 0;
+            }
+            
+            let comparison = 0;
+            if (sortType === 'recent' || sortType === 'deadline') {
+                comparison = aValue - bValue;
+            } else {
+                if (aValue < bValue) comparison = -1;
+                if (aValue > bValue) comparison = 1;
+            }
+            
+            return direction === 'desc' ? -comparison : comparison;
+        });
+    }
+    
+    updateSortIndicator() {
+        // Remove existing indicators
+        const existingIndicators = this.sortDropdown.querySelectorAll('.sort-indicator');
+        existingIndicators.forEach(indicator => indicator.remove());
+        
+        // Add new indicator to selected option
+        const selectedOption = this.sortDropdown.options[this.sortDropdown.selectedIndex];
+        selectedOption.textContent = selectedOption.textContent.replace(/ ↑| ↓/g, '');
+        selectedOption.textContent += this.sortDirection === 'asc' ? ' ↑' : ' ↓';
+    }
+    
+    refreshSort() {
+        this.applySort(this.currentSort, this.sortDirection);
+    }
+    
+}
+
+// ===== CATEGORY FILTER FUNCTIONALITY =====
+class CategoryFilter {
+    constructor() {
+        this.categoryDropdown = document.getElementById('categoryFilter'); // Updated
+        this.init();
+    }
+    
+    init() {
+        this.attachEventListeners();
+    }
+    
+    attachEventListeners() {
+        this.categoryDropdown.addEventListener('change', (e) => {
+            this.handleCategoryFilter(e.target.value);
+        });
+    }
+    
+    handleCategoryFilter(category) {
+    const opportunities = document.querySelectorAll('.opp-card');
+    let visibleCount = 0;
+
+    opportunities.forEach(opp => {
+        let shouldShow = true;
+
+        if (category && category !== '') {
+            switch(category) {
+                case 'internship':
+                    shouldShow = this.isInternship(opp);
+                    break;
+                case 'research':
+                    shouldShow = this.isResearch(opp);
+                    break;
+                case 'part-time':
+                    shouldShow = this.isPartTime(opp);
+                    break;
+            }
+        }
+
+        opp.style.display = shouldShow ? 'block' : 'none';
+        if (shouldShow) visibleCount++;
+    });
+
+    this.updateResultsDisplay(visibleCount);
+    this.handleSearchAndFilterCombination();
+}
+    
+    isInternship(opp) {
+        const title = opp.querySelector('.opp-header h3')?.textContent.toLowerCase() || '';
+        const desc = opp.querySelector('.opp-desc')?.textContent.toLowerCase() || '';
+        
+        return title.includes('intern') || 
+               title.includes('internship') || 
+               desc.includes('intern') ||
+               desc.includes('internship');
+    }
+    
+    isResearch(opp) {
+        const title = opp.querySelector('.opp-header h3')?.textContent.toLowerCase() || '';
+        const desc = opp.querySelector('.opp-desc')?.textContent.toLowerCase() || '';
+        const org = opp.querySelector('.opp-org')?.textContent.toLowerCase() || '';
+        
+        return title.includes('research') || 
+               title.includes('assistant') ||
+               desc.includes('research') ||
+               desc.includes('data analysis') ||
+               org.includes('research') ||
+               org.includes('lab');
+    }
+    
+    isPartTime(opp) {
+        const title = opp.querySelector('.opp-header h3')?.textContent.toLowerCase() || '';
+        const desc = opp.querySelector('.opp-desc')?.textContent.toLowerCase() || '';
+        
+        return title.includes('part-time') || 
+               title.includes('part time') ||
+               desc.includes('part-time') ||
+               desc.includes('part time') ||
+               desc.includes('flexible hours') ||
+               desc.includes('20 hours') ||
+               desc.includes('15-20 hours');
+    }
+    
+    updateResultsDisplay(visibleCount) {
+        const resultsCount = document.getElementById('resultsCount');
+        const noResults = document.getElementById('noResults');
+        const opportunityGrid = document.getElementById('opportunityGrid');
+        const searchResultsInfo = document.getElementById('searchResultsInfo');
+
+        resultsCount.textContent = visibleCount;
+
+        if (visibleCount === 0) {
+            noResults.style.display = 'block';
+            opportunityGrid.style.display = 'none';
+        } else {
+            noResults.style.display = 'none';
+            opportunityGrid.style.display = 'grid';
+        }
+
+        // Show results info when filtered
+        if (this.categoryDropdown.value !== 'All Categories') {
+            searchResultsInfo.style.display = 'block';
+        }
+    }
+    
+    handleSearchAndFilterCombination() {
+        const searchInput = document.querySelector('.search-box input');
+        const searchTerm = searchInput.value.trim();
+        
+        if (searchTerm) {
+            const searchEvent = new Event('input', { bubbles: true });
+            searchInput.dispatchEvent(searchEvent);
+        }
+        
+        // Refresh sorting if needed
+        if (window.opportunitySorterInstance) {
+            window.opportunitySorterInstance.refreshSort();
+        }
+    }
+    
+    clearCategoryFilter() {
+        this.categoryDropdown.value = '';
+        const opportunities = document.querySelectorAll('.opp-card');
+        opportunities.forEach(opp => {
+            opp.style.display = 'block';
+        });
+        
+        const searchResultsInfo = document.getElementById('searchResultsInfo');
+        searchResultsInfo.style.display = 'none';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     window.opportunitySearchInstance = new OpportunitySearch();
-    new DeadlineFilter(); 
-    new TypeFilter(); 
-});
+    window.deadlineFilterInstance = new DeadlineFilter(); 
+    window.typeFilterInstance = new TypeFilter();
+    window.opportunitySorterInstance = new OpportunitySorter();
+    window.categoryFilterInstance = new CategoryFilter(); // NEW
 
-const avatar = document.getElementById('profileAvatar');
-const menu = document.getElementById('profileMenu');
-avatar.addEventListener('click', () => { menu.parentElement.classList.toggle('show'); });
-window.addEventListener('click', (e) => {
-    if (!avatar.contains(e.target) && !menu.contains(e.target)) { 
-        menu.parentElement.classList.remove('show'); 
-    }
+    const avatar = document.getElementById('profileAvatar');
+    const menu = document.getElementById('profileMenu');
+    avatar.addEventListener('click', () => { 
+        menu.parentElement.classList.toggle('show'); 
+    });
+    
+    window.addEventListener('click', (e) => {
+        if (!avatar.contains(e.target) && !menu.contains(e.target)) { 
+            menu.parentElement.classList.remove('show'); 
+        }
+    });
 });
