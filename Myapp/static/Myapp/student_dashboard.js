@@ -74,12 +74,12 @@ class OpportunitySearch {
     }
     
     performSearch(searchTerm) {
-        const trimmedTerm = searchTerm.trim().toLowerCase();
-        
-        if (!trimmedTerm) {
-            this.showAllOpportunities();
-            return;
-        }
+    const trimmedTerm = searchTerm.trim().toLowerCase();
+    
+    if (!trimmedTerm) {
+        this.handleAllFilters(); 
+        return;
+    }
         
         const filteredOpportunities = this.opportunities.filter(opp => 
             this.opportunityMatchesSearch(opp, trimmedTerm)
@@ -197,6 +197,51 @@ class OpportunitySearch {
     clearSearch() {
         this.searchInput.value = '';
         this.showAllOpportunities();
+    }
+
+handleAllFilters() {
+    const searchTerm = this.searchInput.value.trim();
+    const opportunities = document.querySelectorAll('.opp-card');
+    let visibleCount = 0;
+
+    opportunities.forEach(opp => {
+        let shouldShow = true;
+
+        if (searchTerm) {
+            const title = opp.querySelector('.opp-header h3')?.textContent.toLowerCase() || '';
+            const org = opp.querySelector('.opp-org')?.textContent.toLowerCase() || '';
+            const desc = opp.querySelector('.opp-desc')?.textContent.toLowerCase() || '';
+            const tags = Array.from(opp.querySelectorAll('.opp-tags span')).map(span => span.textContent.toLowerCase());
+            
+            const matchesSearch = title.includes(searchTerm) || 
+                                org.includes(searchTerm) || 
+                                desc.includes(searchTerm) || 
+                                tags.some(tag => tag.includes(searchTerm));
+            
+            if (!matchesSearch) {
+                shouldShow = false;
+            }
+        }
+
+        const selectedTypes = Array.from(document.querySelectorAll('input[name="opportunityType"]:checked'))
+            .map(cb => cb.value);
+        const oppType = opp.getAttribute('data-type');
+        
+        if (selectedTypes.length > 0 && !selectedTypes.includes(oppType)) {
+            shouldShow = false;
+        }
+
+        opp.style.display = shouldShow ? 'block' : 'none';
+        if (shouldShow) visibleCount++;
+    });
+
+    this.updateResultsCount(visibleCount);
+    
+    if (visibleCount === 0) {
+        this.showNoResults();
+    } else {
+        this.hideNoResults();
+    }
     }
 }
 
@@ -420,14 +465,179 @@ handleSearchAndFilterCombination() {
             this.endDate.setCustomValidity('End date must be after start date');
         } else {
             this.endDate.setCustomValidity('');
+         }
         }
     }
 }
+
+// Opportunity Type Filter Functionality
+class TypeFilter {
+    constructor() {
+        this.typeCheckboxes = document.querySelectorAll('input[name="opportunityType"]');
+        this.typeCounts = {
+            assistantship: document.getElementById('count-assistantship'),
+            volunteer: document.getElementById('count-volunteer'),
+            sports: document.getElementById('count-sports'),
+            leadership: document.getElementById('count-leadership'),
+            other: document.getElementById('count-other')
+        };
+        this.filterCount = document.getElementById('typeFilterCount');
+        this.opportunities = document.querySelectorAll('.opp-card');
+        
+        this.init();
+    }
+    
+    init() {
+        this.attachEventListeners();
+        this.updateTypeCounts();
+        this.updateFilterCountText();
+    }
+    
+    attachEventListeners() {
+        // Listen for checkbox changes
+        this.typeCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                this.handleTypeFilterChange();
+            });
+        });
+    }
+    
+    handleTypeFilterChange() {
+        const selectedTypes = this.getSelectedTypes();
+        
+        if (selectedTypes.length === 0) {
+            // If no types selected, show all
+            this.showAllOpportunities();
+        } else {
+            // Filter opportunities based on selected types
+            this.filterOpportunitiesByType(selectedTypes);
+        }
+        
+        this.updateFilterCountText();
+        this.handleSearchAndFilterCombination();
+    }
+    
+    getSelectedTypes() {
+        const selectedTypes = [];
+        this.typeCheckboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                selectedTypes.push(checkbox.value);
+            }
+        });
+        return selectedTypes;
+    }
+    
+    filterOpportunitiesByType(selectedTypes) {
+        let visibleCount = 0;
+        
+        this.opportunities.forEach(opp => {
+            const oppType = opp.getAttribute('data-type');
+            
+            if (selectedTypes.includes(oppType)) {
+                opp.style.display = 'block';
+                visibleCount++;
+            } else {
+                opp.style.display = 'none';
+            }
+        });
+        
+        this.updateResultsDisplay(visibleCount);
+    }
+    
+    showAllOpportunities() {
+        this.opportunities.forEach(opp => {
+            opp.style.display = 'block';
+        });
+        
+        const resultsCount = document.getElementById('resultsCount');
+        const searchResultsInfo = document.getElementById('searchResultsInfo');
+        resultsCount.textContent = this.opportunities.length;
+        searchResultsInfo.style.display = 'none';
+        
+        const noResults = document.getElementById('noResults');
+        const opportunityGrid = document.getElementById('opportunityGrid');
+        noResults.style.display = 'none';
+        opportunityGrid.style.display = 'grid';
+    }
+    
+    updateResultsDisplay(visibleCount) {
+        const resultsCount = document.getElementById('resultsCount');
+        const noResults = document.getElementById('noResults');
+        const opportunityGrid = document.getElementById('opportunityGrid');
+        const searchResultsInfo = document.getElementById('searchResultsInfo');
+
+        resultsCount.textContent = visibleCount;
+
+        if (visibleCount === 0) {
+            noResults.style.display = 'block';
+            opportunityGrid.style.display = 'none';
+        } else {
+            noResults.style.display = 'none';
+            opportunityGrid.style.display = 'grid';
+        }
+        if (this.getSelectedTypes().length > 0) {
+            searchResultsInfo.style.display = 'block';
+        }
+    }
+    
+    updateTypeCounts() {
+        const counts = {
+            assistantship: 0,
+            volunteer: 0,
+            sports: 0,
+            leadership: 0,
+            other: 0
+        };
+        
+        this.opportunities.forEach(opp => {
+            const type = opp.getAttribute('data-type');
+            if (counts.hasOwnProperty(type)) {
+                counts[type]++;
+            }
+        });
+    
+        Object.keys(counts).forEach(type => {
+            if (this.typeCounts[type]) {
+                this.typeCounts[type].textContent = counts[type];
+            }
+        });
+    }
+    
+    updateFilterCountText() {
+        const selectedTypes = this.getSelectedTypes();
+        const totalTypes = this.typeCheckboxes.length;
+        
+        if (selectedTypes.length === totalTypes) {
+            this.filterCount.textContent = 'All types';
+        } else if (selectedTypes.length === 0) {
+            this.filterCount.textContent = 'No types selected';
+        } else {
+            this.filterCount.textContent = `${selectedTypes.length} type${selectedTypes.length > 1 ? 's' : ''} selected`;
+        }
+    }
+    
+    handleSearchAndFilterCombination() {
+        const searchInput = document.querySelector('.search-box input');
+        const searchTerm = searchInput.value.trim();
+        
+        if (searchTerm) {
+            const searchEvent = new Event('input', { bubbles: true });
+            searchInput.dispatchEvent(searchEvent);
+        }
+    }
+
+    resetTypeFilter() {
+        this.typeCheckboxes.forEach(checkbox => {
+            checkbox.checked = true;
+        });
+        this.updateFilterCountText();
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    window.opportunitySearchInstance = new OpportunitySearch(); // Store instance globally
+    window.opportunitySearchInstance = new OpportunitySearch();
     new DeadlineFilter(); 
+    new TypeFilter(); 
 });
 
 const avatar = document.getElementById('profileAvatar');
