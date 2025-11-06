@@ -221,12 +221,159 @@ nav a:hover, nav a.active {
   border: 1px solid #d1d5db;
   outline: none;
 }
+
 .filter-dropdown {
   padding: 8px 14px;
   border-radius: 12px;
   border: 1px solid #d1d5db;
   outline: none;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.3s;
 }
+
+.filter-dropdown:focus {
+  border-color: #00c6ff;
+  box-shadow: 0 0 0 3px rgba(0, 198, 255, 0.1);
+}
+
+.search-results-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;       /* pushes group to right side */
+}
+
+.search-results-info {
+  display: none;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+/* ===== SEARCH FUNCTIONALITY STYLES ===== */
+
+/* Search active state */
+.search-box:focus-within {
+  border-color: #00c6ff;
+  box-shadow: 0 0 0 3px rgba(0, 198, 255, 0.1);
+}
+
+/* Search results counter - RIGHT ALIGNED */
+.search-results-info {
+  display: none;
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-left: auto;
+  padding: 8px 0;
+  min-width: 120px;
+  text-align: right;
+}
+
+/* No results state - PROFESSIONAL POSITIONING */
+.no-results {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #6b7280;
+  display: none;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  max-width: 500px;
+  margin: 50px auto; /* Professional margin instead of fixed positioning */
+  grid-column: 1 / -1; /* Makes it span full grid width */
+}
+
+.no-results i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #d1d5db;
+}
+
+.no-results h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #374151;
+}
+
+.no-results p {
+  color: #6b7280;
+}
+
+/* Search match highlighting */
+.highlight {
+  background-color: #fff3cd;
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  color: #8a6d3b;
+}
+
+/* Hidden state for filtered cards */
+.opp-card[style*="display: none"] {
+  display: none !important;
+}
+
+/* Custom Date Range */
+.custom-date-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.date-input {
+  padding: 6px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  outline: none;
+  font-size: 0.9rem;
+}
+
+.date-input:focus {
+  border-color: #00c6ff;
+}
+
+.apply-custom-range {
+  padding: 6px 12px;
+  background: #00c6ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.3s;
+}
+
+.apply-custom-range:hover {
+  background: #00b4e6;
+}
+
+/* Adjust search results group for new filters */
+.search-results-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+
+.opp-deadline {
+  color: #dc2626;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.opp-deadline i {
+  margin-right: 4px;
+}
+
+.opp-badge {
+  display: none; /* Hide the old badge */
+}
+
 /* OPPORTUNITY GRID */
 .opportunity-grid {
   display: grid;
@@ -290,30 +437,4 @@ nav a:hover, nav a.active {
 .apply-btn:hover {
   opacity: 0.95;
   transform: translateY(-2px);
-}
-/* RESPONSIVE */
-@media (max-width: 900px) {
-  .dashboard-title {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .stats-row {
-    flex-direction: column;
-  }
-  .search-filter-row {
-    flex-direction: column;
-  }
-  .opportunity-grid {
-    grid-template-columns: 1fr;
-  }
-}
-@media (max-width: 600px) {
-  .navbar, .header {
-    flex-direction: column;
-    gap: 12px;
-    padding: 12px 24px;
-  }
-  .search-profile input {
-    width: 100%;
-  }
 }

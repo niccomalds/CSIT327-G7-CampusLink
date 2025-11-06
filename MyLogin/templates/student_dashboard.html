@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CampusLink – Student Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="{% static 'Myapp/student_dashboard.css' %}">
+  <link rel="stylesheet" href="{% static 'Myapp/student_dashboard.css' %}?v=1.4">
 </head>
 <body>
   <header class="header">
@@ -37,7 +37,7 @@
   </header>
   <main>
     <div class="dashboard-title">
-      <h1>Discover Your Next <span class="highlight">Opportunity</span></h1>
+      <h1>Discover Your Next <span style="color: #00c6ff;">Opportunity</span></h1>
       <p>Explore internships, research positions, and part-time jobs tailored for your academic journey.</p>
     </div>
     <section class="stats-row">
@@ -51,99 +51,119 @@
         <i class="fa-solid fa-magnifying-glass"></i>
         <input type="text" placeholder="Search by title, organization, or skills..." />
       </div>
-      <select class="filter-dropdown">
-        <option>All Categories</option>
-        <option>Internship</option>
-        <option>Research</option>
-        <option>Part-time</option>
-      </select>
+
+      <div class="search-results-group">
+        <!-- Category Filter (existing) -->
+        <select class="filter-dropdown">
+          <option>All Categories</option>
+          <option>Internship</option>
+          <option>Research</option>
+          <option>Part-time</option>
+        </select>
+
+        <!-- NEW: Deadline Filter -->
+        <select class="filter-dropdown" id="deadlineFilter">
+          <option value="">All Deadlines</option>
+          <option value="today">Due Today</option>
+          <option value="week">Due This Week</option>
+          <option value="month">Due This Month</option>
+          <option value="custom">Custom Range</option>
+        </select>
+
+        <!-- Custom Date Range (hidden by default) -->
+        <div class="custom-date-range" id="customDateRange" style="display: none;">
+          <input type="date" id="startDate" class="date-input">
+          <span>to</span>
+          <input type="date" id="endDate" class="date-input">
+          <button class="apply-custom-range">Apply</button>
+        </div>
+
+        <div class="search-results-info" id="searchResultsInfo">
+          Showing <span id="resultsCount">0</span> results
+        </div>
+      </div>
     </section>
-    <section class="opportunity-grid">
-      <div class="opp-card">
+
+    <!-- OPPORTUNITY GRID -->
+    <section class="opportunity-grid" id="opportunityGrid">
+      <!-- sample cards -->
+      <div class="opp-card" data-deadline="2024-01-15">
         <div class="opp-header">
           <h3>Software Engineering Intern</h3>
           <span class="opp-org">Tech Innovations Lab</span>
         </div>
         <div class="opp-desc">Join our dynamic team to work on cutting-edge software solutions.</div>
         <div class="opp-tags">
-          <span>React</span>
-          <span>Node.js</span>
-          <span>TypeScript</span>
+          <span>React</span><span>Node.js</span><span>TypeScript</span>
         </div>
         <div class="opp-details">
           <span class="opp-type"><i class="fa-solid fa-laptop"></i> Remote</span>
           <span class="opp-applicants">24 applicants</span>
-          <span class="opp-badge">Today</span>
+          <span class="opp-deadline"><i class="fa-solid fa-calendar"></i> Due: Jan 15, 2024</span>
         </div>
         <button class="apply-btn">Apply Now</button>
       </div>
-      <div class="opp-card">
+
+      <div class="opp-card" data-deadline="2024-01-18">
         <div class="opp-header">
-          <h3>Research Assistant – AI</h3>
-          <span class="opp-org">Computer Science Department</span>
+          <h3>Data Science Research Assistant</h3>
+          <span class="opp-org">AI Research Center</span>
         </div>
-        <div class="opp-desc">Assist in groundbreaking AI research projects with faculty.</div>
+        <div class="opp-desc">Work with machine learning models and data analysis for cutting-edge research projects.</div>
         <div class="opp-tags">
-          <span>Python</span>
-          <span>Machine Learning</span>
-          <span>Research</span>
+          <span>Python</span><span>Machine Learning</span><span>Data Analysis</span>
         </div>
         <div class="opp-details">
-          <span class="opp-type"><i class="fa-solid fa-building-columns"></i> On Campus</span>
-          <span class="opp-applicants">12 applicants</span>
-          <span class="opp-badge">Today</span>
-        </div>
-        <button class="apply-btn">Apply Now</button>
-      </div>
-      <div class="opp-card">
-        <div class="opp-header">
-          <h3>Marketing Coordinator</h3>
-          <span class="opp-org">Student Union</span>
-        </div>
-        <div class="opp-desc">Help promote campus events and student activities.</div>
-        <div class="opp-tags">
-          <span>Marketing</span>
-          <span>Social Media</span>
-          <span>Events</span>
-        </div>
-        <div class="opp-details">
-          <span class="opp-type"><i class="fa-solid fa-building-columns"></i> On Campus</span>
+          <span class="opp-type"><i class="fa-solid fa-building"></i> On-campus</span>
           <span class="opp-applicants">18 applicants</span>
-          <span class="opp-badge">Today</span>
+          <span class="opp-deadline"><i class="fa-solid fa-calendar"></i> Due: Jan 18, 2024</span>
         </div>
         <button class="apply-btn">Apply Now</button>
       </div>
-      <div class="opp-card">
+
+      <div class="opp-card" data-deadline="2024-01-25">
         <div class="opp-header">
-          <h3>Data Science Fellowship</h3>
-          <span class="opp-org">Data Analytics Club</span>
+          <h3>Marketing Intern</h3>
+          <span class="opp-org">Global Marketing Firm</span>
         </div>
-        <div class="opp-desc">Intensive data science program with industry mentors.</div>
+        <div class="opp-desc">Support digital marketing campaigns and social media strategy development.</div>
         <div class="opp-tags">
-          <span>Data Science</span>
-          <span>Analytics</span>
-          <span>Mentorship</span>
+          <span>Social Media</span><span>Content Creation</span><span>Analytics</span>
         </div>
         <div class="opp-details">
           <span class="opp-type"><i class="fa-solid fa-laptop"></i> Hybrid</span>
-          <span class="opp-applicants">31 applicants</span>
-          <span class="opp-badge">Today</span>
+          <span class="opp-applicants">32 applicants</span>
+          <span class="opp-deadline"><i class="fa-solid fa-calendar"></i> Due: Jan 25, 2024</span>
+        </div>
+        <button class="apply-btn">Apply Now</button>
+      </div>
+
+      <div class="opp-card" data-deadline="2024-02-01">
+        <div class="opp-header">
+          <h3>UX/UI Design Intern</h3>
+          <span class="opp-org">Creative Design Studio</span>
+        </div>
+        <div class="opp-desc">Create user-centered designs for web and mobile applications.</div>
+        <div class="opp-tags">
+          <span>Figma</span><span>UI Design</span><span>Wireframing</span>
+        </div>
+        <div class="opp-details">
+          <span class="opp-type"><i class="fa-solid fa-laptop"></i> Remote</span>
+          <span class="opp-applicants">15 applicants</span>
+          <span class="opp-deadline"><i class="fa-solid fa-calendar"></i> Due: Feb 1, 2024</span>
         </div>
         <button class="apply-btn">Apply Now</button>
       </div>
     </section>
+
+    <div class="no-results" id="noResults">
+      <i class="fa-solid fa-search"></i>
+      <h3>No opportunities found</h3>
+      <p>Try adjusting your search terms or filters</p>
+    </div>
   </main>
-  <script>
-    const avatar = document.getElementById('profileAvatar');
-    const menu = document.getElementById('profileMenu');
-    avatar.addEventListener('click', () => {
-      menu.parentElement.classList.toggle('show');
-    });
-    window.addEventListener('click', (e) => {
-      if (!avatar.contains(e.target) && !menu.contains(e.target)) {
-        menu.parentElement.classList.remove('show');
-      }
-    });
-  </script>
+
+  <!-- ADD THE EXTERNAL JAVASCRIPT FILE -->
+  <script src="{% static 'Myapp/student_dashboard.js' %}?v=1.0"></script>
 </body>
 </html>
