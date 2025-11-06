@@ -581,7 +581,6 @@ class TypeFilter {
         opportunityGrid.style.display = 'grid';
     }
 
-    // Show results info when filtered
     if (this.categoryDropdown.value !== '') {
         searchResultsInfo.style.display = 'block';
     }
@@ -880,12 +879,225 @@ class CategoryFilter {
     }
 }
 
+// ===== PROFESSIONAL ORGANIZATION MULTI-SELECT FUNCTIONALITY =====
+class OrganizationFilter {
+    constructor() {
+        this.organizationSelect = document.querySelector('.organization-multi-select');
+        this.selectHeader = this.organizationSelect.querySelector('.select-header');
+        this.selectDropdown = this.organizationSelect.querySelector('.select-dropdown');
+        this.orgSearch = this.organizationSelect.querySelector('.org-search');
+        this.orgOptions = this.organizationSelect.querySelectorAll('.org-option input');
+        this.selectedOrgsContainer = this.organizationSelect.querySelector('.selected-orgs');
+        this.selectedOrganizations = new Set();
+        
+        this.init();
+    }
+    
+    init() {
+        this.attachEventListeners();
+        this.updateVisualState();
+    }
+    
+    attachEventListeners() {
+        // Toggle dropdown
+        this.selectHeader.addEventListener('click', (e) => {
+            this.toggleDropdown();
+        });
+        
+        // Search organizations
+        this.orgSearch.addEventListener('input', (e) => {
+            this.filterOrganizations(e.target.value);
+        });
+        
+        // Organization selection
+        this.orgOptions.forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                this.handleOrganizationSelection(e.target);
+            });
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!this.organizationSelect.contains(e.target)) {
+                this.closeDropdown();
+            }
+        });
+    }
+    
+    toggleDropdown() {
+        if (this.selectDropdown.classList.contains('show')) {
+            this.closeDropdown();
+        } else {
+            this.openDropdown();
+        }
+    }
+    
+    openDropdown() {
+        this.selectDropdown.classList.add('show');
+        this.selectHeader.classList.add('active');
+        this.orgSearch.focus();
+    }
+    
+    closeDropdown() {
+        this.selectDropdown.classList.remove('show');
+        this.selectHeader.classList.remove('active');
+        this.orgSearch.value = '';
+        this.filterOrganizations(''); // Reset filter
+    }
+    
+    filterOrganizations(searchTerm) {
+        const term = searchTerm.toLowerCase();
+        this.orgOptions.forEach(checkbox => {
+            const orgName = checkbox.value.toLowerCase();
+            const orgOption = checkbox.closest('.org-option');
+            if (orgName.includes(term)) {
+                orgOption.style.display = 'flex';
+            } else {
+                orgOption.style.display = 'none';
+            }
+        });
+    }
+    
+    handleOrganizationSelection(checkbox) {
+        const orgName = checkbox.value;
+        
+        if (checkbox.checked) {
+            this.selectedOrganizations.add(orgName);
+        } else {
+            this.selectedOrganizations.delete(orgName);
+        }
+        
+        this.updateSelectedOrgsDisplay();
+        this.updateVisualState();
+        this.applyOrganizationFilter();
+    }
+    
+    updateSelectedOrgsDisplay() {
+        this.selectedOrgsContainer.innerHTML = '';
+        
+        this.selectedOrganizations.forEach(orgName => {
+            const chip = document.createElement('div');
+            chip.className = 'org-chip';
+            chip.innerHTML = `
+                ${orgName}
+                <button class="remove-chip" data-org="${orgName}">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+            this.selectedOrgsContainer.appendChild(chip);
+        });
+        
+        // Add remove chip functionality
+        this.selectedOrgsContainer.querySelectorAll('.remove-chip').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const orgName = button.getAttribute('data-org');
+                this.removeOrganization(orgName);
+            });
+        });
+    }
+    
+    removeOrganization(orgName) {
+        this.selectedOrganizations.delete(orgName);
+        
+        // Uncheck the corresponding checkbox
+        this.orgOptions.forEach(checkbox => {
+            if (checkbox.value === orgName) {
+                checkbox.checked = false;
+            }
+        });
+        
+        this.updateSelectedOrgsDisplay();
+        this.updateVisualState();
+        this.applyOrganizationFilter();
+    }
+    
+    updateVisualState() {
+        if (this.selectedOrganizations.size > 0) {
+            this.selectHeader.style.borderColor = '#00c6ff';
+            this.selectHeader.style.backgroundColor = '#f0f9ff';
+        } else {
+            this.selectHeader.style.borderColor = '';
+            this.selectHeader.style.backgroundColor = '';
+        }
+    }
+    
+    applyOrganizationFilter() {
+        const opportunities = document.querySelectorAll('.opp-card');
+        let visibleCount = 0;
+
+        opportunities.forEach(opp => {
+            let shouldShow = true;
+
+            if (this.selectedOrganizations.size > 0) {
+                const oppOrg = opp.querySelector('.opp-org')?.textContent || '';
+                if (!this.selectedOrganizations.has(oppOrg)) {
+                    shouldShow = false;
+                }
+            }
+
+            opp.style.display = shouldShow ? 'block' : 'none';
+            if (shouldShow) visibleCount++;
+        });
+
+        this.updateResultsDisplay(visibleCount);
+        this.handleSearchAndFilterCombination();
+    }
+    
+    updateResultsDisplay(visibleCount) {
+        const resultsCount = document.getElementById('resultsCount');
+        const noResults = document.getElementById('noResults');
+        const opportunityGrid = document.getElementById('opportunityGrid');
+        const searchResultsInfo = document.getElementById('searchResultsInfo');
+
+        resultsCount.textContent = visibleCount;
+
+        if (visibleCount === 0) {
+            noResults.style.display = 'block';
+            opportunityGrid.style.display = 'none';
+        } else {
+            noResults.style.display = 'none';
+            opportunityGrid.style.display = 'grid';
+        }
+
+        // Show results info when filtered
+        if (this.selectedOrganizations.size > 0) {
+            searchResultsInfo.style.display = 'block';
+        }
+    }
+    
+    handleSearchAndFilterCombination() {
+        const searchInput = document.querySelector('.search-box input');
+        const searchTerm = searchInput.value.trim();
+        
+        if (searchTerm) {
+            const searchEvent = new Event('input', { bubbles: true });
+            searchInput.dispatchEvent(searchEvent);
+        }
+        
+        if (window.opportunitySorterInstance) {
+            window.opportunitySorterInstance.refreshSort();
+        }
+    }
+    
+    clearOrganizationFilter() {
+        this.selectedOrganizations.clear();
+        this.orgOptions.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        this.updateSelectedOrgsDisplay();
+        this.updateVisualState();
+        this.applyOrganizationFilter();
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     window.opportunitySearchInstance = new OpportunitySearch();
     window.deadlineFilterInstance = new DeadlineFilter(); 
     window.typeFilterInstance = new TypeFilter();
     window.opportunitySorterInstance = new OpportunitySorter();
-    window.categoryFilterInstance = new CategoryFilter(); // NEW
+    window.categoryFilterInstance = new CategoryFilter();
+    window.organizationFilterInstance = new OrganizationFilter(); 
 
     const avatar = document.getElementById('profileAvatar');
     const menu = document.getElementById('profileMenu');
