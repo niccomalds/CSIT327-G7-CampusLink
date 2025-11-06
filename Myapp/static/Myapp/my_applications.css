@@ -173,9 +173,7 @@ nav a:hover, nav a.active {
 
 /* Main Content */
 main {
-    padding: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
+    padding: 0; 
 }
 
 /* Updated Dashboard Title - Left Aligned */
