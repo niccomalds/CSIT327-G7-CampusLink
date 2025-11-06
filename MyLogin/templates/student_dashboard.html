@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CampusLink – Student Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="{% static 'Myapp/student_dashboard.css' %}?v=1.9">
+  <link rel="stylesheet" href="{% static 'Myapp/student_dashboard.css' %}?v=2.8">
 </head>
 <body>
   <header class="header">
@@ -47,12 +47,55 @@
       <div class="stat-card"><span class="stat-num">1</span><span class="stat-label">Applications Pending</span></div>
     </section>
     <section class="search-filter-row">
-  <div class="search-box">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <input type="text" placeholder="Search by title, organization, or skills..." />
-  </div>
-  <div class="search-results-group">
+  <div class="search-controls-group">
+    <div class="search-box">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" placeholder="Search by title, organization, or skills..." />
+    </div>
 
+    <div class="organization-multi-select">
+      <div class="select-header">
+        <span>Organizations</span>
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="select-dropdown">
+        <div class="search-org">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" placeholder="Search organizations..." class="org-search">
+        </div>
+        <div class="org-options">
+          <label class="org-option">
+            <input type="checkbox" value="Tech Innovations Lab">
+            <span class="checkmark"></span>
+            <span class="org-name">Tech Innovations Lab</span>
+          </label>
+          <label class="org-option">
+            <input type="checkbox" value="AI Research Center">
+            <span class="checkmark"></span>
+            <span class="org-name">AI Research Center</span>
+          </label>
+          <label class="org-option">
+            <input type="checkbox" value="Global Marketing Firm">
+            <span class="checkmark"></span>
+            <span class="org-name">Global Marketing Firm</span>
+          </label>
+          <label class="org-option">
+            <input type="checkbox" value="Creative Design Studio">
+            <span class="checkmark"></span>
+            <span class="org-name">Creative Design Studio</span>
+          </label>
+          <label class="org-option">
+            <input type="checkbox" value="Student Affairs Office">
+            <span class="checkmark"></span>
+            <span class="org-name">Student Affairs Office</span>
+          </label>
+        </div>
+      </div>
+      <div class="selected-orgs" id="selectedOrgs"></div>
+    </div>
+  </div>
+
+  <div class="filter-controls-group">
     <select class="filter-dropdown" id="sortDropdown">
       <option value="recent">Most Recent</option>
       <option value="deadline">Deadline Soonest</option>
@@ -61,11 +104,11 @@
     </select>
 
     <select class="filter-dropdown" id="categoryFilter">
-    <option value="">All Categories</option>
-    <option value="internship">Internship</option>
-    <option value="research">Research</option>
-    <option value="part-time">Part-time</option>
-</select>
+      <option value="">All Categories</option>
+      <option value="internship">Internship</option>
+      <option value="research">Research</option>
+      <option value="part-time">Part-time</option>
+    </select>
 
     <select class="filter-dropdown" id="deadlineFilter">
       <option value="">All Deadlines</option>
@@ -81,7 +124,6 @@
       <input type="date" id="endDate" class="date-input">
       <button class="apply-custom-range">Apply</button>
     </div>
-
     <div class="search-results-info" id="searchResultsInfo">
       Showing <span id="resultsCount">0</span> results
     </div>
@@ -90,40 +132,40 @@
 <section class="type-filter-section">
   <div class="type-filter-header">
     <h3>Opportunity Type</h3>
-    <span class="filter-count" id="typeFilterCount">All types</span>
+    <span class="filter-count" id="typeFilterCount">No types selected</span>
   </div>
   
   <div class="type-filter-options">
     <label class="type-checkbox">
-      <input type="checkbox" name="opportunityType" value="assistantship" checked>
+      <input type="checkbox" name="opportunityType" value="assistantship">
       <span class="checkmark"></span>
       <span class="type-label">Assistantship</span>
       <span class="type-count" id="count-assistantship">0</span>
     </label>
     
     <label class="type-checkbox">
-      <input type="checkbox" name="opportunityType" value="volunteer" checked>
+      <input type="checkbox" name="opportunityType" value="volunteer">
       <span class="checkmark"></span>
       <span class="type-label">Volunteer</span>
       <span class="type-count" id="count-volunteer">0</span>
     </label>
     
     <label class="type-checkbox">
-      <input type="checkbox" name="opportunityType" value="sports" checked>
+      <input type="checkbox" name="opportunityType" value="sports">
       <span class="checkmark"></span>
       <span class="type-label">Sports</span>
       <span class="type-count" id="count-sports">0</span>
     </label>
     
     <label class="type-checkbox">
-      <input type="checkbox" name="opportunityType" value="leadership" checked>
+      <input type="checkbox" name="opportunityType" value="leadership">
       <span class="checkmark"></span>
       <span class="type-label">Leadership</span>
       <span class="type-count" id="count-leadership">0</span>
     </label>
     
     <label class="type-checkbox">
-      <input type="checkbox" name="opportunityType" value="other" checked>
+      <input type="checkbox" name="opportunityType" value="other">
       <span class="checkmark"></span>
       <span class="type-label">Other</span>
       <span class="type-count" id="count-other">0</span>
@@ -132,9 +174,7 @@
 </section>
 
     <!-- OPPORTUNITY GRID -->
-    <!-- OPPORTUNITY GRID -->
 <section class="opportunity-grid" id="opportunityGrid">
-  <!-- sample cards with posted dates -->
   <div class="opp-card" data-deadline="2024-01-15" data-type="assistantship" data-posted="2024-01-10">
     <div class="opp-header">
       <h3>Software Engineering Intern</h3>
@@ -232,6 +272,6 @@
       <p>Try adjusting your search terms or filters</p>
     </div>
   </main>
-  <script src="{% static 'Myapp/student_dashboard.js' %}?v=1.2"></script>
+  <script src="{% static 'Myapp/student_dashboard.js' %}?v=1.6"></script>
 </body>
 </html>
