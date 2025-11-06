@@ -525,14 +525,41 @@ nav a:hover, nav a.active {
   color: #374151;
 }
 
-/* Active filter state */
 .type-checkbox.active {
   background: #e0f2ff;
   border-color: #00c6ff;
   box-shadow: 0 0 0 2px rgba(0, 198, 255, 0.1);
 }
 
-/* ⬆️⬆️⬆️ END OF TYPE FILTER STYLES ⬆️⬆️⬆️ */
+.sort-indicator {
+  margin-left: 4px;
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+}
+
+.sort-asc .sort-indicator {
+  transform: rotate(180deg);
+}
+
+.sort-desc .sort-indicator {
+  transform: rotate(0deg);
+}
+
+.filter-dropdown:focus {
+  border-color: #00c6ff;
+  box-shadow: 0 0 0 3px rgba(0, 198, 255, 0.1);
+}
+
+.filter-dropdown {
+  padding: 8px 14px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  outline: none;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.3s;
+  font-size: 0.9rem;
+}
 
 /* OPPORTUNITY GRID */
 .opportunity-grid {
