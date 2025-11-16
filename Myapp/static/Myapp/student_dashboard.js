@@ -174,7 +174,7 @@ class OpportunitySearch {
         this.hideNoResults();
     }
     
-    updateResultsCount(count) {
+    updateResultsCount(count){
         this.resultsCount.textContent = count;
         
         if (this.searchInput.value.trim()) {
@@ -184,22 +184,22 @@ class OpportunitySearch {
         }
     }
     
-    showNoResults() {
+    showNoResults(){
         this.noResults.style.display = 'block';
         this.opportunityGrid.style.display = 'none';
     }
     
-    hideNoResults() {
+    hideNoResults(){
         this.noResults.style.display = 'none';
         this.opportunityGrid.style.display = 'grid';
     }
     
-    clearSearch() {
+    clearSearch(){
         this.searchInput.value = '';
         this.showAllOpportunities();
     }
 
-handleAllFilters() {
+handleAllFilters(){
     const searchTerm = this.searchInput.value.trim();
     const opportunities = document.querySelectorAll('.opp-card');
     let visibleCount = 0;
