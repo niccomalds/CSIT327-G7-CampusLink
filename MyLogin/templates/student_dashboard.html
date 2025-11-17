@@ -25,7 +25,11 @@
 
       <!-- PROFILE DROPDOWN -->
       <div class="profile-dropdown">
-        <img src="{% static 'Myapp/profile.jpg' %}" alt="Profile" class="avatar" id="profileAvatar">
+        <img src="{{ user.profile.profile_picture.url|default:'/static/Myapp/default-avatar.png' }}"
+     alt="Profile"
+     class="avatar"
+     id="profileAvatar">
+
         <div class="dropdown-menu" id="profileMenu">
           <div class="dropdown-header">Student</div>
           <a href="{% url 'profile' %}"><i class="fa-solid fa-user"></i> Profile</a>

@@ -95,3 +95,10 @@ AUTO_LOGOUT_DELAY = 300  # seconds
 
 # Optional (recommended for safety)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+LOGIN_REDIRECT_URL = '/Myapp/dashboard/'
+
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = BASE_DIR / 'media'
+
