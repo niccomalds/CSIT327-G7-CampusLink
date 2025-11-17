@@ -114,7 +114,12 @@ def admin_dashboard(request):
 # --- Other views ---
 @login_required
 def profile(request):
-    return render(request, 'profile.html')
+    profile = request.user.profile  # load the user's saved profile
+
+    return render(request, 'profile.html', {
+        "profile": profile
+    })
+
 
 
 def register_view(request):
@@ -279,3 +284,59 @@ def my_applications(request):
     return render(request, 'my_applications.html', {
         'applications': applications
     })
+
+@login_required
+def applicants_list(request):
+    return render(request, 'applicants_list.html')
+
+@login_required
+def org_profile(request):
+    return render(request, 'org_profile.html')
+
+@login_required
+def org_settings(request):
+    return render(request, 'org_settings.html')
+
+@login_required
+def post_opportunity(request):
+    return render(request, 'post_opportunity.html')
+
+@login_required
+def update_profile(request):
+    if request.method == 'POST':
+        profile = request.user.profile
+
+        profile.full_name = request.POST.get('full_name', profile.full_name)
+        profile.email = request.POST.get('email', profile.email)
+        profile.phone = request.POST.get('phone', profile.phone)
+        profile.academic_year = request.POST.get('academic_year', profile.academic_year)
+        profile.major = request.POST.get('major', profile.major)
+        profile.bio = request.POST.get('bio', profile.bio)
+
+        # ✅ Save uploaded image
+        if 'profile_picture' in request.FILES:
+            profile.profile_picture = request.FILES['profile_picture']
+
+        profile.save()
+        messages.success(request, 'Profile updated successfully.')
+
+        return redirect('profile')
+
+    return redirect('profile')
+
+
+@login_required
+def settings_view(request):
+    return render(request, 'settings.html')
+
+def notifications(request):
+    return render(request, 'notifications.html')
+
+
+    
+
+
+
+
+
+

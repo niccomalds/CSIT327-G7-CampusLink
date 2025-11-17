@@ -7,101 +7,190 @@
   <title>CampusLink – Student Profile</title>
   <link rel="stylesheet" href="{% static 'Myapp/profile.css' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  
 </head>
 <body>
   <!-- Header -->
-  <header class="header">
-    <div class="logo"><i class="fa-solid fa-graduation-cap"></i> CampusLink</div>
-    <nav>
-      <a href="{% url 'student_dashboard' %}">Home</a>
-      <a href="#">My Applications</a>
-      <a href="#" class="active">Profile</a>
-      <a href="#">Notifications</a>
-    </nav>
-    <div class="search-profile" id="userMenuWrap">
-      <input type="text" class="top-search" placeholder="Search opportunities...">
-      <button id="userToggle" aria-expanded="false" aria-controls="userDropdown" class="avatar-btn">
-        <img src="{% static 'Myapp/profile.jpg' %}" alt="User avatar" class="avatar"/>
+<header class="header">
+  <div class="logo">
+    <i class="fas fa-graduation-cap"></i>
+    <span>CampusLink</span>
+  </div>
+
+  <nav>
+    <a href="{% url 'student_dashboard' %}">Home</a>
+    <a href="{% url 'my_applications' %}">My Applications</a>
+    <a href="{% url 'profile' %}" class="active">Profile</a>
+    <a href="{% url 'notifications' %}">Notifications</a>
+  </nav>
+
+  <div class="search-profile">
+    <input type="text" class="top-search" placeholder="Search opportunities...">
+
+    <div id="userMenuWrap">
+      <button id="userToggle">
+        <img src="{{ user.profile.profile_picture.url|default:'/static/Myapp/default-avatar.png' }}"
+             alt="Profile" id="profileAvatar">
       </button>
-      <div id="userDropdown" class="dropdown-menu" role="menu" aria-label="User menu" hidden>
-        <div class="dropdown-item dropdown-user" role="menuitem">Student</div>
-        <hr class="dropdown-separator"/>
-        <div class="dropdown-item" role="menuitem" id="profileBtn"><i class="fa-regular fa-user"></i> Profile</div>
-        <div class="dropdown-item" role="menuitem" id="settingsBtn"><i class="fa-solid fa-gear"></i> Settings</div>
-        <div class="dropdown-item" role="menuitem" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Log out</div>
+
+      <div id="userDropdown">
+        <div class="dropdown-item"><strong>User Menu</strong></div>
+
+        <a href="{% url 'profile' %}" class="dropdown-item">
+          <i class="fa-solid fa-user"></i> Profile
+        </a>
+
+        <a href="{% url 'settings' %}" class="dropdown-item">
+          <i class="fa-solid fa-gear"></i> Settings
+        </a>
+
+        <a href="{% url 'logout' %}" class="dropdown-item">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </a>
       </div>
     </div>
-  </header>
+  </div>
+</header>
 
-  <!-- Profile Section -->
-  <main class="profile-main">
+
+
+
+ <!-- Profile Section -->
+<main class="profile-main">
     <button id="editBtn" class="edit-profile-btn"><i class="fa-solid fa-pen-to-square"></i> Edit Profile</button>
     <button id="saveBtn" class="edit-profile-btn" style="display:none; background: #34d399;">Save Changes</button>
+
     <div class="profile-layout">
-      <!-- Sidebar -->
-      <aside class="profile-side">
-        <div class="profile-card">
-          <img src="{% static 'Myapp/profile.jpg' %}" class="profile-photo" alt="Student Avatar">
-          <div class="profile-major-year" id="majorYearView">Computer Science • 3rd Year</div>
-          <div class="profile-info-list" id="infoListView">
-            <div><i class="fa-regular fa-envelope"></i> <span id="emailView">student@university.edu</span></div>
-            <div><i class="fa-solid fa-phone"></i> <span id="phoneView">+1 (555) 123-4567</span></div>
-            <div><i class="fa-solid fa-graduation-cap"></i> <span id="majorView">Computer Science</span></div>
-            <div><i class="fa-regular fa-calendar"></i> <span id="yearView">3rd Year</span></div>
-          </div>
-          <hr>
-          <div class="profile-links" id="portfolioLinksView">
-            <strong>Portfolio Links</strong><br>
-            <div id="linksListView"></div>
-          </div>
-          <hr>
-          <div class="profile-resume">
-            <strong>Resume</strong>
-            <button class="resume-btn" disabled id="resumeBtnView">
-              <i class="fa-regular fa-file"></i> Upload Resume
-            </button>
-          </div>
-        </div>
-      </aside>
+        <!-- Sidebar -->
+        <aside class="profile-side">
+            <div class="profile-card">
+
+                <img src="{{ user.profile.profile_picture.url }}" alt="Student Avatar" class="profile-photo">
+
+
+                <div class="profile-major-year" id="majorYearView">
+    {{ profile.major }} • {{ profile.academic_year }}
+</div>
+
+
+                <div class="profile-info-list" id="infoListView">
+    <div><i class="fa-regular fa-envelope"></i> 
+        <span id="emailView">{{ profile.email }}</span>
+    </div>
+
+    <div><i class="fa-solid fa-phone"></i> 
+        <span id="phoneView">{{ profile.phone }}</span>
+    </div>
+
+    <div><i class="fa-solid fa-graduation-cap"></i> 
+        <span id="majorView">{{ profile.major }}</span>
+    </div>
+
+    <div><i class="fa-regular fa-calendar"></i> 
+        <span id="yearView">{{ profile.academic_year }}</span>
+    </div>
+</div>
+
+
+                <hr>
+
+                <div class="profile-links" id="portfolioLinksView">
+                    <strong>Portfolio Links</strong><br>
+                    <div id="linksListView"></div>
+                </div>
+
+                <hr>
+
+                <div class="profile-resume">
+                    <strong>Resume</strong>
+
+                    <button class="resume-btn" id="resumeBtnView">
+                        <i class="fa-regular fa-file"></i> Upload Resume
+                    </button>
+
+                    <!-- ✔ Upload box INSIDE the card -->
+                    <div id="resumeUploadBox" class="upload-card" style="display:none; margin-top:15px;">
+                        <div class="upload-icon">📁</div>
+
+                        <p class="upload-text">
+                            Drag your documents here to start uploading.
+                        </p>
+
+                        <div class="upload-or">OR</div>
+
+                        <button class="upload-btn" id="resumeBrowseBtn">Browse files</button>
+
+                        <p style="margin-top:10px; font-size:0.9rem; color:#555;">
+                            File size must be under 500KB <br>
+                            Please upload PDF, DOC, or DOCX files only
+                        </p>
+
+                        <input type="file" id="resumeFileInput" hidden>
+                    </div>
+
+                </div><!-- end profile-resume -->
+
+            </div><!-- end profile-card -->
+        </aside><!-- end profile-side -->
+
+
+
       <!-- Form Section -->
       <section class="profile-form-section">
-        <form class="profile-form" autocomplete="off" onsubmit="return false;">
-          <fieldset>
-            <legend><strong><i class="fa-regular fa-address-card"></i> Personal Information</strong></legend>
-            <div class="profile-form-row">
-              <div class="profile-form-group">
-                <label for="fullName">Full Name</label>
-                <input type="text" id="fullName" value="Student Name" disabled>
-              </div>
-              <div class="profile-form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" value="student@university.edu" disabled>
-              </div>
-            </div>
-            <div class="profile-form-row">
-              <div class="profile-form-group">
-                <label for="phone">Phone</label>
-                <input type="tel" id="phone" value="+1 (555) 123-4567" disabled>
-              </div>
-              <div class="profile-form-group">
-                <label for="year">Academic Year</label>
-                <input type="text" id="year" value="3rd Year" disabled>
-              </div>
-            </div>
-            <div class="profile-form-row">
-              <div class="profile-form-group">
-                <label for="major">Course/Major</label>
-                <input type="text" id="major" value="Computer Science" disabled>
-              </div>
-            </div>
-            <div class="profile-form-row">
-              <div class="profile-form-group" style="flex:2;">
-                <label for="bio">Bio</label>
-                <textarea id="bio" rows="3" placeholder="Write something about yourself..." disabled></textarea>
-              </div>
-            </div>
-          </fieldset>
-        </form>
+<form class="profile-form" method="POST" action="{% url 'update_profile' %}" enctype="multipart/form-data">
+  
+  {% csrf_token %}
+  <fieldset>
+    <legend><strong><i class="fa-regular fa-address-card"></i> Personal Information</strong></legend>
+
+   <div class="profile-form-group" id="profilePictureWrapper" style="display: none;">
+    <label for="profile_picture">Profile Picture</label>
+    <input type="file" name="profile_picture" id="profile_picture" accept="image/*" disabled>
+</div>
+
+
+
+    <div class="profile-form-row">
+      <div class="profile-form-group">
+        <label for="fullName">Full Name</label>
+        <input type="text" id="fullName" name="full_name" value="{{ profile.full_name }}" disabled>
+      </div>
+
+      <div class="profile-form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" value="{{ profile.email }}" disabled>
+      </div>
+    </div>
+
+    <div class="profile-form-row">
+      <div class="profile-form-group">
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone" name="phone" value="{{ profile.phone }}" disabled>
+      </div>
+
+      <div class="profile-form-group">
+        <label for="year">Academic Year</label>
+        <input type="text" id="year" name="academic_year" value="{{ profile.academic_year }}" disabled>
+      </div>
+    </div>
+
+    <div class="profile-form-row">
+      <div class="profile-form-group">
+        <label for="major">Course/Major</label>
+        <input type="text" id="major" name="major" value="{{ profile.major }}" disabled>
+      </div>
+    </div>
+
+    <div class="profile-form-row">
+      <div class="profile-form-group" style="flex:2;">
+        <label for="bio">Bio</label>
+        <textarea id="bio" name="bio" rows="3" disabled>{{ profile.bio }}</textarea>
+      </div>
+    </div>
+
+  </fieldset>
+</form>
+
         <!-- Skills -->
         <div class="profile-skills">
           <fieldset>
@@ -130,6 +219,8 @@
         </div>
       </section>
     </div>
+
+    
   </main>
   <!-- ✅ Scripts -->
   <script>
@@ -149,24 +240,31 @@
     // Edit / Save Profile
     const editBtn = document.getElementById("editBtn");
     const saveBtn = document.getElementById("saveBtn");
-    const inputs = document.querySelectorAll("input, textarea");
+    const inputs = document.querySelectorAll(".profile-form input, .profile-form textarea");
     const skillInputWrap = document.getElementById("skillInputWrap");
     const portfolioBlock = document.getElementById("portfolioLinkEditBlock");
-    editBtn.addEventListener("click", () => {
-      inputs.forEach(i => i.disabled = false);
-      editBtn.style.display = "none";
-      saveBtn.style.display = "inline-block";
-      skillInputWrap.style.display = "flex";
-      portfolioBlock.style.display = "block";
-    });
-    saveBtn.addEventListener("click", () => {
-      inputs.forEach(i => i.disabled = true);
-      editBtn.style.display = "inline-block";
-      saveBtn.style.display = "none";
-      skillInputWrap.style.display = "none";
-      portfolioBlock.style.display = "none";
-      alert("Profile changes saved!");
-    });
+
+   editBtn.addEventListener('click', () => {
+    // Enable all text inputs + textarea
+    inputs.forEach(i => i.disabled = false);
+
+    // Enable profile picture input
+    document.getElementById("profile_picture").disabled = false;
+
+    // Show the hidden profile picture upload field
+    document.getElementById("profilePictureWrapper").style.display = "block";
+
+    // Toggle buttons
+    editBtn.style.display = "none";
+    saveBtn.style.display = "inline-block";
+
+    // Enable skills + portfolio
+    skillInputWrap.style.display = "flex";
+    portfolioBlock.style.display = "block";
+});
+
+
+
     // Skills
     const skillsList = document.getElementById("skillsList");
     const addSkillBtn = document.getElementById("addSkillBtn");
@@ -231,7 +329,27 @@
         portfolioName.value = "";
         portfolioURL.value = "";
       }
-    });
+    })
+  
+document.getElementById("resumeBtnView").addEventListener("click", function () {
+    const box = document.getElementById("resumeUploadBox");
+
+    // toggle
+    if (box.style.display === "none" || box.style.display === "") {
+        box.style.display = "block";   // show
+    } else {
+        box.style.display = "none";    // hide
+    }
+});
+
+saveBtn.addEventListener("click", () => {
+    document.querySelector(".profile-form").submit();
+});
+
+document.getElementById("userToggle").addEventListener("click", function () {
+    document.getElementById("userDropdown").classList.toggle("show");
+});
+
   </script>
 </body>
 </html>

@@ -2,155 +2,212 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CampusLink Dashboard</title>
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
-  integrity="sha512-K2HkD9yW0d1aEJ6j9fsqWmfgq5s6BvPZ6wFxjVBeYmB3N3O+InqLB1Ho5gJf1sZQukzPlYt9KfaD9fNkQ0Vd8Q=="
-  crossorigin="anonymous"
-  referrerpolicy="no-referrer"
-/>
-<link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}?v=2">
-<link
-  href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&family=Roboto:wght@400;500&display=swap"
-  rel="stylesheet"
-/>
+  <meta charset="UTF-8">
+  <title>CampusLink Organization Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+
+  <!-- Django static CSS -->
+  <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
 </head>
+
 <body>
+  <div class="navbar">
+    <div class="navbar-container">
 
-<header>
-  <div class="logo">🏫 CampusLink</div>
+      <div class="logo"><i class="fa-solid fa-user-graduate"></i>CampusLink</div>
 
-  <nav>
-    <a href="#" class="active">Dashboard</a>
-    <a href="{% url 'manage_postings' %}">Manage Postings</a>
-    <a href="#">Post Opportunity</a>
-    <a href="#">Applicants</a>
-    <a href="#">Org Profile</a>
-  </nav>
-
-  <div class="nav-right">
-    <input type="text" placeholder="Search opportunities..." />
-    <button title="Notifications">🔔</button>
-    <div class="profile-dropdown">
-      <img src="profile.jpg" alt="Profile" class="avatar" id="profileAvatar">
-      <div class="dropdown-menu" id="profileMenu">
-        <div class="dropdown-header">Organization</div>
-        <a href="#"><i class="fa-solid fa-gear"></i> Settings</a>
-        <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
+      <div class="nav">
+        <a href="{% url 'organization_dashboard' %}" class="active">Dashboard</a>
+        <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
+        <a href="{% url 'applicants_list' %}">Applicants</a>
+        <a href="{% url 'org_profile' %}">Org Profile</a>
       </div>
+
+      <div class="searchbar">
+        <input type="text" placeholder="Search opportunities..." aria-label="Search Opportunities">
+      </div>
+
+      <div class="right">
+        <div class="notif" tabindex="0" aria-label="Notifications">
+          <i class="fa-regular fa-bell"></i>
+          <span class="notif-badge">2</span>
+        </div>
+
+        <div class="avatar" tabindex="0" aria-label="User Profile">
+          <i class="fa-solid fa-user"></i>
+
+          <div class="dropdown-content">
+            <ul>
+              <li><span>Organization</span></li>
+              <li><a href="{% url 'org_profile' %}">Profile</a></li>
+              <li><a href="{% url 'org_settings' %}">Settings</a></li>
+              <li><a href="{% url 'logout' %}">Log out</a></li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
     </div>
   </div>
-</header>
 
-<main>
-  <section class="content">
-    <div class="dashboard-title">
-      <h1>Organization <span>Dashboard</span></h1>
-      <p>Manage your opportunities and connect with talented students.</p>
+  <main>
+
+    <div class="org-header-row">
+      <div class="org-header">
+        <h2>Organization <span class="accent">Dashboard</span></h2>
+        <p>Manage your opportunities and connect with talented students.</p>
+      </div>
+      <button class="post-opportunity-header-btn">
+        <i class="fa-regular fa-clock"></i> Post New Opportunity
+      </button>
     </div>
 
-    <div class="stats-grid">
-      <div class="card">
-        <h4>Active Postings</h4>
-        <p class="stat blue">{{ active_postings_count }}</p>
-        <small>Currently active opportunities</small>
+    <div class="stats-section">
+      <div class="stat-card">
+        <div class="desc">Active Postings</div>
+        <span>5</span>
+        <div class="change up">+2 from last month</div>
       </div>
-      <div class="card">
-        <h4>Total Applicants</h4>
-        <p class="stat orange">{{ total_applicants }}</p>
-        <small>Total applications received</small>
-      </div>
-      <div class="card">
-        <h4>Total Views</h4>
-        <p class="stat green">{{ total_views }}</p>
-        <small>Total posting views</small>
-      </div>
-      <div class="card">
-        <h4>Acceptance Rate</h4>
-        <p class="stat">{{ acceptance_rate }}%</p>
-        <div class="progress-bar"><div class="fill" style="width:{{ acceptance_rate }}%"></div></div>
-      </div>
-    </div>
 
-    <div class="quick-actions">
-      <h3>Quick Actions</h3>
-      <div class="actions-grid">
-        <a href="{% url 'manage_postings' %}" class="action">📋 Manage Postings</a>
-        <div class="action">➕ Post Opportunity</div>
-        <div class="action">👥 Review Applicants</div>
-        <div class="action">⭐ Update Profile</div>
+      <div class="stat-card">
+        <div class="desc">Total Applicants</div>
+        <span>84</span>
+        <div class="change up">+12% from last week</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="desc">Total Views</div>
+        <span>1247</span>
+        <div class="change up">+8% from last week</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="desc">Acceptance Rate</div>
+        <span>76%</span>
+        <div class="bar"><div class="bar-fill" style="width:76%"></div></div>
       </div>
     </div>
 
-    <div class="recent-section">
-      <div class="recent-postings">
-        <h3>Recent Postings</h3>
+    <div class="quick-actions-card">
+      <div class="quick-actions-header">
+        <h3>Quick Actions</h3>
+        <p>Common tasks to manage your opportunities efficiently.</p>
+      </div>
 
-        {% if recent_postings %}
-          {% for post in recent_postings %}
-            <div class="posting-card">
-              <div class="posting-info">
-                <span class="title">{{ post.title }}</span>
-                <span class="status {% if post.status == 'Active' %}active{% else %}closed{% endif %}">
-                  {{ post.status }}
-                </span>
-              </div>
-              <div class="description">
-                <p>{{ post.description|truncatewords:20|default:"No description provided" }}</p>
-              </div>
-              <div class="details">
-                <small>Deadline: {{ post.deadline|date:"Y-m-d" }} · Status: {{ post.status }}</small>
-              </div>
+      <div class="quick-actions-list">
+        <button class="quick-action-card-btn">
+          <i class="fa-regular fa-clock"></i>
+          Post Opportunity
+        </button>
+
+        <button class="quick-action-card-btn">
+          <i class="fa-regular fa-user"></i>
+          Review Applicants
+        </button>
+
+        <button class="quick-action-card-btn">
+          <i class="fa-regular fa-star"></i>
+          Update Profile
+        </button>
+      </div>
+    </div>
+
+    <div class="main-content">
+
+      <div class="left-content">
+        <h3><i class="fa-solid fa-briefcase"></i> Recent Postings</h3>
+
+        <div class="posting posting-hover">
+          <div class="posting-details">
+            <h4>Software Engineering Intern <span class="badge active glow">Active</span></h4>
+            <div class="posting-meta">
+              <span><i class="fa-regular fa-user"></i> 24 applicants</span>
+              <span><i class="fa-regular fa-eye"></i> 156 views</span>
+              <span>Ended</span>
             </div>
-          {% endfor %}
-        {% else %}
-          <div class="posting-card">
-            <div class="posting-info">
-              <span class="title">No postings yet</span>
-              <span class="status closed">Inactive</span>
-            </div>
-            <div class="details"><small>Create your first posting to get started</small></div>
           </div>
-        {% endif %}
+        </div>
 
-        <a href="{% url 'manage_postings' %}" class="view-all">View All Postings</a>
+        <div class="posting posting-hover">
+          <div class="posting-details">
+            <h4>Marketing Assistant <span class="badge active glow">Active</span></h4>
+            <div class="posting-meta">
+              <span><i class="fa-regular fa-user"></i> 12 applicants</span>
+              <span><i class="fa-regular fa-eye"></i> 89 views</span>
+              <span>Ended</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="posting posting-hover">
+          <div class="posting-details">
+            <h4>Research Volunteer <span class="badge closed">Closed</span></h4>
+            <div class="posting-meta">
+              <span><i class="fa-regular fa-user"></i> 18 applicants</span>
+              <span><i class="fa-regular fa-eye"></i> 203 views</span>
+              <span>Ended</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="view-all"><i class="fa-solid fa-arrow-right"></i> View All Postings</button>
       </div>
 
-      <div class="activity-summary">
-        <h3>Activity Summary</h3>
-        <ul>
-          <li><span class="dot blue"></span> New application for Software Engineering Intern · 2m ago</li>
-          <li><span class="dot orange"></span> Marketing Assistant viewed 15 times · 1h ago</li>
-          <li><span class="dot green"></span> Research Volunteer deadline reached · 3h ago</li>
-          <li><span class="dot blue"></span> Profile viewed by 8 students · 5h ago</li>
+      <div class="right-content">
+        <h3><i class="fa-solid fa-clock"></i> Activity Summary</h3>
+
+        <ul class="activity-list">
+          <li><span class="dot blue"></span>New application for Software Engineering Intern <span class="time">2 minutes ago</span></li>
+
+          <li><span class="dot orange"></span>Marketing Assistant position viewed 15 times <span class="time">1 hour ago</span></li>
+
+          <li><span class="dot gray"></span>Research Volunteer application deadline reached <span class="time">3 hours ago</span></li>
+
+          <li><span class="dot green"></span>Profile viewed by 8 students <span class="time">5 hours ago</span></li>
         </ul>
-        <button class="view-all">View All Activity</button>
+
+        <button class="view-all-activity"><i class="fa-solid fa-list"></i> View All Activity</button>
       </div>
+
     </div>
-  </section>
-</main>
+  </main>
 
-<script>
-  document.querySelectorAll(".action").forEach(btn => {
-    btn.addEventListener("click", () => alert(btn.textContent + " clicked!"));
-  });
+  <script>
+    document.querySelectorAll('.quick-action-card-btn').forEach(btn => {
+      btn.addEventListener('click', () => alert('This demo button is not yet functional!'));
+    });
 
-  const profileAvatar = document.getElementById("profileAvatar");
-  const profileDropdown = document.querySelector(".profile-dropdown");
+    document.querySelectorAll('.bar-fill').forEach(function(bar) {
+      let width = 0;
+      const maxWidth = parseInt(bar.style.width);
+      bar.style.width = "0";
 
-  profileAvatar.addEventListener("click", (e) => {
-    e.stopPropagation();
-    profileDropdown.classList.toggle("show");
-  });
+      setTimeout(function animate() {
+        if (width < maxWidth) {
+          width += 2;
+          bar.style.width = width + "%";
+          requestAnimationFrame(animate);
+        } else {
+          bar.style.width = maxWidth + "%";
+        }
+      }, 350);
+    });
 
-  // Close dropdown if clicked outside
-  document.addEventListener("click", () => {
-    profileDropdown.classList.remove("show");
-  });
-</script>
+    document.querySelector('.avatar').addEventListener('click', function() {
+      const dropdown = this.querySelector('.dropdown-content');
+      dropdown.style.display = (dropdown.style.display === 'block' ? 'none' : 'block');
+    });
+
+    document.addEventListener('click', function(event) {
+      if (!event.target.closest('.avatar')) {
+        const dropdown = document.querySelector('.dropdown-content');
+        if (dropdown) dropdown.style.display = 'none';
+      }
+    });
+  </script>
 
 </body>
 </html>
