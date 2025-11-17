@@ -12,6 +12,8 @@ from .models import Profile        # Profile is in MyLogin
 from Myapp.models import Posting    # Posting is in Myapp
 from datetime import date
 from functools import wraps
+from django.http import JsonResponse
+from Myapp.utils import can_user_apply
 
 
 # --- Session timeout (10 minutes AFK limit) ---
@@ -332,11 +334,25 @@ def settings_view(request):
 def notifications(request):
     return render(request, 'notifications.html')
 
-
+def check_application_status(request, posting_id):
+    """
+    Check if user has already applied to a posting
+    Returns JSON with application status
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'has_applied': False,
+            'can_apply': False, 
+            'message': 'Please log in to apply',
+            'status': None
+        })
     
-
-
-
-
-
-
+    can_apply, application, message = can_user_apply(request.user, posting_id)
+    
+    return JsonResponse({
+        'has_applied': not can_apply,
+        'can_apply': can_apply,
+        'message': message,
+        'status': application.status if application else None,
+        'application_id': application.id if application else None
+    })
