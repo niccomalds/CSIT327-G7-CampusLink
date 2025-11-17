@@ -16,10 +16,7 @@ class Posting(models.Model):
 
     def __str__(self):
         return self.title
-<<<<<<< HEAD
     
-=======
-
 class Application(models.Model):
     STATUS_CHOICES = [
         ('submitted', 'Submitted'),
@@ -42,4 +39,3 @@ class Application(models.Model):
     
     def __str__(self):
         return f"{self.student.email} - {self.posting.title}"
->>>>>>> feature/duplicate_validation
