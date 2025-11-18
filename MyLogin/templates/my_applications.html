@@ -96,8 +96,8 @@
         <div class="application-card" data-application-id="{{ application.id }}" data-status="{{ application.status }}">
           <div class="app-header">
             <div class="app-title-section">
-              <h3>{{ application.job_posting.title }}</h3>
-              <span class="app-org">{{ application.job_posting.organization.name }}</span>
+              <h3>{{ application.posting.title }}</h3>
+              <span class="app-org">{{ application.posting.organization.username }}</span>
             </div>
             <div class="app-actions">
               <span class="status-badge status-{{ application.status }}">
@@ -128,30 +128,110 @@
               </div>
             </div>
           </div>
-          <div class="app-desc">{{ application.job_posting.description }}</div>
+          <div class="app-desc">{{ application.posting.description }}</div>
           <div class="app-meta">
-            <span class="app-location">
-              <i class="fa-solid fa-map-marker-alt"></i>
-              {{ application.job_posting.work_mode }}
-            </span>
             <span class="app-date">
               <i class="fa-solid fa-calendar-check"></i>
-              Applied: {{ application.applied_date }}
+              Applied: {{ application.created_at|date:"M d, Y" }}
             </span>
             <span class="app-deadline">
               <i class="fa-solid fa-clock"></i>
-              Deadline: {{ application.job_posting.deadline }}
-            </span>
-            <span class="app-type">
-              <i class="fa-solid fa-briefcase"></i>
-              {{ application.job_posting.type }}
+              Deadline: {{ application.posting.deadline }}
             </span>
           </div>
         </div>
         {% endfor %}
       {% else %}
         <!-- Sample applications (fallback) -->
-        <!-- You can reuse your existing sample cards here -->
+        <div class="application-card" data-application-id="1" data-status="submitted">
+          <div class="app-header">
+            <div class="app-title-section">
+              <h3>Software Engineering Intern</h3>
+              <span class="app-org">Tech Innovations Lab</span>
+            </div>
+            <div class="app-actions">
+              <span class="status-badge status-submitted">
+                <i class="fa-regular fa-clock"></i> Submitted
+              </span>
+              <div class="action-buttons">
+                <button class="view-details-btn" onclick="openApplicationModal(1)">
+                  <i class="fa-regular fa-file-lines"></i> View Details
+                </button>
+                <button class="withdraw-btn" onclick="showWithdrawConfirmation(1)">
+                  <i class="fa-solid fa-xmark"></i> Withdraw
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="app-desc">Join our dynamic team as a Software Engineering Intern. Work on cutting-edge projects and gain real-world experience in full-stack development.</div>
+          <div class="app-meta">
+            <span class="app-date">
+              <i class="fa-solid fa-calendar-check"></i> Applied: Jan 15, 2024
+            </span>
+            <span class="app-deadline">
+              <i class="fa-solid fa-clock"></i> Deadline: Feb 15, 2024
+            </span>
+          </div>
+        </div>
+
+        <div class="application-card" data-application-id="2" data-status="under_review">
+          <div class="app-header">
+            <div class="app-title-section">
+              <h3>Research Assistant - AI</h3>
+              <span class="app-org">Computer Science Department</span>
+            </div>
+            <div class="app-actions">
+              <span class="status-badge status-under_review">
+                <i class="fa-regular fa-eye"></i> Under Review
+              </span>
+              <div class="action-buttons">
+                <button class="view-details-btn" onclick="openApplicationModal(2)">
+                  <i class="fa-regular fa-file-lines"></i> View Details
+                </button>
+                <button class="withdraw-btn" onclick="showWithdrawConfirmation(2)">
+                  <i class="fa-solid fa-xmark"></i> Withdraw
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="app-desc">Assist faculty members in cutting-edge AI research projects. Perfect for students interested in machine learning and data science.</div>
+          <div class="app-meta">
+            <span class="app-date">
+              <i class="fa-solid fa-calendar-check"></i> Applied: Jan 10, 2024
+            </span>
+            <span class="app-deadline">
+              <i class="fa-solid fa-clock"></i> Deadline: Feb 20, 2024
+            </span>
+          </div>
+        </div>
+
+        <div class="application-card" data-application-id="3" data-status="accepted">
+          <div class="app-header">
+            <div class="app-title-section">
+              <h3>Marketing Coordinator</h3>
+              <span class="app-org">Student Union</span>
+            </div>
+            <div class="app-actions">
+              <span class="status-badge status-accepted">
+                <i class="fa-solid fa-check"></i> Accepted
+              </span>
+              <div class="action-buttons">
+                <button class="view-details-btn" onclick="openApplicationModal(3)">
+                  <i class="fa-regular fa-file-lines"></i> View Details
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="app-desc">Coordinate marketing campaigns and social media strategies for campus events. Great opportunity for communications and business majors.</div>
+          <div class="app-meta">
+            <span class="app-date">
+              <i class="fa-solid fa-calendar-check"></i> Applied: Jan 8, 2024
+            </span>
+            <span class="app-deadline">
+              <i class="fa-solid fa-clock"></i> Deadline: Feb 10, 2024
+            </span>
+          </div>
+        </div>
       {% endif %}
     </section>
   </main>
