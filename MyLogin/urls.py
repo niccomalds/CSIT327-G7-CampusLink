@@ -33,6 +33,8 @@ urlpatterns = [
 
     path('settings/', views.settings_view, name='settings'),
     path('notifications/', views.notifications, name='notifications'),
+    path('organization/dashboard/', views.organization_dashboard, name='organization_dashboard'),
+
 
 
 ]
