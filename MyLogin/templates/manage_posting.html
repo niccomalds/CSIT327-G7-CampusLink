@@ -8,6 +8,31 @@
 
   <link rel="stylesheet" href="{% static 'Myapp/manage_posting.css' %}?v=2">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    .instruction {
+        display: block;
+        font-size: 12px;
+        color: #666;
+        margin-top: 2px;
+        margin-bottom: 8px;
+    }
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 1000;
+      opacity: 0.95;
+    }
+    .toast.success { background-color: #10b981; }
+    .toast.error { background-color: #ef4444; }
+  </style>
 </head>
 
 <body>
@@ -18,13 +43,13 @@
   <nav>
     <a href="{% url 'organization_dashboard' %}">Dashboard</a>
     <a href="{% url 'manage_postings' %}" class="active">Manage Postings</a>
-     <a href="#">Post Opportunity</a>
+    <a href="#">Post Opportunity</a>
     <a href="#">Applicants</a>
     <a href="#">Org Profile</a>
   </nav>
 
   <div class="nav-right">
-    <input type="text" placeholder="Search postings..." />
+    <input type="text" placeholder="Search postings..." id="postingSearch" />
     <button title="Notifications">🔔</button>
     <button title="Profile">👤</button>
   </div>
@@ -49,7 +74,6 @@
                 </span>
               </div>
 
-              <!-- ADDED DESCRIPTION HERE -->
               <div class="description">
                 <p>{{ post.description|default:"No description provided" }}</p>
               </div>
@@ -79,20 +103,25 @@
     <h3>Edit Posting</h3>
     <form id="editForm">
       <input type="hidden" id="editPostId">
+
       <label>Title:</label>
       <input type="text" id="editTitle" required />
+      <small class="instruction">Enter a clear and concise title for your posting.</small>
 
       <label>Description:</label>
       <textarea id="editDescription" rows="4"></textarea>
+      <small class="instruction">Describe the posting in detail. Include purpose, requirements, etc.</small>
 
       <label>Deadline:</label>
       <input type="date" id="editDeadline" required />
+      <small class="instruction">Select the last day that applicants can submit their application.</small>
 
       <label>Status:</label>
       <select id="editStatus">
         <option value="active">Active</option>
         <option value="closed">Closed</option>
       </select>
+      <small class="instruction">Choose whether the posting is currently open or closed.</small>
 
       <div class="modal-actions" style="margin-top:16px; display:flex; justify-content:flex-end; gap:10px;">
         <button type="submit" class="action" style="background:#3b82f6;">Save</button>
@@ -114,7 +143,6 @@
   </div>
 </div>
 
-<!-- JavaScript -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const editModal = document.getElementById("editModal");
@@ -125,30 +153,36 @@ document.addEventListener("DOMContentLoaded", () => {
   const editDeadline = document.getElementById("editDeadline");
   const editStatus = document.getElementById("editStatus");
   const cancelEdit = document.getElementById("cancelEdit");
-  
+
   const deleteModal = document.getElementById("deleteModal");
   const confirmDelete = document.getElementById("confirmDelete");
   const cancelDelete = document.getElementById("cancelDelete");
 
-  let currentCard = null;
-  let currentDeleteBtn = null;
+  const postingSearch = document.getElementById("postingSearch");
 
-  // 🖊️ Open Edit Modal
-  document.querySelectorAll(".edit-btn").forEach((btn) => {
+  let currentCard = null;
+
+  // Search postings
+  postingSearch.addEventListener("input", () => {
+    const searchTerm = postingSearch.value.toLowerCase();
+    document.querySelectorAll('.posting-card').forEach(card => {
+      const text = card.textContent.toLowerCase();
+      card.style.display = text.includes(searchTerm) ? 'block' : 'none';
+    });
+  });
+
+  // Open Edit Modal
+  document.querySelectorAll(".edit-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       currentCard = btn.closest(".posting-card");
       const postId = currentCard.dataset.id;
       const titleEl = currentCard.querySelector(".title");
       const descriptionEl = currentCard.querySelector(".description p");
       const detailsText = currentCard.querySelector(".details small").textContent;
-      
-      // Extract deadline from details text
       const deadlineMatch = detailsText.match(/Deadline: ([^·]+)/);
       const deadlineText = deadlineMatch ? deadlineMatch[1].trim() : "";
-      
       const statusEl = currentCard.querySelector(".status");
 
-      // Fill the form with current data
       editPostId.value = postId;
       editTitle.value = titleEl.textContent.trim();
       editDescription.value = descriptionEl.textContent.trim();
@@ -159,7 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // 💾 Save Edit - UPDATED TO SAVE TO BACKEND
+  // Save Edit
   editForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -173,14 +207,11 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const response = await fetch(`/organization/edit-posting/${postId}/`, {
         method: 'POST',
-        headers: {
-          'X-CSRFToken': getCookie('csrftoken'),
-        },
+        headers: { 'X-CSRFToken': getCookie('csrftoken') },
         body: formData
       });
 
       if (response.ok) {
-        // Update the frontend only after successful backend save
         const titleEl = currentCard.querySelector(".title");
         const descriptionEl = currentCard.querySelector(".description p");
         const detailsEl = currentCard.querySelector(".details small");
@@ -193,108 +224,73 @@ document.addEventListener("DOMContentLoaded", () => {
         statusEl.className = `status ${editStatus.value === "active" ? "active" : "closed"}`;
 
         editModal.style.display = "none";
-        showMessage('Posting updated successfully!', 'success');
+        showToast('Posting updated successfully!', 'success');
       } else {
-        showMessage('Failed to update posting');
+        showToast('Failed to update posting', 'error');
       }
     } catch (error) {
       console.error('Error:', error);
-      showMessage('Error updating posting');
+      showToast('Error updating posting', 'error');
     }
   });
 
-  // ❌ Cancel Edit
-  cancelEdit.addEventListener("click", () => {
-    editModal.style.display = "none";
-  });
+  // Cancel Edit
+  cancelEdit.addEventListener("click", () => editModal.style.display = "none");
 
-  // 🗑️ Open Delete Confirmation Modal
-  document.querySelectorAll(".delete-btn").forEach((btn) => {
+  // Delete Modal
+  document.querySelectorAll(".delete-btn").forEach(btn => {
     btn.addEventListener("click", () => {
-      currentDeleteBtn = btn;
       currentCard = btn.closest(".posting-card");
       deleteModal.style.display = "flex";
     });
   });
 
-  // ✅ Confirm Delete
   confirmDelete.addEventListener("click", async () => {
-    if (currentCard) {
-      const postId = currentCard.dataset.id;
-      
-      try {
-        const response = await fetch(`/organization/delete-posting/${postId}/`, {
-          method: 'POST',
-          headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-          },
-        });
-        
-        if (response.ok) {
-          currentCard.remove();
-          showMessage('Posting deleted successfully!', 'success');
-        } else {
-          showMessage('Failed to delete posting');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        showMessage('Error deleting posting');
+    if (!currentCard) return;
+    const postId = currentCard.dataset.id;
+    try {
+      const response = await fetch(`/organization/delete-posting/${postId}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') },
+      });
+      if (response.ok) {
+        currentCard.remove();
+        showToast('Posting deleted successfully!', 'success');
+      } else {
+        showToast('Failed to delete posting', 'error');
       }
-      
-      deleteModal.style.display = "none";
-      currentCard = null;
-      currentDeleteBtn = null;
+    } catch (error) {
+      console.error(error);
+      showToast('Error deleting posting', 'error');
     }
+    deleteModal.style.display = "none";
+    currentCard = null;
   });
 
-  // ❌ Cancel Delete
   cancelDelete.addEventListener("click", () => {
     deleteModal.style.display = "none";
     currentCard = null;
-    currentDeleteBtn = null;
   });
 
-  // Helper function to get CSRF token
   function getCookie(name) {
     let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.startsWith(name + '=')) {
+        cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
+        break;
       }
     }
     return cookieValue;
   }
 
-  // Instead of alert(), show a nice message on the page
-  function showMessage(message, type = 'error') {
-    // Create a notification element
-    const notification = document.createElement('div');
-    notification.textContent = message;
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 12px 20px;
-      background: ${type === 'error' ? '#ef4444' : '#10b981'};
-      color: white;
-      border-radius: 8px;
-      z-index: 1000;
-      font-family: 'Inter', sans-serif;
-      font-weight: 500;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Remove after 3 seconds
-    setTimeout(() => {
-      notification.remove();
-    }, 3000);
+  function showToast(message, type='success') {
+    const toast = document.createElement('div');
+    toast.textContent = message;
+    toast.className = `toast ${type}`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
   }
 });
 </script>

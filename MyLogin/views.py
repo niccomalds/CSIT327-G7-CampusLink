@@ -3,21 +3,19 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.urls import reverse
 from django.utils import timezone
-from datetime import datetime
+from datetime import datetime, date
+from functools import wraps
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .models import Profile
-from datetime import datetime
-from .models import Profile        # Profile is in MyLogin
-from Myapp.models import Posting    # Posting is in Myapp
-from datetime import date
-from functools import wraps
 from django.http import JsonResponse
+
+from Myapp.models import Posting
+from .models import Profile
 from Myapp.utils import can_user_apply
 
-
 # --- Session timeout (10 minutes AFK limit) ---
-SESSION_TIMEOUT = 600  # 600 seconds = 10 minutes
+SESSION_TIMEOUT = 600  # seconds
+
 
 # --- Role-based access decorator ---
 def role_required(allowed_roles=[]):
@@ -36,7 +34,8 @@ def role_required(allowed_roles=[]):
         return wrapper
     return decorator
 
-# --- Authentication views ---
+
+# --- Authentication Views ---
 def login_view(request):
     if request.method == 'GET' and 'session_expired' in request.GET:
         messages.warning(request, "You were logged out due to inactivity.")
@@ -44,7 +43,7 @@ def login_view(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
-        selected_role = request.POST.get('role')  # get the role selected in the form
+        selected_role = request.POST.get('role')  # role from login form
 
         user = authenticate(request, username=email, password=password)
         if user is not None:
@@ -53,15 +52,16 @@ def login_view(request):
                 return redirect('login')
 
             login(request, user)
-            request.session['last_activity'] = timezone.now().timestamp()
+            request.session['last_activity'] = timezone.now().isoformat()
 
-            # Redirect based on actual role
+            # Redirect based on role
             if hasattr(user, 'profile'):
-                if user.profile.role == "Student":
+                role = user.profile.role
+                if role == "Student":
                     return redirect('student_dashboard')
-                elif user.profile.role == "Organization":
+                elif role == "Organization":
                     return redirect('organization_dashboard')
-                elif user.profile.role == "Admin":
+                elif role == "Admin":
                     return redirect('admin_dashboard')
 
             return redirect('home')
@@ -77,53 +77,7 @@ def logout_view(request):
     return redirect('login')
 
 
-# --- Dashboard views ---
-@login_required
-@role_required(allowed_roles=['Student'])
-def student_dashboard(request):
-    last_activity = request.session.get('last_activity')
-    now = timezone.now()
-
-    if last_activity:
-        last_activity = datetime.fromisoformat(last_activity)
-        elapsed = (now - last_activity).total_seconds()
-        if elapsed > SESSION_TIMEOUT:
-            logout(request)
-            messages.warning(request, "You were logged out due to inactivity.")
-            return redirect(f"{reverse('login')}?session_expired=1")
-
-    request.session['last_activity'] = now.isoformat()
-    return render(request, 'student_dashboard.html')
-
-
-@login_required
-@role_required(allowed_roles=['Organization'])
-def organization_dashboard(request):
-    # Only allow Organization users
-    if not hasattr(request.user, 'profile') or request.user.profile.role != "Organization":
-        messages.error(request, "Access denied.")
-        return redirect('login')
-
-    return render(request, 'org_dashboard.html')
-
-
-@login_required
-@role_required(allowed_roles=['Admin'])
-def admin_dashboard(request):
-    return render(request, 'admin_dashboard.html')  # create this template
-
-
-# --- Other views ---
-@login_required
-def profile(request):
-    profile = request.user.profile  # load the user's saved profile
-
-    return render(request, 'profile.html', {
-        "profile": profile
-    })
-
-
-
+# --- Registration View ---
 def register_view(request):
     if request.method == 'POST':
         role = request.POST.get('role')
@@ -162,30 +116,47 @@ def register_view(request):
     return render(request, 'register.html')
 
 
+# --- Home ---
 def home_view(request):
     return render(request, 'home.html')
 
-from django.contrib.auth.decorators import login_required
+
+# --- Dashboards ---
+@login_required
+@role_required(allowed_roles=['Student'])
+def student_dashboard(request):
+    last_activity = request.session.get('last_activity')
+    now = timezone.now()
+
+    if last_activity:
+        last_activity = datetime.fromisoformat(last_activity)
+        elapsed = (now - last_activity).total_seconds()
+        if elapsed > SESSION_TIMEOUT:
+            logout(request)
+            messages.warning(request, "You were logged out due to inactivity.")
+            return redirect(f"{reverse('login')}?session_expired=1")
+
+    request.session['last_activity'] = now.isoformat()
+    return render(request, 'student_dashboard.html')
 
 
 @login_required
+@role_required(allowed_roles=['Organization'])
 def organization_dashboard(request):
     # Only allow Organization users
     if not hasattr(request.user, 'profile') or request.user.profile.role != "Organization":
         messages.error(request, "Access denied.")
         return redirect('login')
 
-    # Get organization's postings
     postings = Posting.objects.filter(organization=request.user)
-    
-    # Calculate stats
+
+    # Example stats (expand as needed)
     active_postings_count = postings.filter(deadline__gte=date.today(), status='Active').count()
     total_applicants = 0
     total_views = 0
     acceptance_rate = 0
-    
-    # Get recent postings - SHOW ALL (remove the [:3] limit)
-    recent_postings = postings.order_by('-id')  # ← REMOVED: [:3]
+
+    recent_postings = postings.order_by('-id')
 
     context = {
         'active_postings_count': active_postings_count,
@@ -199,10 +170,45 @@ def organization_dashboard(request):
     return render(request, 'org_dashboard.html', context)
 
 
-# --- Organization/Admin Posting Management ---
+@login_required
+@role_required(allowed_roles=['Admin'])
+def admin_dashboard(request):
+    return render(request, 'admin_dashboard.html')
+
+
+# --- Profile ---
+@login_required
+def profile(request):
+    return render(request, 'profile.html', {
+        "profile": request.user.profile
+    })
+
+
+@login_required
+def update_profile(request):
+    if request.method == 'POST':
+        profile = request.user.profile
+
+        profile.full_name = request.POST.get('full_name', profile.full_name)
+        profile.email = request.POST.get('email', profile.email)
+        profile.phone = request.POST.get('phone', profile.phone)
+        profile.academic_year = request.POST.get('academic_year', profile.academic_year)
+        profile.major = request.POST.get('major', profile.major)
+        profile.bio = request.POST.get('bio', profile.bio)
+
+        if 'profile_picture' in request.FILES:
+            profile.profile_picture = request.FILES['profile_picture']
+
+        profile.save()
+        messages.success(request, 'Profile updated successfully.')
+        return redirect('profile')
+
+    return redirect('profile')
+
+
+# --- Organization / Posting Management ---
 @login_required
 def manage_postings(request):
-    # Only allow Organization or Admin
     if not hasattr(request.user, 'profile'):
         messages.error(request, "Access denied.")
         return redirect('home')
@@ -226,27 +232,16 @@ def edit_posting(request, post_id):
         messages.error(request, "Posting not found.")
         return redirect('manage_postings')
 
-    # Only allow owner organization or admin
     if request.user.profile.role == "Organization" and posting.organization != request.user:
         messages.error(request, "Access denied.")
         return redirect('manage_postings')
 
     if request.method == 'POST':
-        title = request.POST.get('title')
-        description = request.POST.get('description')
-        deadline = request.POST.get('deadline')
-        status = request.POST.get('status')  # ← ADD THIS LINE
-
-        if not title:
-            messages.error(request, "Title is required.")
-            return redirect('edit_posting', post_id=post_id)
-        
-        posting.title = title
-        posting.description = description
-        posting.deadline = deadline
-        posting.status = status  # ← ADD THIS LINE
+        posting.title = request.POST.get('title', posting.title)
+        posting.description = request.POST.get('description', posting.description)
+        posting.deadline = request.POST.get('deadline', posting.deadline)
+        posting.status = request.POST.get('status', posting.status)
         posting.save()
-
         messages.success(request, "Posting updated successfully.")
         return redirect('manage_postings')
 
@@ -261,7 +256,6 @@ def delete_posting(request, post_id):
         messages.error(request, "Posting not found.")
         return redirect('manage_postings')
 
-    # Only allow owner organization or admin
     if request.user.profile.role == "Organization" and posting.organization != request.user:
         messages.error(request, "Access denied.")
         return redirect('manage_postings')
@@ -271,84 +265,62 @@ def delete_posting(request, post_id):
         messages.success(request, "Posting deleted successfully.")
         return redirect('manage_postings')
 
-    # REDIRECT GET REQUESTS (since we deleted the template)
     return redirect('manage_postings')
 
-
-@login_required
-@role_required(allowed_roles=['Student'])
-def my_applications(request):
-    """
-    Display the My Applications page for students
-    """
-    applications = []  # Empty for now - Mahinay will add real data later
-    
-    return render(request, 'my_applications.html', {
-        'applications': applications
-    })
-
-@login_required
-def applicants_list(request):
-    return render(request, 'applicants_list.html')
-
-@login_required
-def org_profile(request):
-    return render(request, 'org_profile.html')
-
-@login_required
-def org_settings(request):
-    return render(request, 'org_settings.html')
 
 @login_required
 def post_opportunity(request):
     return render(request, 'post_opportunity.html')
 
+
+# --- Student Applications ---
 @login_required
-def update_profile(request):
-    if request.method == 'POST':
-        profile = request.user.profile
-
-        profile.full_name = request.POST.get('full_name', profile.full_name)
-        profile.email = request.POST.get('email', profile.email)
-        profile.phone = request.POST.get('phone', profile.phone)
-        profile.academic_year = request.POST.get('academic_year', profile.academic_year)
-        profile.major = request.POST.get('major', profile.major)
-        profile.bio = request.POST.get('bio', profile.bio)
-
-        # ✅ Save uploaded image
-        if 'profile_picture' in request.FILES:
-            profile.profile_picture = request.FILES['profile_picture']
-
-        profile.save()
-        messages.success(request, 'Profile updated successfully.')
-
-        return redirect('profile')
-
-    return redirect('profile')
+@role_required(allowed_roles=['Student'])
+def my_applications(request):
+    # Currently empty, dynamic data can be loaded later
+    applications = []
+    return render(request, 'my_applications.html', {'applications': applications})
 
 
+# --- Organization Applicants ---
+@login_required
+def applicants_list(request):
+    return render(request, 'applicants_list.html')
+
+
+# --- Organization Profile & Settings ---
+@login_required
+def org_profile(request):
+    return render(request, 'org_profile.html')
+
+
+@login_required
+def org_settings(request):
+    return render(request, 'org_settings.html')
+
+
+# --- Settings & Notifications ---
 @login_required
 def settings_view(request):
     return render(request, 'settings.html')
 
+
 def notifications(request):
     return render(request, 'notifications.html')
 
+
+# --- Application Status Check (JSON) ---
 def check_application_status(request, posting_id):
-    """
-    Check if user has already applied to a posting
-    Returns JSON with application status
-    """
     if not request.user.is_authenticated:
         return JsonResponse({
             'has_applied': False,
-            'can_apply': False, 
+            'can_apply': False,
             'message': 'Please log in to apply',
             'status': None
         })
-    
+
     can_apply, application, message = can_user_apply(request.user, posting_id)
-    
+
     return JsonResponse({
         'has_applied': not can_apply,
         'can_apply': can_apply,
