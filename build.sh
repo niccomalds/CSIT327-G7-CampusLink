@@ -1,7 +1,15 @@
-set -0 errexit
+#!/usr/bin/env bash
+set -euo pipefail
 
+echo "==> Installing dependencies"
+pip install --upgrade pip
 pip install -r requirements.txt
-npm ci
-npm run build
+
+echo "==> Running database migrations"
+python manage.py makemigrations
+python manage.py migrate --noinput
+
+echo "==> Collecting static files"
 python manage.py collectstatic --noinput
-python manage.py migrate
+
+echo "==> Build complete"

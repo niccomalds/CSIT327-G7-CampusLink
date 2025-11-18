@@ -5,11 +5,40 @@ from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = config('SECRET_KEY')
-DEBUG = config("DEBUG", default=False, cast=bool)
-ALLOWED_HOSTS = ['localhost','127.0.0.1','.onrender.com']
-CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
-
+# Load environment based on professor's instructions
+if os.environ.get("RENDER", "") != "true":
+    # Local development - use python-decouple
+    SECRET_KEY = config('SECRET_KEY')
+    DEBUG = config("DEBUG", default=False, cast=bool)
+    ALLOWED_HOSTS = ['localhost','127.0.0.1','.onrender.com']
+    CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
+    
+    # Local database configuration
+    DATABASES = {
+        "default": dj_database_url.parse(config("DATABASE_URL")),
+    }
+    DATABASES['default']['CONN_MAX_AGE'] = config("DB_CONN_MAX_AGE", default=60, cast=int)
+else:
+    # Render production - use environment variables (professor's method)
+    SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'unsafe-dev-key')
+    DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
+    
+    # Parse from environment variables as per professor's instructions
+    allowed_hosts = os.environ.get('DJANGO_ALLOWED_HOSTS', '')
+    ALLOWED_HOSTS = [h.strip() for h in allowed_hosts.split(',') if h.strip()]
+    
+    csrf_origins = os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '')
+    CSRF_TRUSTED_ORIGINS = [o.strip() for o in csrf_origins.split(',') if o.strip()]
+    
+    # Production database configuration
+    DATABASE_URL = os.environ.get('DATABASE_URL')
+    DATABASES = {
+        "default": dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=True
+        )
+    }
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -24,6 +53,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # ← ADD THIS (CRITICAL)
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -31,7 +61,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'Myapp.middleware.auto_logout.AutoLogoutMiddleware',
-
 ]
 
 ROOT_URLCONF = 'CampusLink.urls'
@@ -40,7 +69,6 @@ ROOT_URLCONF = 'CampusLink.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # Allow Django to detect templates in all app folders + optional global "templates" folder
         'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -54,13 +82,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'CampusLink.wsgi.application'
-
-# --- DATABASE CONFIG ---
-DATABASES = {
-    "default": dj_database_url.parse(config("DATABASE_URL")),
-}
-DATABASES['default']['CONN_MAX_AGE'] = config("DB_CONN_MAX_AGE", default=60, cast=int)
-
 
 # --- PASSWORD VALIDATION ---
 AUTH_PASSWORD_VALIDATORS = [
@@ -78,27 +99,28 @@ USE_TZ = True
 
 # --- STATIC FILES CONFIG ---
 STATIC_URL = '/static/'
-
-# Tell Django where to collect static files from (for `collectstatic`)
 STATICFILES_DIRS = [
-    BASE_DIR / "Myapp" / "static",  # Path to your Myapp/static folder
+    BASE_DIR / "Myapp" / "static",
 ]
-
-# When running collectstatic (for deployment), files will be copied here
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# WhiteNoise configuration (professor's requirement)
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# Security settings for production (professor's requirement)
+if os.environ.get('RENDER'):
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
 # --- DEFAULT PRIMARY KEY FIELD TYPE ---
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ✅ Auto logout configuration (5 minutes)
 AUTO_LOGOUT_DELAY = 300  # seconds
-
-# Optional (recommended for safety)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 LOGIN_REDIRECT_URL = '/Myapp/dashboard/'
 
 MEDIA_URL = '/media/'
-
 MEDIA_ROOT = BASE_DIR / 'media'
-
