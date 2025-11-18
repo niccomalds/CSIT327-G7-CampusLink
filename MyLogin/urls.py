@@ -11,8 +11,8 @@ urlpatterns = [
     path('home/', views.home_view, name='home'),
 
     # --- Student Pages ---
-    path('student/dashboard/', views.studentDashboard, name='student_dashboard'),
-    path('student/dashboard/profile/', views.profile_view, name='profile'),
+    path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
+    path('student/dashboard/profile/', views.profile, name='profile'),
     path('student/dashboard/profile/update/', views.update_profile, name='update_profile'),
     path('my-applications/', views.my_applications, name='my_applications'),
 
