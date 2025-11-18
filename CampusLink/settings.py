@@ -23,7 +23,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -56,10 +58,25 @@ TEMPLATES = [
 WSGI_APPLICATION = 'CampusLink.wsgi.application'
 
 # --- DATABASE CONFIG ---
-DATABASES = {
-    "default": dj_database_url.parse(config("DATABASE_URL")),
-}
-DATABASES['default']['CONN_MAX_AGE'] = config("DB_CONN_MAX_AGE", default=60, cast=int)
+# --- DATABASE CONFIG ---
+import os
+
+if os.getenv('RENDER'):  # Running on Render (PRODUCTION)
+    DATABASES = {
+        "default": dj_database_url.config(
+            default=config("DATABASE_URL"),
+            conn_max_age=600,
+            ssl_require=True
+        )
+    }
+else:  # Running locally (DEVELOPMENT)
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+
 
 
 # --- PASSWORD VALIDATION ---
@@ -81,11 +98,14 @@ STATIC_URL = '/static/'
 
 # Tell Django where to collect static files from (for `collectstatic`)
 STATICFILES_DIRS = [
-    BASE_DIR / "Myapp" / "static",  # Path to your Myapp/static folder
+    BASE_DIR / "Myapp" / "static",
 ]
+
 
 # When running collectstatic (for deployment), files will be copied here
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 
 # --- DEFAULT PRIMARY KEY FIELD TYPE ---
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -97,6 +117,7 @@ AUTO_LOGOUT_DELAY = 300  # seconds
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 LOGIN_REDIRECT_URL = '/Myapp/dashboard/'
+LOGIN_URL = '/MyLogin/login/'
 
 MEDIA_URL = '/media/'
 
