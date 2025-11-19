@@ -6,294 +6,300 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Manage Postings - CampusLink</title>
 
-  <link rel="stylesheet" href="{% static 'Myapp/manage_posting.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'Myapp/manage_posting.css' %}?v=3">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-
-  <style>
-    .instruction {
-        display: block;
-        font-size: 12px;
-        color: #666;
-        margin-top: 2px;
-        margin-bottom: 8px;
-    }
-    /* Toast Notification */
-    .toast {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 12px 20px;
-      border-radius: 8px;
-      color: #fff;
-      font-weight: 500;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      z-index: 1000;
-      opacity: 0.95;
-    }
-    .toast.success { background-color: #10b981; }
-    .toast.error { background-color: #ef4444; }
-  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
 </head>
 
 <body>
+  <div class="navbar">
+    <div class="navbar-container">
+      <div class="logo"><i class="fa-solid fa-user-graduate"></i>CampusLink</div>
 
-<header>
-  <div class="logo">🏫 CampusLink</div>
+      <div class="nav">
+        <a href="{% url 'organization_dashboard' %}">Dashboard</a>
+        <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
+        <a href="{% url 'manage_postings' %}" class="active">Applicants</a>
+        <a href="{% url 'org_profile' %}">Org Profile</a>
+      </div>
 
-  <nav>
-    <a href="{% url 'organization_dashboard' %}">Dashboard</a>
-    <a href="{% url 'manage_postings' %}" class="active">Manage Postings</a>
-    <a href="#">Post Opportunity</a>
-    <a href="#">Applicants</a>
-    <a href="#">Org Profile</a>
-  </nav>
+      <div class="searchbar">
+        <input type="text" placeholder="Search postings..." aria-label="Search Postings" id="postingSearch">
+      </div>
 
-  <div class="nav-right">
-    <input type="text" placeholder="Search postings..." id="postingSearch" />
-    <button title="Notifications">🔔</button>
-    <button title="Profile">👤</button>
-  </div>
-</header>
+      <div class="right">
+        <div class="notif" tabindex="0" aria-label="Notifications">
+          <i class="fa-regular fa-bell"></i>
+          <span class="notif-badge">2</span>
+        </div>
 
-<main>
-  <section class="content">
-    <div class="dashboard-title">
-      <h1>Manage <span>Postings</span></h1>
-      <p>View, edit, or delete your organization's postings.</p>
-    </div>
-
-    <div class="recent-section">
-      <div class="recent-postings">
-        {% if postings %}
-          {% for post in postings %}
-            <div class="posting-card" data-id="{{ post.id }}">
-              <div class="posting-info">
-                <span class="title">{{ post.title }}</span>
-                <span class="status {% if post.status == 'Active' %}active{% else %}closed{% endif %}">
-                  {{ post.status }}
-                </span>
-              </div>
-
-              <div class="description">
-                <p>{{ post.description|default:"No description provided" }}</p>
-              </div>
-
-              <div class="details">
-                <small>Deadline: {{ post.deadline|date:"Y-m-d" }} · Status: {{ post.status }}</small>
-              </div>
-
-              <div class="actions-grid">
-                <button class="action edit-btn" style="background:#3b82f6;">✏️ Edit</button>
-                <button class="action delete-btn" style="background:#ef4444;">🗑 Delete</button>
-                <a href="#" class="action">👥 View Applicants</a>
-              </div>
-            </div>
-          {% endfor %}
-        {% else %}
-          <p>No postings found. Create your first opportunity!</p>
-        {% endif %}
+        <div class="avatar" tabindex="0" aria-label="User Profile">
+          <i class="fa-solid fa-user"></i>
+          <div class="dropdown-content">
+            <ul>
+              <li><span>Organization</span></li>
+              <li><a href="{% url 'org_profile' %}">Profile</a></li>
+              <li><a href="{% url 'org_settings' %}">Settings</a></li>
+              <li><a href="{% url 'logout' %}">Log out</a></li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
-  </section>
-</main>
-
-<!-- Edit Modal -->
-<div id="editModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <h3>Edit Posting</h3>
-    <form id="editForm">
-      <input type="hidden" id="editPostId">
-
-      <label>Title:</label>
-      <input type="text" id="editTitle" required />
-      <small class="instruction">Enter a clear and concise title for your posting.</small>
-
-      <label>Description:</label>
-      <textarea id="editDescription" rows="4"></textarea>
-      <small class="instruction">Describe the posting in detail. Include purpose, requirements, etc.</small>
-
-      <label>Deadline:</label>
-      <input type="date" id="editDeadline" required />
-      <small class="instruction">Select the last day that applicants can submit their application.</small>
-
-      <label>Status:</label>
-      <select id="editStatus">
-        <option value="active">Active</option>
-        <option value="closed">Closed</option>
-      </select>
-      <small class="instruction">Choose whether the posting is currently open or closed.</small>
-
-      <div class="modal-actions" style="margin-top:16px; display:flex; justify-content:flex-end; gap:10px;">
-        <button type="submit" class="action" style="background:#3b82f6;">Save</button>
-        <button type="button" id="cancelEdit" class="action" style="background:#6b7280;">Cancel</button>
-      </div>
-    </form>
   </div>
-</div>
 
-<!-- Delete Confirmation Modal -->
-<div id="deleteModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <h3>Delete Posting</h3>
-    <p>Are you sure you want to delete this posting?</p>
-    <div class="modal-actions" style="margin-top:16px; display:flex; justify-content:flex-end; gap:10px;">
-      <button type="button" id="confirmDelete" class="action" style="background:#ef4444;">Yes, Delete</button>
-      <button type="button" id="cancelDelete" class="action" style="background:#6b7280;">Cancel</button>
+  <main>
+    <section class="content">
+      <div class="dashboard-title">
+        <h1>Manage <span>Postings</span></h1>
+        <p>View, edit, or delete your organization's postings.</p>
+      </div>
+
+      <div class="recent-section">
+        <div class="recent-postings">
+          {% if postings %}
+            {% for post in postings %}
+              <div class="posting-card" data-id="{{ post.id }}">
+                <div class="posting-info">
+                  <span class="title">{{ post.title }}</span>
+                  <span class="status {% if post.status == 'Active' %}active{% else %}closed{% endif %}">
+                    {{ post.status }}
+                  </span>
+                </div>
+
+                <div class="description">
+                  <p>{{ post.description|default:"No description provided" }}</p>
+                </div>
+
+                <div class="details">
+                  <small>Deadline: {{ post.deadline|date:"Y-m-d" }} · Status: {{ post.status }}</small>
+                </div>
+
+                <div class="actions-grid">
+                  <button class="action edit-btn">✏️ Edit</button>
+                  <button class="action delete-btn">🗑 Delete</button>
+                  <a href="#" class="action view-applicants">👥 View Applicants</a>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <p>No postings found. Create your first opportunity!</p>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Edit Modal -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <h3>Edit Posting</h3>
+      <form id="editForm">
+        <input type="hidden" id="editPostId">
+
+        <label>Title:</label>
+        <input type="text" id="editTitle" required />
+        <small class="instruction">Enter a clear and concise title for your posting.</small>
+
+        <label>Description:</label>
+        <textarea id="editDescription" rows="4"></textarea>
+        <small class="instruction">Describe the posting in detail. Include purpose, requirements, etc.</small>
+
+        <label>Deadline:</label>
+        <input type="date" id="editDeadline" required />
+        <small class="instruction">Select the last day that applicants can submit their application.</small>
+
+        <label>Status:</label>
+        <select id="editStatus">
+          <option value="active">Active</option>
+          <option value="closed">Closed</option>
+        </select>
+        <small class="instruction">Choose whether the posting is currently open or closed.</small>
+
+        <div class="modal-actions">
+          <button type="submit" class="modal-action-btn save">Save</button>
+          <button type="button" id="cancelEdit" class="modal-action-btn cancel">Cancel</button>
+        </div>
+      </form>
     </div>
   </div>
-</div>
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const editModal = document.getElementById("editModal");
-  const editForm = document.getElementById("editForm");
-  const editPostId = document.getElementById("editPostId");
-  const editTitle = document.getElementById("editTitle");
-  const editDescription = document.getElementById("editDescription");
-  const editDeadline = document.getElementById("editDeadline");
-  const editStatus = document.getElementById("editStatus");
-  const cancelEdit = document.getElementById("cancelEdit");
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="modal">
+    <div class="modal-content">
+      <h3>Delete Posting</h3>
+      <p>Are you sure you want to delete this posting?</p>
+      <div class="modal-actions">
+        <button type="button" id="confirmDelete" class="modal-action-btn delete">Yes, Delete</button>
+        <button type="button" id="cancelDelete" class="modal-action-btn cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
 
-  const deleteModal = document.getElementById("deleteModal");
-  const confirmDelete = document.getElementById("confirmDelete");
-  const cancelDelete = document.getElementById("cancelDelete");
-
-  const postingSearch = document.getElementById("postingSearch");
-
-  let currentCard = null;
-
-  // Search postings
-  postingSearch.addEventListener("input", () => {
-    const searchTerm = postingSearch.value.toLowerCase();
-    document.querySelectorAll('.posting-card').forEach(card => {
-      const text = card.textContent.toLowerCase();
-      card.style.display = text.includes(searchTerm) ? 'block' : 'none';
+  <script>
+    // Dropdown functionality
+    document.querySelector('.avatar').addEventListener('click', function() {
+      const dropdown = this.querySelector('.dropdown-content');
+      dropdown.style.display = (dropdown.style.display === 'block' ? 'none' : 'block');
     });
-  });
 
-  // Open Edit Modal
-  document.querySelectorAll(".edit-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      currentCard = btn.closest(".posting-card");
-      const postId = currentCard.dataset.id;
-      const titleEl = currentCard.querySelector(".title");
-      const descriptionEl = currentCard.querySelector(".description p");
-      const detailsText = currentCard.querySelector(".details small").textContent;
-      const deadlineMatch = detailsText.match(/Deadline: ([^·]+)/);
-      const deadlineText = deadlineMatch ? deadlineMatch[1].trim() : "";
-      const statusEl = currentCard.querySelector(".status");
-
-      editPostId.value = postId;
-      editTitle.value = titleEl.textContent.trim();
-      editDescription.value = descriptionEl.textContent.trim();
-      editDeadline.value = deadlineText;
-      editStatus.value = statusEl.textContent.trim().toLowerCase() === "active" ? "active" : "closed";
-
-      editModal.style.display = "flex";
+    document.addEventListener('click', function(event) {
+      if (!event.target.closest('.avatar')) {
+        const dropdown = document.querySelector('.dropdown-content');
+        if (dropdown) dropdown.style.display = 'none';
+      }
     });
-  });
 
-  // Save Edit
-  editForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+    // Manage postings functionality
+    document.addEventListener("DOMContentLoaded", () => {
+      const editModal = document.getElementById("editModal");
+      const editForm = document.getElementById("editForm");
+      const editPostId = document.getElementById("editPostId");
+      const editTitle = document.getElementById("editTitle");
+      const editDescription = document.getElementById("editDescription");
+      const editDeadline = document.getElementById("editDeadline");
+      const editStatus = document.getElementById("editStatus");
+      const cancelEdit = document.getElementById("cancelEdit");
 
-    const postId = editPostId.value;
-    const formData = new FormData();
-    formData.append('title', editTitle.value);
-    formData.append('deadline', editDeadline.value);
-    formData.append('description', editDescription.value);
-    formData.append('status', editStatus.value === "active" ? "Active" : "Closed");
+      const deleteModal = document.getElementById("deleteModal");
+      const confirmDelete = document.getElementById("confirmDelete");
+      const cancelDelete = document.getElementById("cancelDelete");
 
-    try {
-      const response = await fetch(`/organization/edit-posting/${postId}/`, {
-        method: 'POST',
-        headers: { 'X-CSRFToken': getCookie('csrftoken') },
-        body: formData
+      const postingSearch = document.getElementById("postingSearch");
+
+      let currentCard = null;
+
+      // Search postings
+      postingSearch.addEventListener("input", () => {
+        const searchTerm = postingSearch.value.toLowerCase();
+        document.querySelectorAll('.posting-card').forEach(card => {
+          const text = card.textContent.toLowerCase();
+          card.style.display = text.includes(searchTerm) ? 'block' : 'none';
+        });
       });
 
-      if (response.ok) {
-        const titleEl = currentCard.querySelector(".title");
-        const descriptionEl = currentCard.querySelector(".description p");
-        const detailsEl = currentCard.querySelector(".details small");
-        const statusEl = currentCard.querySelector(".status");
+      // Open Edit Modal
+      document.querySelectorAll(".edit-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          currentCard = btn.closest(".posting-card");
+          const postId = currentCard.dataset.id;
+          const titleEl = currentCard.querySelector(".title");
+          const descriptionEl = currentCard.querySelector(".description p");
+          const detailsText = currentCard.querySelector(".details small").textContent;
+          const deadlineMatch = detailsText.match(/Deadline: ([^·]+)/);
+          const deadlineText = deadlineMatch ? deadlineMatch[1].trim() : "";
+          const statusEl = currentCard.querySelector(".status");
 
-        titleEl.textContent = editTitle.value;
-        descriptionEl.textContent = editDescription.value;
-        detailsEl.textContent = `Deadline: ${editDeadline.value} · Status: ${editStatus.value === "active" ? "Active" : "Closed"}`;
-        statusEl.textContent = editStatus.value === "active" ? "Active" : "Closed";
-        statusEl.className = `status ${editStatus.value === "active" ? "active" : "closed"}`;
+          editPostId.value = postId;
+          editTitle.value = titleEl.textContent.trim();
+          editDescription.value = descriptionEl.textContent.trim();
+          editDeadline.value = deadlineText;
+          editStatus.value = statusEl.textContent.trim().toLowerCase() === "active" ? "active" : "closed";
 
-        editModal.style.display = "none";
-        showToast('Posting updated successfully!', 'success');
-      } else {
-        showToast('Failed to update posting', 'error');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      showToast('Error updating posting', 'error');
-    }
-  });
-
-  // Cancel Edit
-  cancelEdit.addEventListener("click", () => editModal.style.display = "none");
-
-  // Delete Modal
-  document.querySelectorAll(".delete-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      currentCard = btn.closest(".posting-card");
-      deleteModal.style.display = "flex";
-    });
-  });
-
-  confirmDelete.addEventListener("click", async () => {
-    if (!currentCard) return;
-    const postId = currentCard.dataset.id;
-    try {
-      const response = await fetch(`/organization/delete-posting/${postId}/`, {
-        method: 'POST',
-        headers: { 'X-CSRFToken': getCookie('csrftoken') },
+          editModal.classList.add("active");
+        });
       });
-      if (response.ok) {
-        currentCard.remove();
-        showToast('Posting deleted successfully!', 'success');
-      } else {
-        showToast('Failed to delete posting', 'error');
+
+      // Save Edit
+      editForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const postId = editPostId.value;
+        const formData = new FormData();
+        formData.append('title', editTitle.value);
+        formData.append('deadline', editDeadline.value);
+        formData.append('description', editDescription.value);
+        formData.append('status', editStatus.value === "active" ? "Active" : "Closed");
+
+        try {
+          const response = await fetch(`/organization/edit-posting/${postId}/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') },
+            body: formData
+          });
+
+          if (response.ok) {
+            const titleEl = currentCard.querySelector(".title");
+            const descriptionEl = currentCard.querySelector(".description p");
+            const detailsEl = currentCard.querySelector(".details small");
+            const statusEl = currentCard.querySelector(".status");
+
+            titleEl.textContent = editTitle.value;
+            descriptionEl.textContent = editDescription.value;
+            detailsEl.textContent = `Deadline: ${editDeadline.value} · Status: ${editStatus.value === "active" ? "Active" : "Closed"}`;
+            statusEl.textContent = editStatus.value === "active" ? "Active" : "Closed";
+            statusEl.className = `status ${editStatus.value === "active" ? "active" : "closed"}`;
+
+            editModal.classList.remove("active");
+            showToast('Posting updated successfully!', 'success');
+          } else {
+            showToast('Failed to update posting', 'error');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          showToast('Error updating posting', 'error');
+        }
+      });
+
+      // Cancel Edit
+      cancelEdit.addEventListener("click", () => editModal.classList.remove("active"));
+
+      // Delete Modal
+      document.querySelectorAll(".delete-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          currentCard = btn.closest(".posting-card");
+          deleteModal.classList.add("active");
+        });
+      });
+
+      confirmDelete.addEventListener("click", async () => {
+        if (!currentCard) return;
+        const postId = currentCard.dataset.id;
+        try {
+          const response = await fetch(`/organization/delete-posting/${postId}/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') },
+          });
+          if (response.ok) {
+            currentCard.remove();
+            showToast('Posting deleted successfully!', 'success');
+          } else {
+            showToast('Failed to delete posting', 'error');
+          }
+        } catch (error) {
+          console.error(error);
+          showToast('Error deleting posting', 'error');
+        }
+        deleteModal.classList.remove("active");
+        currentCard = null;
+      });
+
+      cancelDelete.addEventListener("click", () => {
+        deleteModal.classList.remove("active");
+        currentCard = null;
+      });
+
+      function getCookie(name) {
+        let cookieValue = null;
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.startsWith(name + '=')) {
+            cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
+            break;
+          }
+        }
+        return cookieValue;
       }
-    } catch (error) {
-      console.error(error);
-      showToast('Error deleting posting', 'error');
-    }
-    deleteModal.style.display = "none";
-    currentCard = null;
-  });
 
-  cancelDelete.addEventListener("click", () => {
-    deleteModal.style.display = "none";
-    currentCard = null;
-  });
-
-  function getCookie(name) {
-    let cookieValue = null;
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.startsWith(name + '=')) {
-        cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
-        break;
+      function showToast(message, type='success') {
+        const toast = document.createElement('div');
+        toast.textContent = message;
+        toast.className = `toast ${type}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
       }
-    }
-    return cookieValue;
-  }
-
-  function showToast(message, type='success') {
-    const toast = document.createElement('div');
-    toast.textContent = message;
-    toast.className = `toast ${type}`;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-  }
-});
-</script>
-
+    });
+  </script>
 </body>
 </html>

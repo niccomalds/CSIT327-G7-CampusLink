@@ -5,7 +5,7 @@ from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load environment based on professor's instructions
+
 if os.environ.get("RENDER", "") != "true":
     # Local development - use python-decouple
     SECRET_KEY = config('SECRET_KEY')
@@ -19,11 +19,11 @@ if os.environ.get("RENDER", "") != "true":
     }
     DATABASES['default']['CONN_MAX_AGE'] = config("DB_CONN_MAX_AGE", default=60, cast=int)
 else:
-    # Render production - use environment variables (professor's method)
+    # Render production - use environment variables
     SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'unsafe-dev-key')
     DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
     
-    # Parse from environment variables as per professor's instructions
+    # Parse from environment variables 
     allowed_hosts = os.environ.get('DJANGO_ALLOWED_HOSTS', '')
     ALLOWED_HOSTS = [h.strip() for h in allowed_hosts.split(',') if h.strip()]
     
@@ -53,7 +53,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # ← ADD THIS (CRITICAL)
+    'whitenoise.middleware.WhiteNoiseMiddleware',  
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -61,17 +61,17 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'Myapp.middleware.auto_logout.AutoLogoutMiddleware',
-]
+    ]
 
 ROOT_URLCONF = 'CampusLink.urls'
 
 # --- TEMPLATES ---
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
-        'OPTIONS': {
+    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+    'DIRS': [BASE_DIR / 'templates'],
+    'APP_DIRS': True,
+    'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
@@ -102,12 +102,13 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "Myapp" / "static",
 ]
+
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# WhiteNoise configuration (professor's requirement)
+# WhiteNoise configuration 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-# Security settings for production (professor's requirement)
+# Security settings for production 
 if os.environ.get('RENDER'):
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
