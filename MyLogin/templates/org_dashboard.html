@@ -23,6 +23,9 @@
         <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
         <a href="{% url 'manage_postings' %}">Applicants</a>
         <a href="{% url 'org_profile' %}">Org Profile</a>
+        <a href="#" onclick="openVerificationModal(); return false;" class="verification-nav-btn">
+          <i class="fa-solid fa-shield-check"></i> Verify Account
+          </a>
       </div>
 
       <div class="searchbar">
@@ -42,6 +45,9 @@
             <ul>
               <li><span>Organization</span></li>
               <li><a href="{% url 'org_profile' %}">Profile</a></li>
+              <li><a href="#" onclick="openVerificationModal(); return false;">
+              <i class="fa-solid fa-shield-check"></i> Verify Account
+              </a></li>
               <li><a href="{% url 'org_settings' %}">Settings</a></li>
               <li><a href="{% url 'logout' %}">Log out</a></li>
             </ul>
@@ -55,14 +61,104 @@
 
   <main>
 
+     <!-- === VERIFICATION OVERLAY MODAL === -->
+{% if needs_verification %}
+<div class="verification-overlay" id="verificationOverlay">
+    <div class="verification-modal">
+        <button class="close-btn" onclick="closeVerificationModal()">&times;</button>
+        
+        <div class="modal-header">
+            <div class="modal-icon">🔍</div>
+            <h3>Organization Verification Required</h3>
+            <p>To unlock all features and post opportunities, please verify your organization.</p>
+        </div>
+
+        <div class="requirements">
+            <h4>Required for Verification:</h4>
+            <ul>
+                <li><strong>Institutional Email:</strong> Official email address (.edu, .ac, .org domains)</li>
+                <li><strong>Verification Documents:</strong> Official documents proving organization status</li>
+                <li><strong>Processing Time:</strong> Typically 1-2 business days</li>
+            </ul>
+        </div>
+
+        <div class="modal-actions">
+            <a href="#" class="verify-btn" onclick="alert('Verification submission coming soon!'); return false;">
+                <i class="fa-solid fa-shield-check"></i> Start Verification
+            </a>
+            <button class="later-btn" onclick="closeVerificationModal()">
+                Maybe Later
+            </button>
+        </div>
+    </div>
+</div>
+{% elif is_pending %}
+<div class="verification-overlay" id="verificationOverlay">
+    <div class="verification-modal">
+        <div class="modal-header">
+            <div class="modal-icon">⏳</div>
+            <h3>Verification Under Review</h3>
+            <p>Your verification request is being processed. We'll notify you once complete.</p>
+        </div>
+        
+        {% if profile.verification_submitted_at %}
+        <div class="requirements" style="text-align: center;">
+            <p><strong>Submitted on:</strong> {{ profile.verification_submitted_at|date:"F d, Y" }}</p>
+            <p style="font-size: 0.9rem; color: #666; margin-top: 8px;">
+                Thank you for your patience during the review process.
+            </p>
+        </div>
+        {% endif %}
+
+        <div class="modal-actions">
+            <button class="later-btn" onclick="closeVerificationModal()" style="flex: none; padding: 12px 40px;">
+                Continue to Dashboard
+            </button>
+        </div>
+    </div>
+</div>
+{% elif is_verified %}
+<div class="verification-overlay" id="verificationOverlay">
+    <div class="verification-modal">
+        <div class="modal-header">
+            <div class="modal-icon">✅</div>
+            <h3>Organization Verified!</h3>
+            <p>Your organization has been successfully verified. You now have full access to all features.</p>
+        </div>
+        
+        {% if profile.verified_at %}
+        <div class="requirements" style="text-align: center; background: #e8f5e8; border-left-color: #198754;">
+            <p><strong>Verified on:</strong> {{ profile.verified_at|date:"F d, Y" }}</p>
+            <p style="font-size: 0.9rem; color: #666; margin-top: 8px;">
+                You can now post opportunities and access all platform features.
+            </p>
+        </div>
+        {% endif %}
+
+        <div class="modal-actions">
+            <button class="verify-btn" onclick="closeVerificationModal()" style="flex: none; padding: 12px 40px;">
+                Start Posting Opportunities
+            </button>
+        </div>
+    </div>
+</div>
+{% endif %}
+<!-- === END VERIFICATION OVERLAY === -->
+
     <div class="org-header-row">
       <div class="org-header">
-        <h2>Organization <span class="accent">Dashboard</span></h2>
-        <p>Manage your opportunities and connect with talented students.</p>
-      </div>
-      <button class="post-opportunity-header-btn">
-        <i class="fa-regular fa-clock"></i> Post New Opportunity
-      </button>
+    <h2>Organization <span class="accent">Dashboard</span> 
+        {% if is_verified %}
+        <span class="verified-badge verified-badge-large">✅ Verified</span>
+        {% endif %}
+    </h2>
+    <p>Manage your opportunities and connect with talented students.</p>
+</div>
+      <a href="{% if is_verified %}{% url 'post_opportunity' %}{% else %}#{% endif %}" 
+   class="post-opportunity-header-btn {% if not is_verified %}disabled-btn{% endif %}"
+   {% if not is_verified %}onclick="alert('Please verify your organization to post opportunities.'); return false;"{% endif %}>
+  <i class="fa-regular fa-clock"></i> Post New Opportunity
+</a>
     </div>
 
     <div class="stats-section">
@@ -70,7 +166,15 @@
         <div class="desc">Active Postings</div>
         <span>5</span>
         <div class="change up">+2 from last month</div>
-      </div>
+    </div>
+
+        {% if not is_verified %}
+    <div class="stat-card verification-reminder" onclick="openVerificationModal()" style="cursor: pointer;">
+        <div class="desc">Account Status</div>
+        <span style="color: #ffc107;">⚠️</span>
+        <div class="change" style="color: #ffc107;">Verification Required</div>
+    </div>
+    {% endif %}
 
       <div class="stat-card">
         <div class="desc">Total Applicants</div>
@@ -173,6 +277,18 @@
       </div>
 
     </div>
+
+<!-- Persistent Verification Banner -->
+{% if not is_verified and not is_pending %}
+<div class="verification-banner" id="verificationBanner">
+    <div class="banner-content">
+        <i class="fa-solid fa-shield-check"></i>
+        <span>Complete verification to unlock all features</span>
+        <button class="banner-btn" onclick="openVerificationModal()">Verify Now</button>
+        <button class="banner-close" onclick="closeBanner()">&times;</button>
+    </div>
+</div>
+{% endif %}
   </main>
 
   <script>
@@ -209,5 +325,89 @@
     });
   </script>
 
+  <script>
+function closeVerificationModal() {
+    const overlay = document.getElementById('verificationOverlay');
+    if (overlay) {
+        overlay.style.opacity = '0';
+        setTimeout(() => {
+            overlay.style.display = 'none';
+        }, 300);
+    }
+}
+
+function openVerificationModal() {
+    const overlay = document.getElementById('verificationOverlay');
+    if (overlay) {
+        overlay.style.display = 'flex';
+        setTimeout(() => {
+            overlay.style.opacity = '1';
+        }, 10);
+    }
+}
+
+function closeBanner() {
+    const banner = document.getElementById('verificationBanner');
+    if (banner) {
+        banner.style.opacity = '0';
+        setTimeout(() => {
+            banner.style.display = 'none';
+        }, 300);
+    }
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(event) {
+    const overlay = document.getElementById('verificationOverlay');
+    if (overlay && event.target === overlay) {
+        closeVerificationModal();
+    }
+});
+
+// Close with Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeVerificationModal();
+    }
+});
+
+// Auto-open modal when page loads for unverified orgs
+document.addEventListener('DOMContentLoaded', function() {
+    // Modal will auto-show because it's in the template conditionally
+});
+
+// Existing dashboard scripts
+document.querySelectorAll('.quick-action-card-btn').forEach(btn => {
+    btn.addEventListener('click', () => alert('This demo button is not yet functional!'));
+});
+
+document.querySelectorAll('.bar-fill').forEach(function(bar) {
+    let width = 0;
+    const maxWidth = parseInt(bar.style.width);
+    bar.style.width = "0";
+
+    setTimeout(function animate() {
+        if (width < maxWidth) {
+            width += 2;
+            bar.style.width = width + "%";
+            requestAnimationFrame(animate);
+        } else {
+            bar.style.width = maxWidth + "%";
+        }
+    }, 350);
+});
+
+document.querySelector('.avatar').addEventListener('click', function() {
+    const dropdown = this.querySelector('.dropdown-content');
+    dropdown.style.display = (dropdown.style.display === 'block' ? 'none' : 'block');
+});
+
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('.avatar')) {
+        const dropdown = document.querySelector('.dropdown-content');
+        if (dropdown) dropdown.style.display = 'none';
+    }
+});
+</script>
 </body>
 </html>
