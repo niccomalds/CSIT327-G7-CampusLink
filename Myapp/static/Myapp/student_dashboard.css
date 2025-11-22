@@ -317,3 +317,23 @@ nav a:hover, nav a.active {
     width: 100%;
   }
 }
+
+/* Verified Badge Styles */
+.verified-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, #198754, #157347);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.verified-badge-large {
+    font-size: 0.9rem;
+    padding: 6px 12px;
+}
