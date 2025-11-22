@@ -8,10 +8,10 @@ from functools import wraps
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-
 from Myapp.models import Posting
 from .models import Profile
 from Myapp.utils import can_user_apply
+from django.contrib.admin.views.decorators import staff_member_required
 
 # --- Session timeout (10 minutes AFK limit) ---
 SESSION_TIMEOUT = 600  # seconds
@@ -143,30 +143,46 @@ def student_dashboard(request):
 @login_required
 @role_required(allowed_roles=['Organization'])
 def organization_dashboard(request):
-    # Only allow Organization users
-    if not hasattr(request.user, 'profile') or request.user.profile.role != "Organization":
-        messages.error(request, "Access denied.")
+    """Organization dashboard with verification status"""
+    try:
+        profile = Profile.objects.get(user=request.user)
+    except Profile.DoesNotExist:
+        messages.error(request, "Profile not found.")
         return redirect('login')
-
-    postings = Posting.objects.filter(organization=request.user)
-
+    
+    # Only organizations can access this dashboard
+    if profile.role != 'Organization':
+        messages.error(request, "Access denied. Organization account required.")
+        return redirect('student_dashboard')
+    
+    # Get organization's postings
+    postings = Posting.objects.filter(organization=request.user).order_by('-created_at')
+    
     # Example stats (expand as needed)
     active_postings_count = postings.filter(deadline__gte=date.today(), status='Active').count()
     total_applicants = 0
     total_views = 0
     acceptance_rate = 0
 
-    recent_postings = postings.order_by('-id')
-
+    # Verification status context
+    verification_context = {
+        'is_verified': profile.is_verified_organization(),
+        'verification_status': profile.verification_status,
+        'needs_verification': profile.role == 'Organization' and profile.verification_status in ['unverified', 'rejected'],
+        'is_pending': profile.verification_status == 'pending',
+    }
+    
     context = {
+        'profile': profile,
+        'postings': postings,
         'active_postings_count': active_postings_count,
         'total_applicants': total_applicants,
         'total_views': total_views,
         'acceptance_rate': acceptance_rate,
-        'recent_postings': recent_postings,
+        'recent_postings': postings.order_by('-id'),
         'today': date.today(),
+        **verification_context
     }
-
     return render(request, 'org_dashboard.html', context)
 
 
@@ -328,3 +344,74 @@ def check_application_status(request, posting_id):
         'status': application.status if application else None,
         'application_id': application.id if application else None
     })
+
+# === ADMIN VERIFICATION VIEWS ===
+
+@staff_member_required
+@role_required(allowed_roles=['Admin'])
+def admin_verification_dashboard(request):
+    """Admin dashboard for managing organization verifications"""
+    # Get organizations pending verification
+    pending_verifications = Profile.objects.filter(
+        role='Organization', 
+        verification_status='pending'
+    ).select_related('user')
+    
+    # Get recent verification activity
+    recent_activity = Profile.objects.filter(
+        role='Organization'
+    ).exclude(verification_status='unverified').order_by('-verification_submitted_at')[:10]
+    
+    context = {
+        'pending_verifications': pending_verifications,
+        'recent_activity': recent_activity,
+        'pending_count': pending_verifications.count(),
+    }
+    return render(request, 'MyLogin/admin_verification_dashboard.html', context)
+
+@staff_member_required
+@role_required(allowed_roles=['Admin'])
+def admin_verify_organization(request, profile_id):
+    """Admin view to verify an organization"""
+    try:
+        profile = Profile.objects.get(id=profile_id, role='Organization')
+    except Profile.DoesNotExist:
+        messages.error(request, "Organization profile not found.")
+        return redirect('admin_verification_dashboard')
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        reason = request.POST.get('reason', '')
+        
+        if action == 'approve':
+            profile.verification_status = 'verified'
+            profile.verified_at = timezone.now()
+            profile.verification_reason = "Approved by administrator"
+            profile.save()
+            messages.success(request, f"{profile.org_name} has been verified successfully!")
+            
+        elif action == 'reject':
+            profile.verification_status = 'rejected'
+            profile.verification_reason = reason or "Verification rejected"
+            profile.save()
+            messages.warning(request, f"{profile.org_name} verification has been rejected.")
+        
+        return redirect('admin_verification_dashboard')
+    
+    context = {
+        'profile': profile,
+    }
+    return render(request, 'MyLogin/admin_verify_organization.html', context)
+
+@staff_member_required
+@role_required(allowed_roles=['Admin'])
+def admin_verification_stats(request):
+    """API endpoint for verification statistics"""
+    stats = {
+        'total_organizations': Profile.objects.filter(role='Organization').count(),
+        'verified_count': Profile.objects.filter(role='Organization', verification_status='verified').count(),
+        'pending_count': Profile.objects.filter(role='Organization', verification_status='pending').count(),
+        'rejected_count': Profile.objects.filter(role='Organization', verification_status='rejected').count(),
+        'unverified_count': Profile.objects.filter(role='Organization', verification_status='unverified').count(),
+    }
+    return JsonResponse(stats)
