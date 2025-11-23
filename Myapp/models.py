@@ -6,6 +6,12 @@ class Posting(models.Model):
         ('Active', 'Active'),
         ('Closed', 'Closed'),
     ]
+    
+    APPROVAL_STATUS_CHOICES = [
+        ('pending', 'Pending Review'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
 
     title = models.CharField(max_length=255)
     description = models.TextField()
@@ -14,8 +20,31 @@ class Posting(models.Model):
     organization = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    approval_status = models.CharField(
+        max_length=20, 
+        choices=APPROVAL_STATUS_CHOICES, 
+        default='pending'
+    )
+    approved_at = models.DateTimeField(blank=True, null=True)
+    approved_by = models.ForeignKey(
+        User, 
+        on_delete=models.SET_NULL, 
+        blank=True, 
+        null=True,
+        related_name='approved_postings'
+    )
+    rejection_reason = models.TextField(blank=True, null=True)
+
     def __str__(self):
         return self.title
+
+    def is_approved(self):
+        """Check if posting is approved"""
+        return self.approval_status == 'approved'
+
+    def is_pending_review(self):
+        """Check if posting is pending admin review"""
+        return self.approval_status == 'pending'
     
 class Application(models.Model):
     STATUS_CHOICES = [
