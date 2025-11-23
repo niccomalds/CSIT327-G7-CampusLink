@@ -29,4 +29,9 @@ urlpatterns = [
     # --- General Pages ---
     path('settings/', views.settings_view, name='settings'),
     path('notifications/', views.notifications, name='notifications'),
+
+     # Admin posting approval routes
+    path('admin/postings/approval/', views.admin_posting_approval, name='admin_posting_approval'),
+    path('admin/postings/approve/<int:posting_id>/', views.approve_posting, name='approve_posting'),
+    path('admin/postings/reject/<int:posting_id>/', views.reject_posting, name='reject_posting'),
 ]
