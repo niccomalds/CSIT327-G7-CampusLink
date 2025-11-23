@@ -1,0 +1,83 @@
+{% extends 'MyLogin/base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Posting Approval Dashboard</h1>
+        <span class="badge bg-warning">{{ pending_count }} Pending</span>
+    </div>
+
+    <div class="row">
+        <!-- Approval Criteria Sidebar -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Approval Checklist</h6>
+                </div>
+                <div class="card-body">
+                    <small class="text-muted">Evaluate postings against these criteria:</small>
+                    <ul class="list-unstyled mt-2 small">
+                        {% for criterion in approval_criteria %}
+                        <li class="mb-1">✓ {{ criterion }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Postings -->
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Pending Review ({{ pending_postings|length }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if pending_postings %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Organization</th>
+                                    <th>Posted</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for posting in pending_postings %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ posting.title }}</strong>
+                                        <br><small class="text-muted">{{ posting.description|truncatewords:10 }}</small>
+                                    </td>
+                                    <td>
+                                        {{ posting.organization.profile.org_name|default:posting.organization.email }}
+                                        {% if posting.organization.profile.is_verified_organization %}
+                                        <span class="badge bg-success ms-1">Verified</span>
+                                        {% else %}
+                                        <span class="badge bg-warning ms-1">Unverified</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ posting.created_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'approve_posting' posting.id %}" class="btn btn-success">Approve</a>
+                                            <a href="{% url 'reject_posting' posting.id %}" class="btn btn-danger">Reject</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted">No pending postings to review.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

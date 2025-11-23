@@ -1,0 +1,83 @@
+{% extends 'MyLogin/base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        {% if action == 'approve' %}Approve Posting{% else %}Reject Posting{% endif %}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Posting Details -->
+                    <div class="mb-4">
+                        <h5>Posting Details</h5>
+                        <p><strong>Title:</strong> {{ posting.title }}</p>
+                        <p><strong>Organization:</strong> {{ posting.organization.profile.org_name }}
+                            {% if posting.organization.profile.is_verified_organization %}
+                            <span class="badge bg-success ms-1">Verified</span>
+                            {% else %}
+                            <span class="badge bg-warning ms-1">Unverified</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Deadline:</strong> {{ posting.deadline|date:"M d, Y" }}</p>
+                        <p><strong>Description:</strong> {{ posting.description }}</p>
+                    </div>
+
+                    {% if action == 'reject' %}
+                    <!-- Rejection Form with Criteria -->
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <h6>Select rejection reasons:</h6>
+                            {% for criterion in rejection_criteria %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="criteria_violations" value="{{ criterion }}" id="violation{{ forloop.counter }}">
+                                <label class="form-check-label" for="violation{{ forloop.counter }}">
+                                    {{ criterion }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Additional Rejection Notes</label>
+                            <textarea name="rejection_reason" class="form-control" rows="3" placeholder="Provide specific reasons for rejection..."></textarea>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">Confirm Reject</button>
+                            <a href="{% url 'admin_posting_approval' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                    {% else %}
+                    <!-- Approval Form with Criteria -->
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <h6>Approval Checklist</h6>
+                            {% for criterion in approval_criteria %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="criteria_met" value="{{ criterion }}" id="criterion{{ forloop.counter }}" checked>
+                                <label class="form-check-label" for="criterion{{ forloop.counter }}">
+                                    {{ criterion }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Additional Approval Notes (Optional)</label>
+                            <textarea name="additional_notes" class="form-control" rows="2" placeholder="Any additional comments..."></textarea>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">Confirm Approve</button>
+                            <a href="{% url 'admin_posting_approval' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
