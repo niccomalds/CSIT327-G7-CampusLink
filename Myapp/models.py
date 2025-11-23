@@ -45,7 +45,28 @@ class Posting(models.Model):
     def is_pending_review(self):
         """Check if posting is pending admin review"""
         return self.approval_status == 'pending'
+
+    def save(self, *args, **kwargs):
+        """Override save to implement auto-approval for verified organizations"""
+        # Check if this is a new posting (not yet saved)
+        is_new = self._state.adding
+        
+        # Auto-approve if organization is verified and it's a new posting
+        if is_new and hasattr(self.organization, 'profile'):
+            if self.organization.profile.is_verified_organization():
+                self.approval_status = 'approved'
+                # You could also set approved_by to system or leave null
+                
+        super().save(*args, **kwargs)
     
+    @property
+    def is_auto_approved(self):
+        """Check if this posting was auto-approved"""
+        return (self.approval_status == 'approved' and 
+                not self.approved_by and 
+                hasattr(self.organization, 'profile') and
+                self.organization.profile.is_verified_organization())
+
 class Application(models.Model):
     STATUS_CHOICES = [
         ('submitted', 'Submitted'),
