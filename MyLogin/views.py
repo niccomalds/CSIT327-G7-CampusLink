@@ -12,6 +12,7 @@ from Myapp.models import Posting
 from .models import Profile
 from Myapp.utils import can_user_apply
 from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import render, redirect, get_object_or_404
 
 # --- Session timeout (10 minutes AFK limit) ---
 SESSION_TIMEOUT = 600  # seconds
@@ -413,5 +414,193 @@ def admin_verification_stats(request):
         'pending_count': Profile.objects.filter(role='Organization', verification_status='pending').count(),
         'rejected_count': Profile.objects.filter(role='Organization', verification_status='rejected').count(),
         'unverified_count': Profile.objects.filter(role='Organization', verification_status='unverified').count(),
+    }
+    return JsonResponse(stats)
+
+# === ADMIN POSTING APPROVAL VIEWS ===
+
+@staff_member_required
+@role_required(allowed_roles=['Admin'])
+def admin_posting_approval(request):
+    """Admin dashboard for reviewing pending postings"""
+    # Get postings pending approval, ordered by creation date (oldest first)
+    pending_postings = Posting.objects.filter(
+        approval_status='pending'
+    ).select_related('organization', 'organization__profile').order_by('created_at')
+    
+    # Get recently approved/rejected for context
+    recent_actions = Posting.objects.exclude(
+        approval_status='pending'
+    ).select_related('organization', 'organization__profile', 'approved_by').order_by('-approved_at')[:10]
+    
+    # Approval criteria checklist
+    approval_criteria = [
+        "Content is appropriate and professional",
+        "Opportunity is valid and legitimate", 
+        "Description is clear and complete",
+        "Deadline is reasonable",
+        "Organization is verified",
+        "No spam or promotional content",
+        "Complies with platform guidelines"
+    ]
+    
+    context = {
+        'pending_postings': pending_postings,
+        'recent_actions': recent_actions,
+        'page_title': 'Posting Approval Dashboard',
+        'pending_count': pending_postings.count(),
+        'approval_criteria': approval_criteria,
+    }
+    return render(request, 'MyLogin/admin_posting_approval.html', context)
+
+@staff_member_required
+@role_required(allowed_roles=['Admin'])
+def approve_posting(request, posting_id):
+    """Approve a specific posting"""
+    posting = get_object_or_404(Posting, id=posting_id)
+    
+    if request.method == 'POST':
+        # Get checklist results from form
+        criteria_met = request.POST.get('criteria_met', '')
+        additional_notes = request.POST.get('additional_notes', '')
+        
+        posting.approval_status = 'approved'
+        posting.approved_by = request.user
+        posting.approved_at = timezone.now()
+        
+        # Store approval notes if provided
+        if additional_notes:
+            posting.rejection_reason = f"Approval Notes: {additional_notes}"
+        
+        posting.save()
+        
+        messages.success(request, f'Posting "{posting.title}" has been approved and published.')
+        return redirect('admin_posting_approval')
+    
+    # If not POST, show confirmation page with criteria checklist
+    approval_criteria = [
+        "Content is appropriate and professional",
+        "Opportunity is valid and legitimate", 
+        "Description is clear and complete",
+        "Deadline is reasonable",
+        "Organization is verified",
+        "No spam or promotional content",
+        "Complies with platform guidelines"
+    ]
+    
+    context = {
+        'posting': posting,
+        'action': 'approve',
+        'approval_criteria': approval_criteria,
+    }
+    return render(request, 'MyLogin/admin_approval_confirm.html', context)
+
+@staff_member_required
+@role_required(allowed_roles=['Admin'])
+def reject_posting(request, posting_id):
+    """Reject a specific posting"""
+    posting = get_object_or_404(Posting, id=posting_id)
+    
+    if request.method == 'POST':
+        rejection_reason = request.POST.get('rejection_reason', '')
+        criteria_violations = request.POST.getlist('criteria_violations')  # Get checklist of violations
+        
+        posting.approval_status = 'rejected'
+        posting.approved_by = request.user
+        posting.approved_at = timezone.now()
+        
+        # Build comprehensive rejection reason
+        full_rejection_reason = rejection_reason
+        if criteria_violations:
+            violations_text = "Violations: " + ", ".join(criteria_violations)
+            full_rejection_reason = f"{violations_text}. {rejection_reason}"
+        
+        posting.rejection_reason = full_rejection_reason
+        posting.save()
+        
+        messages.warning(request, f'Posting "{posting.title}" has been rejected.')
+        return redirect('admin_posting_approval')
+    
+    # Rejection criteria
+    rejection_criteria = [
+        "Inappropriate content",
+        "Spam or promotional content", 
+        "Unclear or incomplete description",
+        "Unreasonable deadline",
+        "Organization not verified",
+        "Violates platform guidelines",
+        "Duplicate posting",
+        "Other (specify in notes)"
+    ]
+    
+    context = {
+        'posting': posting,
+        'action': 'reject',
+        'rejection_criteria': rejection_criteria,
+    }
+    return render(request, 'MyLogin/admin_approval_confirm.html', context)
+
+@staff_member_required
+@role_required(allowed_roles=['Admin'])
+def approve_posting(request, posting_id):
+    """Approve a specific posting"""
+    posting = get_object_or_404(Posting, id=posting_id)
+    
+    if request.method == 'POST':
+        posting.approval_status = 'approved'
+        posting.approved_by = request.user
+        posting.approved_at = timezone.now()
+        posting.save()
+        
+        messages.success(request, f'Posting "{posting.title}" has been approved and published.')
+        return redirect('admin_posting_approval')
+    
+    # If not POST, show confirmation page
+    context = {
+        'posting': posting,
+        'action': 'approve'
+    }
+    return render(request, 'MyLogin/admin_approval_confirm.html', context)
+
+@staff_member_required
+@role_required(allowed_roles=['Admin'])
+def reject_posting(request, posting_id):
+    """Reject a specific posting"""
+    posting = get_object_or_404(Posting, id=posting_id)
+    
+    if request.method == 'POST':
+        rejection_reason = request.POST.get('rejection_reason', '')
+        posting.approval_status = 'rejected'
+        posting.approved_by = request.user
+        posting.approved_at = timezone.now()
+        posting.rejection_reason = rejection_reason
+        posting.save()
+        
+        messages.warning(request, f'Posting "{posting.title}" has been rejected.')
+        return redirect('admin_posting_approval')
+    
+    # If not POST, show rejection form
+    context = {
+        'posting': posting,
+        'action': 'reject'
+    }
+    return render(request, 'MyLogin/admin_approval_confirm.html', context)
+
+@staff_member_required
+@role_required(allowed_roles=['Admin'])
+def posting_detail_modal(request, posting_id):
+    """Return posting details for modal display"""
+    posting = get_object_or_404(Posting, id=posting_id)
+    return render(request, 'MyLogin/posting_detail_modal.html', {'posting': posting})
+
+@staff_member_required
+@role_required(allowed_roles=['Admin'])
+def admin_posting_stats(request):
+    """API endpoint for posting approval statistics"""
+    stats = {
+        'total_postings': Posting.objects.count(),
+        'approved_count': Posting.objects.filter(approval_status='approved').count(),
+        'pending_count': Posting.objects.filter(approval_status='pending').count(),
+        'rejected_count': Posting.objects.filter(approval_status='rejected').count(),
     }
     return JsonResponse(stats)
