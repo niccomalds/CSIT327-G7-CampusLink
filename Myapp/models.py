@@ -17,7 +17,12 @@ class Posting(models.Model):
     description = models.TextField()
     deadline = models.DateField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Active')
-    organization = models.ForeignKey(User, on_delete=models.CASCADE)
+    organization = models.ForeignKey(
+    User,
+    on_delete=models.CASCADE,
+    related_name='myapp_postings'
+)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     approval_status = models.CharField(
