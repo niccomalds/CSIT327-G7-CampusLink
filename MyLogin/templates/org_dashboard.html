@@ -154,11 +154,13 @@
     </h2>
     <p>Manage your opportunities and connect with talented students.</p>
 </div>
-      <a href="{% if is_verified %}{% url 'post_opportunity' %}{% else %}#{% endif %}" 
-   class="post-opportunity-header-btn {% if not is_verified %}disabled-btn{% endif %}"
-   {% if not is_verified %}onclick="alert('Please verify your organization to post opportunities.'); return false;"{% endif %}>
-  <i class="fa-regular fa-clock"></i> Post New Opportunity
-</a>
+      <a href="{% url 'post_opportunity' %}" class="quick-action-card-btn">
+        <i class="fa-regular fa-clock"></i>
+    Post Opportunity
+      </a>
+
+
+
     </div>
 
     <div class="stats-section">
@@ -292,10 +294,7 @@
   </main>
 
   <script>
-    document.querySelectorAll('.quick-action-card-btn').forEach(btn => {
-      btn.addEventListener('click', () => alert('This demo button is not yet functional!'));
-    });
-
+    
     document.querySelectorAll('.bar-fill').forEach(function(bar) {
       let width = 0;
       const maxWidth = parseInt(bar.style.width);
@@ -377,9 +376,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Existing dashboard scripts
-document.querySelectorAll('.quick-action-card-btn').forEach(btn => {
-    btn.addEventListener('click', () => alert('This demo button is not yet functional!'));
-});
 
 document.querySelectorAll('.bar-fill').forEach(function(bar) {
     let width = 0;

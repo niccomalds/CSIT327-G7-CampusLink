@@ -18,18 +18,23 @@ class Profile(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Student')
-    org_name = models.CharField(max_length=255, blank=True, null=True)
+    org_name = models.CharField(max_length=255, blank=True, default="")
 
     # MAIN PROFILE FIELDS
-    full_name = models.CharField(max_length=200, blank=True)
-    email = models.EmailField(blank=True)
-    phone = models.CharField(max_length=20, blank=True)
-    academic_year = models.CharField(max_length=50, blank=True)
-    major = models.CharField(max_length=100, blank=True)
-    bio = models.TextField(blank=True)
+    full_name = models.CharField(max_length=200, blank=True, default="")
+    contact_email = models.EmailField(blank=True, default="")
+    phone = models.CharField(max_length=20, blank=True, default="")
+    academic_year = models.CharField(max_length=50, blank=True, default="")
+    major = models.CharField(max_length=100, blank=True, default="")
+    bio = models.TextField(blank=True, default="")
+
 
     # PROFILE IMAGE
-    profile_picture = models.ImageField(upload_to='profile_pics/', default='default.jpg')
+    profile_picture = models.ImageField(
+    upload_to='profile_pics/',
+    default='profile_pics/default.jpg'
+)
+
     
     verification_status = models.CharField(
         max_length=20, 
@@ -66,3 +71,35 @@ class Profile(models.Model):
         self.verification_status = 'pending'
         self.verification_submitted_at = timezone.now()
         self.save()
+
+class Posting(models.Model):
+    organization = models.ForeignKey(
+    User,
+    on_delete=models.CASCADE,
+    related_name='mylogin_postings'
+)
+
+    
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    deadline = models.DateField()
+    team_name = models.CharField(max_length=255, blank=True, null=True)
+
+    # Status fields
+    status = models.CharField(
+        max_length=20,
+        choices=[("Active", "Active"), ("Closed", "Closed")],
+        default="Active"
+    )
+
+    # Admin approval workflow
+    approval_status = models.CharField(
+        max_length=20,
+        choices=[("pending", "Pending"), ("approved", "Approved"), ("rejected", "Rejected")],
+        default="pending"
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} ({self.organization.username})"

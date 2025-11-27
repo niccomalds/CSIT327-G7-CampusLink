@@ -125,3 +125,4 @@ LOGIN_REDIRECT_URL = '/Myapp/dashboard/'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
