@@ -1,0 +1,105 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Create Opportunity – CampusLink</title>
+
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Reuse your existing dashboard styling -->
+  <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
+
+  <!-- NEW separate CSS for this form -->
+  <link rel="stylesheet" href="{% static 'Myapp/post_opportunity.css' %}">
+</head>
+
+<body>
+
+  <!-- Navbar - matches org_dashboard -->
+  <div class="navbar">
+    <div class="navbar-container">
+      <div class="logo"><i class="fa-solid fa-user-graduate"></i>CampusLink</div>
+
+      <div class="nav">
+        <a href="{% url 'organization_dashboard' %}">Dashboard</a>
+        <a href="{% url 'post_opportunity' %}" class="active">Post Opportunity</a>
+        <a href="{% url 'manage_postings' %}">Applicants</a>
+        <a href="{% url 'org_profile' %}">Org Profile</a>
+      </div>
+
+      <div class="searchbar">
+        <input type="text" placeholder="Search..." disabled>
+      </div>
+
+      <div class="right">
+        <div class="avatar"><i class="fa-solid fa-user"></i></div>
+      </div>
+    </div>
+  </div>
+
+  <main>
+
+    <div class="form-container">
+      <h2><i class="fa-solid fa-pen-to-square"></i> Create New Opportunity</h2>
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="feedback {% if message.tags == 'success' %}success{% else %}error{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="POST">
+        {% csrf_token %}
+
+        <!-- Title -->
+        <div class="form-group">
+          <label for="title">Opportunity Title</label>
+          <input type="text" id="title" name="title"
+                 placeholder="e.g., Software Engineering Intern"
+                 required>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea id="description" name="description" rows="5"
+                    placeholder="Describe the opportunity, responsibilities, required skills..."
+                    required></textarea>
+        </div>
+
+        <!-- Deadline -->
+        <div class="form-group">
+          <label for="deadline">Application Deadline</label>
+          <input type="date" id="deadline" name="deadline" required>
+        </div>
+
+        <!-- Team Name -->
+        <div class="form-group">
+          <label for="team_name">Team / Department Name</label>
+          <input type="text" id="team_name" name="team_name"
+                 placeholder="e.g., Technology Innovation Lab">
+        </div>
+
+        <!-- Status -->
+        <div class="form-group">
+          <label for="status">Posting Status</label>
+          <select id="status" name="status">
+            <option value="Active">Active</option>
+            <option value="Closed">Closed</option>
+          </select>
+        </div>
+
+        <button type="submit" class="submit-btn">
+          <i class="fa-solid fa-circle-check"></i> Submit Posting
+        </button>
+      </form>
+    </div>
+
+  </main>
+
+</body>
+</html>

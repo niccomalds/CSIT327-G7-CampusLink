@@ -29,8 +29,14 @@
 
     <div id="userMenuWrap">
       <button id="userToggle">
-        <img src="{{ user.profile.profile_picture.url|default:'/static/Myapp/default-avatar.png' }}"
-             alt="Profile" id="profileAvatar">
+        <img src="{% if user.profile.profile_picture %}
+              {{ user.profile.profile_picture.url }}
+          {% else %}
+              /static/Myapp/default-avatar.png
+          {% endif %}"
+     alt="Profile"
+     id="profileAvatar">
+
       </button>
 
       <div id="userDropdown">
@@ -65,7 +71,14 @@
         <aside class="profile-side">
             <div class="profile-card">
 
-                <img src="{{ user.profile.profile_picture.url }}" alt="Student Avatar" class="profile-photo">
+                <img src="{% if user.profile.profile_picture %}
+              {{ user.profile.profile_picture.url }}
+          {% else %}
+              /static/Myapp/default-avatar.png
+          {% endif %}"
+     alt="Student Avatar"
+     class="profile-photo">
+
 
 
                 <div class="profile-major-year" id="majorYearView">
