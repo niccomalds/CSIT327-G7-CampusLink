@@ -301,10 +301,6 @@ def applicants_list(request):
 
 
 # --- Organization Profile & Settings ---
-@login_required
-def org_profile(request):
-    return render(request, 'org_profile.html')
-
 
 @login_required
 def org_settings(request):
@@ -562,22 +558,22 @@ def post_opportunity(request):
         title = request.POST.get('title')
         description = request.POST.get('description')
         deadline_str = request.POST.get('deadline')
-        team_name = request.POST.get('team_name')
-        status = request.POST.get('status')
+
+        # ⭐ TAGS
+        selected_tags = request.POST.getlist("tags")
+        tags_str = ",".join(selected_tags)
 
         # --- VALIDATION ---
         if not (title and description and deadline_str):
             messages.error(request, "Please fill in all required fields.")
             return redirect('post_opportunity')
 
-        # Validate deadline format
         try:
             deadline = datetime.strptime(deadline_str, "%Y-%m-%d").date()
         except ValueError:
             messages.error(request, "Invalid date format.")
             return redirect('post_opportunity')
 
-        # Deadline must be in the future  
         if deadline <= timezone.now().date():
             messages.error(request, "Deadline must be in the future.")
             return redirect('post_opportunity')
@@ -588,12 +584,78 @@ def post_opportunity(request):
             title=title,
             description=description,
             deadline=deadline,
-            team_name=team_name,
-            status=status,
-            approval_status='pending'  # Waiting for admin review
+            tags=tags_str,
+            approval_status='pending'
         )
 
         messages.success(request, "Opportunity created successfully! Waiting for admin approval.")
         return redirect('organization_dashboard')
 
     return render(request, 'post_opportunity.html')
+
+
+
+@login_required
+def org_profile(request):
+    """Load the 5-step wizard page."""
+    profile = request.user.profile  # always exists
+    context = {
+        "user": request.user,
+        "profile": profile,
+    }
+    return render(request, "org_profile.html", context)
+
+
+@login_required
+def save_org_profile(request):
+    """AJAX endpoint to save wizard data."""
+
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request"}, status=400)
+
+    profile = request.user.profile
+
+    # ---------------------------
+    # OVERVIEW
+    # ---------------------------
+    profile.org_name = request.POST.get("org_name")
+    profile.description = request.POST.get("description")
+    profile.mission = request.POST.get("mission")
+    profile.department = request.POST.get("department")
+    profile.website = request.POST.get("website")
+
+    # ---------------------------
+    # CONTACTS
+    # ---------------------------
+    profile.contact_email = request.POST.get("contact_email")
+    profile.contact_phone = request.POST.get("contact_phone")
+    profile.address = request.POST.get("address")
+
+    # ---------------------------
+    # SOCIAL LINKS
+    # ---------------------------
+    profile.social_facebook = request.POST.get("social_facebook")
+    profile.social_instagram = request.POST.get("social_instagram")
+    profile.social_linkedin = request.POST.get("social_linkedin")
+
+    # ---------------------------
+    # VISIBILITY
+    # ---------------------------
+    is_public = request.POST.get("is_public")
+    profile.is_public = (is_public == "True")
+
+    # ---------------------------
+    # HANDLE CROPPED LOGO
+    # ---------------------------
+    if "org_logo" in request.FILES:
+        profile.org_logo = request.FILES["org_logo"]
+
+    # SAVE EVERYTHING
+    profile.save()
+
+    return JsonResponse({"success": True})
+
+@login_required
+def org_settings(request):
+    return render(request, "org_settings.html")
+

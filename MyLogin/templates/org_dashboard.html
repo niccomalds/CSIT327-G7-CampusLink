@@ -13,51 +13,49 @@
 </head>
 
 <body>
-  <div class="navbar">
-    <div class="navbar-container">
-
-      <div class="logo"><i class="fa-solid fa-user-graduate"></i>CampusLink</div>
-
-      <div class="nav">
-        <a href="{% url 'organization_dashboard' %}" class="active">Dashboard</a>
-        <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
-        <a href="{% url 'manage_postings' %}">Applicants</a>
-        <a href="{% url 'org_profile' %}">Org Profile</a>
-        <a href="#" onclick="openVerificationModal(); return false;" class="verification-nav-btn">
-          <i class="fa-solid fa-shield-check"></i> Verify Account
-          </a>
-      </div>
-
-      <div class="searchbar">
-        <input type="text" placeholder="Search opportunities..." aria-label="Search Opportunities">
-      </div>
-
-      <div class="right">
-        <div class="notif" tabindex="0" aria-label="Notifications">
-          <i class="fa-regular fa-bell"></i>
-          <span class="notif-badge">2</span>
-        </div>
-
-        <div class="avatar" tabindex="0" aria-label="User Profile">
-          <i class="fa-solid fa-user"></i>
-
-          <div class="dropdown-content">
-            <ul>
-              <li><span>Organization</span></li>
-              <li><a href="{% url 'org_profile' %}">Profile</a></li>
-              <li><a href="#" onclick="openVerificationModal(); return false;">
-              <i class="fa-solid fa-shield-check"></i> Verify Account
-              </a></li>
-              <li><a href="{% url 'org_settings' %}">Settings</a></li>
-              <li><a href="{% url 'logout' %}">Log out</a></li>
-            </ul>
-          </div>
-        </div>
-
-      </div>
-
+  <header class="header">
+    <div class="logo">
+      <i class="fa-solid fa-graduation-cap"></i>
+      <span>CampusLink</span>
     </div>
-  </div>
+
+    <nav>
+      <a href="{% url 'organization_dashboard' %}" class="active">Dashboard</a>
+      <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
+      <a href="{% url 'manage_postings' %}">Applicants</a>
+      <a href="{% url 'org_profile' %}">Org Profile</a>
+      <a href="#" onclick="openVerificationModal(); return false;" class="verification-nav-btn">
+          <i class="fa-solid fa-shield-check"></i> Verify Account
+      </a>
+    </nav>
+
+    <div class="search-profile">
+      <input type="text" class="top-search" placeholder="Search opportunities...">
+
+      <!-- PROFILE DROPDOWN -->
+      <div class="profile-dropdown" id="orgProfileDropdown">
+          <img src="{% if user.profile.profile_picture %}
+                        {{ user.profile.profile_picture.url }}
+                   {% else %}
+                        /static/Myapp/default-avatar.png
+                   {% endif %}"
+               alt="Profile"
+               class="avatar"
+               id="profileAvatar">
+
+          <div class="dropdown-menu" id="orgDropdownMenu">
+              <div class="dropdown-header">Organization</div>
+              <a href="{% url 'org_profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
+              <a href="#" onclick="openVerificationModal(); return false;">
+                  <i class="fa-solid fa-shield-check"></i> Verify Account
+              </a>
+              <a href="{% url 'org_settings' %}"><i class="fa-solid fa-gear"></i> Settings</a>
+              <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
+          </div>
+      </div>
+    </div>
+</header>
+
 
   <main>
 
@@ -293,38 +291,47 @@
 {% endif %}
   </main>
 
-  <script>
-    
-    document.querySelectorAll('.bar-fill').forEach(function(bar) {
-      let width = 0;
-      const maxWidth = parseInt(bar.style.width);
-      bar.style.width = "0";
+ <script>
+/* ============================
+   BAR ANIMATION
+============================ */
+document.querySelectorAll('.bar-fill').forEach(function(bar) {
+    let width = 0;
+    const maxWidth = parseInt(bar.dataset.target || bar.style.width);
+    bar.style.width = "0";
 
-      setTimeout(function animate() {
+    setTimeout(function animate() {
         if (width < maxWidth) {
-          width += 2;
-          bar.style.width = width + "%";
-          requestAnimationFrame(animate);
+            width += 2;
+            bar.style.width = width + "%";
+            requestAnimationFrame(animate);
         } else {
-          bar.style.width = maxWidth + "%";
+            bar.style.width = maxWidth + "%";
         }
-      }, 350);
-    });
+    }, 350);
+});
 
-    document.querySelector('.avatar').addEventListener('click', function() {
-      const dropdown = this.querySelector('.dropdown-content');
-      dropdown.style.display = (dropdown.style.display === 'block' ? 'none' : 'block');
-    });
 
-    document.addEventListener('click', function(event) {
-      if (!event.target.closest('.avatar')) {
-        const dropdown = document.querySelector('.dropdown-content');
-        if (dropdown) dropdown.style.display = 'none';
-      }
-    });
-  </script>
+/* ============================
+   DROPDOWN (STUDENT STYLE)
+============================ */
+document.getElementById("profileAvatar").addEventListener("click", function () {
+    const menu = document.getElementById("orgDropdownMenu");
+    menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+});
 
-  <script>
+// Close dropdown when clicking outside
+document.addEventListener("click", function (event) {
+    if (!event.target.closest(".profile-dropdown")) {
+        const menu = document.getElementById("orgDropdownMenu");
+        if (menu) menu.style.display = "none";
+    }
+});
+
+
+/* ============================
+   VERIFICATION MODAL
+============================ */
 function closeVerificationModal() {
     const overlay = document.getElementById('verificationOverlay');
     if (overlay) {
@@ -355,7 +362,7 @@ function closeBanner() {
     }
 }
 
-// Close modal when clicking outside
+// Close modal when clicking outside of content
 document.addEventListener('click', function(event) {
     const overlay = document.getElementById('verificationOverlay');
     if (overlay && event.target === overlay) {
@@ -363,47 +370,13 @@ document.addEventListener('click', function(event) {
     }
 });
 
-// Close with Escape key
+// Close modal with ESC key
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
         closeVerificationModal();
     }
 });
-
-// Auto-open modal when page loads for unverified orgs
-document.addEventListener('DOMContentLoaded', function() {
-    // Modal will auto-show because it's in the template conditionally
-});
-
-// Existing dashboard scripts
-
-document.querySelectorAll('.bar-fill').forEach(function(bar) {
-    let width = 0;
-    const maxWidth = parseInt(bar.style.width);
-    bar.style.width = "0";
-
-    setTimeout(function animate() {
-        if (width < maxWidth) {
-            width += 2;
-            bar.style.width = width + "%";
-            requestAnimationFrame(animate);
-        } else {
-            bar.style.width = maxWidth + "%";
-        }
-    }, 350);
-});
-
-document.querySelector('.avatar').addEventListener('click', function() {
-    const dropdown = this.querySelector('.dropdown-content');
-    dropdown.style.display = (dropdown.style.display === 'block' ? 'none' : 'block');
-});
-
-document.addEventListener('click', function(event) {
-    if (!event.target.closest('.avatar')) {
-        const dropdown = document.querySelector('.dropdown-content');
-        if (dropdown) dropdown.style.display = 'none';
-    }
-});
 </script>
+
 </body>
 </html>

@@ -5,101 +5,159 @@
   <meta charset="UTF-8">
   <title>Create Opportunity – CampusLink</title>
 
-  <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <!-- Reuse your existing dashboard styling -->
+  <!-- Use the SAME header + global org dashboard styles -->
   <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
-
-  <!-- NEW separate CSS for this form -->
   <link rel="stylesheet" href="{% static 'Myapp/post_opportunity.css' %}">
+
+  <!-- 👉 Select2 styles + jQuery + Select2 JS -->
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </head>
+
 
 <body>
 
-  <!-- Navbar - matches org_dashboard -->
-  <div class="navbar">
-    <div class="navbar-container">
-      <div class="logo"><i class="fa-solid fa-user-graduate"></i>CampusLink</div>
+<!-- ============================
+     NEW HEADER (Identical to org_dashboard)
+============================ -->
+<header class="header">
+    <div class="logo">
+      <i class="fa-solid fa-graduation-cap"></i>
+      <span>CampusLink</span>
+    </div>
 
-      <div class="nav">
-        <a href="{% url 'organization_dashboard' %}">Dashboard</a>
-        <a href="{% url 'post_opportunity' %}" class="active">Post Opportunity</a>
-        <a href="{% url 'manage_postings' %}">Applicants</a>
-        <a href="{% url 'org_profile' %}">Org Profile</a>
-      </div>
+    <nav>
+      <a href="{% url 'organization_dashboard' %}">Dashboard</a>
+      <a href="{% url 'post_opportunity' %}" class="active">Post Opportunity</a>
+      <a href="{% url 'manage_postings' %}">Applicants</a>
+      <a href="{% url 'org_profile' %}">Org Profile</a>
+      <a href="#" onclick="openVerificationModal(); return false;">
+        <i class="fa-solid fa-shield-check"></i> Verify Account
+      </a>
+    </nav>
 
-      <div class="searchbar">
-        <input type="text" placeholder="Search..." disabled>
-      </div>
+    <div class="search-profile">
+      <input type="text" class="top-search" placeholder="Search opportunities...">
 
-      <div class="right">
-        <div class="avatar"><i class="fa-solid fa-user"></i></div>
+      <!-- PROFILE DROPDOWN -->
+      <div class="profile-dropdown">
+          <img src="{% if user.profile.profile_picture %}
+                        {{ user.profile.profile_picture.url }}
+                    {% else %}
+                        /static/Myapp/default-avatar.png
+                    {% endif %}"
+               alt="Profile"
+               class="avatar"
+               id="profileAvatar">
+
+          <div class="dropdown-menu" id="orgDropdownMenu">
+              <div class="dropdown-header">Organization</div>
+              <a href="{% url 'org_profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
+              <a href="{% url 'manage_postings' %}"><i class="fa-solid fa-users"></i> Applicants</a>
+              <a href="#" onclick="openVerificationModal(); return false;">
+                <i class="fa-solid fa-shield-check"></i> Verify Account
+              </a>
+              <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
+          </div>
       </div>
     </div>
+</header>
+
+
+<!-- ============================
+     MAIN CONTENT (form)
+============================ -->
+<main>
+
+  <div class="form-container">
+    <h2><i class="fa-solid fa-pen-to-square"></i> Create New Opportunity</h2>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="feedback {% if message.tags == 'success' %}success{% else %}error{% endif %}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="POST">
+  {% csrf_token %}
+
+  <!-- Title -->
+  <div class="form-group">
+    <label for="title">Opportunity Title</label>
+    <input type="text" id="title" name="title" required>
   </div>
 
-  <main>
+  <!-- Description -->
+  <div class="form-group">
+    <label for="description">Description</label>
+    <textarea id="description" name="description" rows="5" required></textarea>
+  </div>
 
-    <div class="form-container">
-      <h2><i class="fa-solid fa-pen-to-square"></i> Create New Opportunity</h2>
+  <!-- Deadline -->
+  <div class="form-group">
+    <label for="deadline">Application Deadline</label>
+    <input type="date" id="deadline" name="deadline" required>
+  </div>
 
-      {% if messages %}
-        {% for message in messages %}
-          <div class="feedback {% if message.tags == 'success' %}success{% else %}error{% endif %}">
-            {{ message }}
-          </div>
-        {% endfor %}
-      {% endif %}
+  <!-- ⭐ TAGS DROPDOWN -->
+  <!-- ⭐ TAGS DROPDOWN (Select2) -->
+<div class="form-group">
+  <label for="tags">Tags</label>
+  <select id="tags" name="tags" multiple>
+    <option value="Communication">Communication</option>
+    <option value="Outreach">Outreach</option>
+    <option value="Events">Events</option>
+    <option value="Leadership">Leadership</option>
+    <option value="Marketing">Marketing</option>
+    <option value="Creative">Creative</option>
+    <option value="Technical">Technical</option>
+  </select>
+</div>
 
-      <form method="POST">
-        {% csrf_token %}
 
-        <!-- Title -->
-        <div class="form-group">
-          <label for="title">Opportunity Title</label>
-          <input type="text" id="title" name="title"
-                 placeholder="e.g., Software Engineering Intern"
-                 required>
-        </div>
+  <button type="submit" class="submit-btn">
+    <i class="fa-solid fa-circle-check"></i> Submit Posting
+  </button>
+</form>
 
-        <!-- Description -->
-        <div class="form-group">
-          <label for="description">Description</label>
-          <textarea id="description" name="description" rows="5"
-                    placeholder="Describe the opportunity, responsibilities, required skills..."
-                    required></textarea>
-        </div>
+  </div>
 
-        <!-- Deadline -->
-        <div class="form-group">
-          <label for="deadline">Application Deadline</label>
-          <input type="date" id="deadline" name="deadline" required>
-        </div>
+</main>
 
-        <!-- Team Name -->
-        <div class="form-group">
-          <label for="team_name">Team / Department Name</label>
-          <input type="text" id="team_name" name="team_name"
-                 placeholder="e.g., Technology Innovation Lab">
-        </div>
 
-        <!-- Status -->
-        <div class="form-group">
-          <label for="status">Posting Status</label>
-          <select id="status" name="status">
-            <option value="Active">Active</option>
-            <option value="Closed">Closed</option>
-          </select>
-        </div>
 
-        <button type="submit" class="submit-btn">
-          <i class="fa-solid fa-circle-check"></i> Submit Posting
-        </button>
-      </form>
-    </div>
+<!-- ============================
+     DROPDOWN + MODAL SCRIPTS
+============================ -->
+<script>
 
-  </main>
+document.getElementById("profileAvatar").addEventListener("click", function () {
+    const menu = document.getElementById("orgDropdownMenu");
+    menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+});
+
+document.addEventListener("click", function (event) {
+    if (!event.target.closest(".profile-dropdown")) {
+        const menu = document.getElementById("orgDropdownMenu");
+        if (menu) menu.style.display = "none";
+    }
+});
+</script>
+
+<script>
+  $(document).ready(function() {
+      $('#tags').select2({
+          placeholder: "Select one or more tags",
+          allowClear: true,
+          width: '100%'
+      });
+  });
+</script>
 
 </body>
 </html>

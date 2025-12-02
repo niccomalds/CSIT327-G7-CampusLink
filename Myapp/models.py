@@ -16,6 +16,7 @@ class Posting(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     deadline = models.DateField()
+    tags = models.CharField(max_length=255, blank=True, default="")
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Active')
     organization = models.ForeignKey(
     User,
