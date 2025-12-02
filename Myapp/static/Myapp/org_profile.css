@@ -1,0 +1,256 @@
+/* ============================================================
+   GENERAL PAGE LAYOUT
+   Matches org dashboard theme (white panels + soft gray)
+============================================================ */
+body {
+    margin: 0;
+    padding: 0;
+    background: #f3f4f6; /* dashboard background */
+    font-family: "Inter", sans-serif;
+}
+
+/* Container */
+.profile-container {
+    width: 85%;
+    margin: 30px auto;
+    background: white;
+    padding: 35px;
+    border-radius: 14px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+/* Section Title */
+.section-title,
+.wizard-title {
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 25px;
+    color: #1a1a1a;
+}
+
+/* ============================================================
+   WIZARD PROGRESS BAR
+============================================================ */
+.wizard-progress {
+    width: 85%;
+    margin: 20px auto 30px;
+}
+
+.wizard-progress .step {
+    display: inline-block;
+    width: 19%;
+    text-align: center;
+    font-size: 14px;
+    padding: 6px 0;
+    color: #777;
+    font-weight: 500;
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.wizard-progress .step.active {
+    color: #0055ff;
+    font-weight: 600;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 10px;
+    margin-top: 8px;
+    position: relative;
+}
+
+.progress-fill {
+    width: 0%;
+    height: 100%;
+    background: #0055ff;
+    border-radius: 10px;
+    transition: width .4s ease;
+}
+
+/* ============================================================
+   WIZARD PANELS
+============================================================ */
+.wizard-panel {
+    display: none;
+    animation: fadeIn .4s ease;
+}
+
+.wizard-panel.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(10px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+/* ============================================================
+   FORMS — MATCH DASHBOARD INPUT STYLE
+============================================================ */
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 7px;
+    display: block;
+    color: #333;
+}
+
+input,
+textarea,
+select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 15px;
+    background: #fafafa;
+    transition: border-color .2s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: #0055ff;
+    outline: none;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+/* ============================================================
+   LOGO SECTION + CROP BUTTON
+============================================================ */
+.logo-section {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.org-logo {
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 14px;
+    border: 3px solid #e5e7eb;
+    margin-bottom: 15px;
+    background: white;
+}
+
+#logoInput {
+    margin-top: 10px;
+}
+
+.crop-btn {
+    margin-top: 15px;
+    background: #0055ff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.crop-btn:hover {
+    background: #0041d8;
+}
+
+/* ============================================================
+   SAVE BUTTON
+============================================================ */
+.save-btn {
+    display: inline-block;
+    padding: 12px 25px;
+    background: #0055ff;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.save-btn:hover {
+    background: #0042db;
+}
+
+.final-save {
+    margin-top: 30px;
+    text-align: center;
+}
+
+/* ============================================================
+   CROPPER MODAL
+============================================================ */
+.crop-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+}
+
+.crop-modal-content {
+    width: 600px;
+    background: white;
+    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+}
+
+.crop-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.crop-header h3 {
+    margin: 0;
+}
+
+.close-cropper {
+    cursor: pointer;
+    font-size: 22px;
+}
+
+.crop-body {
+    width: 100%;
+    height: 350px;
+    overflow: hidden;
+    margin: 15px 0;
+}
+
+#cropperImage {
+    width: 100%;
+}
+
+.apply-crop-btn {
+    width: 100%;
+    padding: 12px;
+    background: #0055ff;
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.apply-crop-btn:hover {
+    background: #0041d8;
+}

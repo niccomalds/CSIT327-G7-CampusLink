@@ -207,7 +207,7 @@ def update_profile(request):
         profile = request.user.profile
 
         profile.full_name = request.POST.get('full_name', profile.full_name)
-        profile.email = request.POST.get('email', profile.email)
+        profile.contact_email = request.POST.get('email', profile.contact_email)
         profile.phone = request.POST.get('phone', profile.phone)
         profile.academic_year = request.POST.get('academic_year', profile.academic_year)
         profile.major = request.POST.get('major', profile.major)
@@ -285,11 +285,6 @@ def delete_posting(request, post_id):
     return redirect('manage_postings')
 
 
-@login_required
-def post_opportunity(request):
-    return render(request, 'post_opportunity.html')
-
-
 # --- Student Applications ---
 @login_required
 @role_required(allowed_roles=['Student'])
@@ -306,10 +301,6 @@ def applicants_list(request):
 
 
 # --- Organization Profile & Settings ---
-@login_required
-def org_profile(request):
-    return render(request, 'org_profile.html')
-
 
 @login_required
 def org_settings(request):
@@ -542,52 +533,6 @@ def reject_posting(request, posting_id):
 
 @staff_member_required
 @role_required(allowed_roles=['Admin'])
-def approve_posting(request, posting_id):
-    """Approve a specific posting"""
-    posting = get_object_or_404(Posting, id=posting_id)
-    
-    if request.method == 'POST':
-        posting.approval_status = 'approved'
-        posting.approved_by = request.user
-        posting.approved_at = timezone.now()
-        posting.save()
-        
-        messages.success(request, f'Posting "{posting.title}" has been approved and published.')
-        return redirect('admin_posting_approval')
-    
-    # If not POST, show confirmation page
-    context = {
-        'posting': posting,
-        'action': 'approve'
-    }
-    return render(request, 'MyLogin/admin_approval_confirm.html', context)
-
-@staff_member_required
-@role_required(allowed_roles=['Admin'])
-def reject_posting(request, posting_id):
-    """Reject a specific posting"""
-    posting = get_object_or_404(Posting, id=posting_id)
-    
-    if request.method == 'POST':
-        rejection_reason = request.POST.get('rejection_reason', '')
-        posting.approval_status = 'rejected'
-        posting.approved_by = request.user
-        posting.approved_at = timezone.now()
-        posting.rejection_reason = rejection_reason
-        posting.save()
-        
-        messages.warning(request, f'Posting "{posting.title}" has been rejected.')
-        return redirect('admin_posting_approval')
-    
-    # If not POST, show rejection form
-    context = {
-        'posting': posting,
-        'action': 'reject'
-    }
-    return render(request, 'MyLogin/admin_approval_confirm.html', context)
-
-@staff_member_required
-@role_required(allowed_roles=['Admin'])
 def posting_detail_modal(request, posting_id):
     """Return posting details for modal display"""
     posting = get_object_or_404(Posting, id=posting_id)
@@ -604,3 +549,113 @@ def admin_posting_stats(request):
         'rejected_count': Posting.objects.filter(approval_status='rejected').count(),
     }
     return JsonResponse(stats)
+
+@login_required
+@role_required(allowed_roles=['Organization'])
+def post_opportunity(request):
+
+    if request.method == "POST":
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        deadline_str = request.POST.get('deadline')
+
+        # ⭐ TAGS
+        selected_tags = request.POST.getlist("tags")
+        tags_str = ",".join(selected_tags)
+
+        # --- VALIDATION ---
+        if not (title and description and deadline_str):
+            messages.error(request, "Please fill in all required fields.")
+            return redirect('post_opportunity')
+
+        try:
+            deadline = datetime.strptime(deadline_str, "%Y-%m-%d").date()
+        except ValueError:
+            messages.error(request, "Invalid date format.")
+            return redirect('post_opportunity')
+
+        if deadline <= timezone.now().date():
+            messages.error(request, "Deadline must be in the future.")
+            return redirect('post_opportunity')
+
+        # --- CREATE POSTING ---
+        Posting.objects.create(
+            organization=request.user,
+            title=title,
+            description=description,
+            deadline=deadline,
+            tags=tags_str,
+            approval_status='pending'
+        )
+
+        messages.success(request, "Opportunity created successfully! Waiting for admin approval.")
+        return redirect('organization_dashboard')
+
+    return render(request, 'post_opportunity.html')
+
+
+
+@login_required
+def org_profile(request):
+    """Load the 5-step wizard page."""
+    profile = request.user.profile  # always exists
+    context = {
+        "user": request.user,
+        "profile": profile,
+    }
+    return render(request, "org_profile.html", context)
+
+
+@login_required
+def save_org_profile(request):
+    """AJAX endpoint to save wizard data."""
+
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request"}, status=400)
+
+    profile = request.user.profile
+
+    # ---------------------------
+    # OVERVIEW
+    # ---------------------------
+    profile.org_name = request.POST.get("org_name")
+    profile.description = request.POST.get("description")
+    profile.mission = request.POST.get("mission")
+    profile.department = request.POST.get("department")
+    profile.website = request.POST.get("website")
+
+    # ---------------------------
+    # CONTACTS
+    # ---------------------------
+    profile.contact_email = request.POST.get("contact_email")
+    profile.contact_phone = request.POST.get("contact_phone")
+    profile.address = request.POST.get("address")
+
+    # ---------------------------
+    # SOCIAL LINKS
+    # ---------------------------
+    profile.social_facebook = request.POST.get("social_facebook")
+    profile.social_instagram = request.POST.get("social_instagram")
+    profile.social_linkedin = request.POST.get("social_linkedin")
+
+    # ---------------------------
+    # VISIBILITY
+    # ---------------------------
+    is_public = request.POST.get("is_public")
+    profile.is_public = (is_public == "True")
+
+    # ---------------------------
+    # HANDLE CROPPED LOGO
+    # ---------------------------
+    if "org_logo" in request.FILES:
+        profile.org_logo = request.FILES["org_logo"]
+
+    # SAVE EVERYTHING
+    profile.save()
+
+    return JsonResponse({"success": True})
+
+@login_required
+def org_settings(request):
+    return render(request, "org_settings.html")
+

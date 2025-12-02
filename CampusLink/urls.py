@@ -13,3 +13,4 @@ urlpatterns = [
 # Serve uploaded media files (profile pictures, resumes)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

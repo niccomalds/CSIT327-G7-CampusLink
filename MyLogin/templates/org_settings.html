@@ -1,0 +1,76 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Organization Settings – CampusLink</title>
+
+    <!-- Dashboard theme -->
+    <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
+
+    <!-- Settings CSS (separated) -->
+    <link rel="stylesheet" href="{% static 'Myapp/org_settings.css' %}">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+<header>
+    <h2 style="padding: 15px 30px;">Organization Settings</h2>
+</header>
+
+<div class="settings-container">
+
+    <div class="settings-header">
+        <i class="fa-solid fa-gear"></i> Settings
+    </div>
+
+    <!-- GENERAL INFO -->
+    <div class="setting-section">
+        <div class="setting-title">General Information</div>
+
+        <div class="setting-item">
+            <label>Organization Name</label>
+            <input type="text" placeholder="Enter organization name">
+        </div>
+
+        <div class="setting-item">
+            <label>Email Address</label>
+            <input type="email" placeholder="Enter email">
+        </div>
+
+        <div class="setting-item">
+            <label>Phone Number</label>
+            <input type="text" placeholder="Enter phone number">
+        </div>
+    </div>
+
+    <!-- ACCOUNT SETTINGS -->
+    <div class="setting-section">
+        <div class="setting-title">Account Settings</div>
+
+        <div class="setting-item">
+            <label>Password</label>
+            <input type="password" placeholder="•••••••••">
+        </div>
+
+        <div class="setting-item">
+            <label>Notification Settings</label>
+            <select>
+                <option>Receive all notifications</option>
+                <option>Email only</option>
+                <option>SMS only</option>
+                <option>None</option>
+            </select>
+        </div>
+    </div>
+
+    <button class="save-btn">Save Changes</button>
+
+</div>
+
+</body>
+</html>
