@@ -82,22 +82,22 @@
 
     <div class="form-group">
         <label>Organization Name</label>
-        <input id="org_name" type="text" value="{{ profile.org_name }}">
+        <input id="org_name" type="text" value="{{ profile.org_name|default_if_none:'' }}">
     </div>
 
     <div class="form-group">
         <label>Department</label>
-        <input id="department" type="text" value="{{ profile.department }}">
+        <input id="department" type="text" value="{{ profile.department|default_if_none:'' }}">
     </div>
 
     <div class="form-group full">
         <label>Description</label>
-        <textarea id="description">{{ profile.description }}</textarea>
+        <textarea id="description">{{ profile.description|default_if_none:'' }}</textarea>
     </div>
 
     <div class="form-group full">
         <label>Mission</label>
-        <textarea id="mission">{{ profile.mission }}</textarea>
+        <textarea id="mission">{{ profile.mission|default_if_none:'' }}</textarea>
     </div>
 
 </div>
@@ -113,22 +113,22 @@
         <div class="form-grid">
             <div class="form-group">
                 <label>Email</label>
-                <input id="contact_email" type="email" value="{{ profile.contact_email }}">
+                <input id="contact_email" type="email" value="{{ profile.contact_email|default_if_none:'' }}">
             </div>
 
             <div class="form-group">
                 <label>Phone Number</label>
-                <input id="contact_phone" type="text" value="{{ profile.contact_phone }}">
+                <input id="contact_phone" type="text" value="{{ profile.contact_phone|default_if_none:'' }}">
             </div>
 
             <div class="form-group full">
                 <label>Address</label>
-                <input id="address" type="text" value="{{ profile.address }}">
+                <input id="address" type="text" value="{{ profile.address|default_if_none:'' }}">
             </div>
 
             <div class="form-group full">
                 <label>Website</label>
-                <input id="website" type="url" value="{{ profile.website }}">
+                <input id="website" type="url" value="{{ profile.website|default_if_none:'' }}">
             </div>
         </div>
     </div>
@@ -141,17 +141,17 @@
         <div class="form-grid">
             <div class="form-group">
                 <label>Facebook</label>
-                <input id="social_facebook" type="url" value="{{ profile.social_facebook }}">
+                <input id="social_facebook" type="url" value="{{ profile.social_facebook|default_if_none:'' }}">
             </div>
 
             <div class="form-group">
                 <label>Instagram</label>
-                <input id="social_instagram" type="url" value="{{ profile.social_instagram }}">
+                <input id="social_instagram" type="url" value="{{ profile.social_instagram|default_if_none:'' }}">
             </div>
 
             <div class="form-group">
                 <label>LinkedIn</label>
-                <input id="social_linkedin" type="url" value="{{ profile.social_linkedin }}">
+                <input id="social_linkedin" type="url" value="{{ profile.social_linkedin|default_if_none:'' }}">
             </div>
         </div>
     </div>
@@ -222,19 +222,26 @@ async function saveProfile() {
     saveBtn.classList.add("loading");
 
     let formData = new FormData();
-    formData.append("org_name", document.getElementById("org_name").value);
-    formData.append("department", document.getElementById("department").value);
-    formData.append("description", document.getElementById("description").value);
-    formData.append("mission", document.getElementById("mission").value);
+    // Helper function to get clean value
+    function getCleanValue(id) {
+        const value = document.getElementById(id).value;
+        // Treat "None" as empty string
+        return value === "None" ? "" : value;
+    }
+    
+    formData.append("org_name", getCleanValue("org_name"));
+    formData.append("department", getCleanValue("department"));
+    formData.append("description", getCleanValue("description"));
+    formData.append("mission", getCleanValue("mission"));
 
-    formData.append("contact_email", document.getElementById("contact_email").value);
-    formData.append("contact_phone", document.getElementById("contact_phone").value);
-    formData.append("address", document.getElementById("address").value);
-    formData.append("website", document.getElementById("website").value);
+    formData.append("contact_email", getCleanValue("contact_email"));
+    formData.append("contact_phone", getCleanValue("contact_phone"));
+    formData.append("address", getCleanValue("address"));
+    formData.append("website", getCleanValue("website"));
 
-    formData.append("social_facebook", document.getElementById("social_facebook").value);
-    formData.append("social_instagram", document.getElementById("social_instagram").value);
-    formData.append("social_linkedin", document.getElementById("social_linkedin").value);
+    formData.append("social_facebook", getCleanValue("social_facebook"));
+    formData.append("social_instagram", getCleanValue("social_instagram"));
+    formData.append("social_linkedin", getCleanValue("social_linkedin"));
 
     formData.append("is_public", document.getElementById("is_public").value);
 
@@ -250,9 +257,28 @@ async function saveProfile() {
 
     saveBtn.classList.remove("loading");
 
-    // 🔥 ALWAYS return to view mode
-    showToast();
-    returnToViewMode();
+    // Handle response properly
+    if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+            showToast();
+            
+            // Update navbar avatar if profile picture was updated
+            if (data.updated && data.updated.profile_picture_url) {
+                const navbarAvatar = document.getElementById('profileAvatar');
+                if (navbarAvatar) {
+                    navbarAvatar.src = data.updated.profile_picture_url;
+                }
+            }
+            
+            returnToViewMode();
+        } else {
+            // Show error messages
+            alert(data.errors ? Object.values(data.errors).join('\n') : 'Error saving profile');
+        }
+    } else {
+        alert('Error saving profile');
+    }
 }
 
 
