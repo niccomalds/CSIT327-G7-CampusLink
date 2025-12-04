@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CampusLink – Student Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="{% static 'Myapp/student_dashboard.css' %}?v=3.0">
+  <link rel="stylesheet" href="{% static 'Myapp/student_dashboard.css' %}?v=3.4">
 </head>
 <body>
   <header class="header">
@@ -146,10 +146,14 @@
   </div>
   {% endwith %}
   {% empty %}
-  <div class="no-results" style="display: block; grid-column: 1 / -1;">
+  <div class="no-opportunities-message" style="display: block; grid-column: 1 / -1;">
     <i class="fa-solid fa-inbox"></i>
-    <h3>No opportunities available</h3>
-    <p>Check back later for new postings from verified organizations</p>
+    <h3>No Current Opportunities Available</h3>
+    <p>We don't have any active opportunities posted by organizations at the moment. Please check back later as new opportunities are regularly added. Organizations must be verified to post opportunities, ensuring quality and legitimacy of all listings.</p>
+    <div class="no-results-tip">
+      <i class="fa-solid fa-lightbulb"></i>
+      <span>Tip: Check back weekly for new opportunities tailored to your interests!</span>
+    </div>
   </div>
   {% endfor %}
 </section>
@@ -160,6 +164,6 @@
       <p>Try adjusting your search terms or filters</p>
     </div>
   </main>
-  <script src="{% static 'Myapp/student_dashboard.js' %}?v=1.8"></script>
+  <script src="{% static 'Myapp/student_dashboard.js' %}?v=2.3"></script>
 </body>
 </html>
