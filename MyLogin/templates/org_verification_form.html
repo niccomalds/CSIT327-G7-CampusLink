@@ -1,0 +1,145 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Organization Verification – CampusLink</title>
+    
+    <!-- Dashboard theme -->
+    <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'Myapp/org_verification.css' %}">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span>CampusLink</span>
+        </div>
+        
+        <nav>
+            <a href="{% url 'organization_dashboard' %}">Dashboard</a>
+            <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
+            <a href="{% url 'manage_postings' %}">Applicants</a>
+            <a href="{% url 'org_profile' %}">Org Profile</a>
+        </nav>
+        
+        <div class="search-profile">
+            <input type="text" class="top-search" placeholder="Search opportunities...">
+            
+            <div class="profile-dropdown" id="orgProfileDropdown">
+                <img src="{% if user.profile.profile_picture %}
+                              {{ user.profile.profile_picture.url }}
+                         {% else %}
+                              /static/Myapp/default-avatar.png
+                         {% endif %}"
+                     alt="Profile"
+                     class="avatar"
+                     id="profileAvatar">
+                
+                <div class="dropdown-menu" id="orgDropdownMenu">
+                    <div class="dropdown-header">Organization</div>
+                    <a href="{% url 'org_profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
+                    <a href="{% url 'submit_verification' %}"><i class="fa-solid fa-shield-check"></i> Verify Organization</a>
+                    <a href="{% url 'org_settings' %}"><i class="fa-solid fa-gear"></i> Settings</a>
+                    <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="verification-container">
+            <div class="verification-header">
+                <h1><i class="fa-solid fa-shield-check"></i> Organization Verification</h1>
+                <p>Verify your organization to unlock all features and post opportunities on CampusLink</p>
+            </div>
+            
+            <div class="verification-steps">
+                <div class="step active">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Submit Info</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Review</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Verified</div>
+                </div>
+            </div>
+            
+            <div class="requirements">
+                <h3><i class="fa-solid fa-circle-info"></i> Required for Verification</h3>
+                <ul>
+                    <li><strong>Institutional Email:</strong> Official email address (.edu, .ac, .org domains)</li>
+                    <li><strong>Verification Documents:</strong> Official documents proving organization status (PDF, PNG, JPG - max 5MB)</li>
+                    <li><strong>Processing Time:</strong> Typically 1-2 business days</li>
+                </ul>
+            </div>
+            
+            <div class="note">
+                <p><i class="fa-solid fa-triangle-exclamation"></i> <strong>Note:</strong> Your verification request will be reviewed by our team. You'll receive an email notification once your organization is verified.</p>
+            </div>
+            
+            <form class="verification-form" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="organization_name">Organization Name *</label>
+                    <input type="text" id="organization_name" name="organization_name" value="{{ profile.org_name }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="institutional_email">Institutional Email *</label>
+                    <input type="email" id="institutional_email" name="institutional_email" value="{{ profile.institutional_email }}" placeholder="e.g., contact@organization.edu" required>
+                    <small>Please use your official institutional email address</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="verification_document">Verification Document</label>
+                    <div class="file-upload">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <p>Click to upload verification documents (PDF, PNG, JPG - max 5MB)</p>
+                        <p><small>Official documents proving your organization status</small></p>
+                    </div>
+                    <input type="file" id="verification_document" name="verification_document" accept=".pdf,.png,.jpg,.jpeg" style="display: none;">
+                </div>
+                
+                <div class="form-footer">
+                    <a href="{% url 'organization_dashboard' %}" class="btn-secondary">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                    <button type="submit" class="btn-primary">
+                        Submit for Verification <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script src="{% static 'Myapp/org_verification.js' %}"></script>
+    <script>
+        /* ============================
+           DROPDOWN (STUDENT STYLE)
+        ============================ */
+        document.getElementById("profileAvatar").addEventListener("click", function () {
+            const menu = document.getElementById("orgDropdownMenu");
+            menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", function (event) {
+            if (!event.target.closest(".profile-dropdown")) {
+                const menu = document.getElementById("orgDropdownMenu");
+                if (menu) menu.style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>
