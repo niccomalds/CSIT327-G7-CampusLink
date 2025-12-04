@@ -3,6 +3,7 @@ class OpportunitySearch {
         this.searchInput = document.querySelector('.search-box input');
         this.opportunityGrid = document.getElementById('opportunityGrid');
         this.noResults = document.getElementById('noResults');
+        this.noOpportunitiesMessage = document.querySelector('.no-opportunities-message');
         this.resultsCount = document.getElementById('resultsCount');
         this.searchResultsInfo = document.getElementById('searchResultsInfo');
         
@@ -18,6 +19,12 @@ class OpportunitySearch {
         this.loadOpportunitiesFromDOM();
         this.attachEventListeners();
         this.updateResultsCount(this.opportunities.length);
+        
+        // Check if there are no opportunities at all (on page load)
+        if (this.opportunities.length === 0 && this.noOpportunitiesMessage) {
+            this.noOpportunitiesMessage.style.display = 'block';
+            this.opportunityGrid.style.display = 'none';
+        }
     }
     
     loadOpportunitiesFromDOM() {
@@ -187,11 +194,23 @@ class OpportunitySearch {
     showNoResults(){
         this.noResults.style.display = 'block';
         this.opportunityGrid.style.display = 'none';
+        // Only hide no-opportunities message when there ARE opportunities but none match search
+        if (this.opportunities.length > 0 && this.noOpportunitiesMessage) {
+            this.noOpportunitiesMessage.style.display = 'none';
+        }
     }
     
     hideNoResults(){
         this.noResults.style.display = 'none';
         this.opportunityGrid.style.display = 'grid';
+        // Only hide no-opportunities message when there ARE opportunities
+        if (this.opportunities.length > 0 && this.noOpportunitiesMessage) {
+            this.noOpportunitiesMessage.style.display = 'none';
+        }
+        // Keep no-opportunities message visible when there are truly no opportunities
+        if (this.opportunities.length === 0 && this.noOpportunitiesMessage) {
+            this.noOpportunitiesMessage.style.display = 'block';
+        }
     }
     
     clearSearch(){
@@ -246,6 +265,12 @@ handleAllFilters(){
     // NEW: Refresh sorting after filtering to maintain sort order
     if (window.opportunitySorterInstance) {
         window.opportunitySorterInstance.refreshSort();
+    }
+    
+    // Only hide no-opportunities message when filtering (there ARE opportunities)
+    const noOpportunitiesMessage = document.querySelector('.no-opportunities-message');
+    if (opportunities.length > 0 && noOpportunitiesMessage) {
+        noOpportunitiesMessage.style.display = 'none';
     }
     }
 }
@@ -357,21 +382,41 @@ filterOpportunitiesByDateRange(startDate, endDate) {
 
     // Update results count and show/hide no results
     this.updateFilterResults(visibleCount);
+    
+    // Only hide no-opportunities message when filtering (there ARE opportunities)
+    const noOpportunitiesMessage = document.querySelector('.no-opportunities-message');
+    if (opportunities.length > 0 && noOpportunitiesMessage) {
+        noOpportunitiesMessage.style.display = 'none';
+    }
 }
 
 updateFilterResults(visibleCount) {
     const resultsCount = document.getElementById('resultsCount');
     const noResults = document.getElementById('noResults');
     const opportunityGrid = document.getElementById('opportunityGrid');
+    const noOpportunitiesMessage = document.querySelector('.no-opportunities-message');
+    const allOpportunities = document.querySelectorAll('.opp-card');
 
     resultsCount.textContent = visibleCount;
 
     if (visibleCount === 0) {
         noResults.style.display = 'block';
         opportunityGrid.style.display = 'none';
+        // Only hide no-opportunities message when there ARE opportunities but none match filter
+        if (allOpportunities.length > 0 && noOpportunitiesMessage) {
+            noOpportunitiesMessage.style.display = 'none';
+        }
     } else {
         noResults.style.display = 'none';
         opportunityGrid.style.display = 'grid';
+        // Only hide no-opportunities message when there ARE opportunities
+        if (allOpportunities.length > 0 && noOpportunitiesMessage) {
+            noOpportunitiesMessage.style.display = 'none';
+        }
+        // Keep no-opportunities message visible when there are truly no opportunities
+        if (allOpportunities.length === 0 && noOpportunitiesMessage) {
+            noOpportunitiesMessage.style.display = 'block';
+        }
     }
 
     // Show results info
@@ -435,8 +480,17 @@ updateFilterResults(visibleCount) {
         
         const noResults = document.getElementById('noResults');
         const opportunityGrid = document.getElementById('opportunityGrid');
+        const noOpportunitiesMessage = document.querySelector('.no-opportunities-message');
         noResults.style.display = 'none';
         opportunityGrid.style.display = 'grid';
+        // Only hide no-opportunities message when there ARE opportunities
+        if (opportunities.length > 0 && noOpportunitiesMessage) {
+            noOpportunitiesMessage.style.display = 'none';
+        }
+        // Keep no-opportunities message visible when there are truly no opportunities
+        if (opportunities.length === 0 && noOpportunitiesMessage) {
+            noOpportunitiesMessage.style.display = 'block';
+        }
     }
     
     console.log('Deadline filter cleared');
@@ -569,6 +623,12 @@ class TypeFilter {
         });
         
         this.updateResultsDisplay(visibleCount);
+        
+        // Only hide no-opportunities message when filtering (there ARE opportunities)
+        const noOpportunitiesMessage = document.querySelector('.no-opportunities-message');
+        if (this.opportunities.length > 0 && noOpportunitiesMessage) {
+            noOpportunitiesMessage.style.display = 'none';
+        }
     }
     
     showAllOpportunities() {
@@ -583,8 +643,17 @@ class TypeFilter {
         
         const noResults = document.getElementById('noResults');
         const opportunityGrid = document.getElementById('opportunityGrid');
+        const noOpportunitiesMessage = document.querySelector('.no-opportunities-message');
         noResults.style.display = 'none';
         opportunityGrid.style.display = 'grid';
+        // Only hide no-opportunities message when there ARE opportunities
+        if (this.opportunities.length > 0 && noOpportunitiesMessage) {
+            noOpportunitiesMessage.style.display = 'none';
+        }
+        // Keep no-opportunities message visible when there are truly no opportunities
+        if (this.opportunities.length === 0 && noOpportunitiesMessage) {
+            noOpportunitiesMessage.style.display = 'block';
+        }
     }
     
     updateResultsDisplay(visibleCount) {
@@ -592,15 +661,28 @@ class TypeFilter {
     const noResults = document.getElementById('noResults');
     const opportunityGrid = document.getElementById('opportunityGrid');
     const searchResultsInfo = document.getElementById('searchResultsInfo');
+    const noOpportunitiesMessage = document.querySelector('.no-opportunities-message');
 
     resultsCount.textContent = visibleCount;
 
     if (visibleCount === 0) {
         noResults.style.display = 'block';
         opportunityGrid.style.display = 'none';
+        // Only hide no-opportunities message when there ARE opportunities but none match filter
+        if (this.opportunities.length > 0 && noOpportunitiesMessage) {
+            noOpportunitiesMessage.style.display = 'none';
+        }
     } else {
         noResults.style.display = 'none';
         opportunityGrid.style.display = 'grid';
+        // Only hide no-opportunities message when there ARE opportunities
+        if (this.opportunities.length > 0 && noOpportunitiesMessage) {
+            noOpportunitiesMessage.style.display = 'none';
+        }
+        // Keep no-opportunities message visible when there are truly no opportunities
+        if (this.opportunities.length === 0 && noOpportunitiesMessage) {
+            noOpportunitiesMessage.style.display = 'block';
+        }
     }
 
     searchResultsInfo.style.display = 'block';
@@ -661,6 +743,12 @@ class TypeFilter {
         });
         this.updateFilterCountText();
         this.showAllOpportunities();
+        
+        // Only hide no-opportunities message when filtering (there ARE opportunities)
+        const noOpportunitiesMessage = document.querySelector('.no-opportunities-message');
+        if (this.opportunities.length > 0 && noOpportunitiesMessage) {
+            noOpportunitiesMessage.style.display = 'none';
+        }
     }
 }
 
@@ -954,6 +1042,12 @@ class OrganizationFilter {
 
         this.updateResultsDisplay(visibleCount);
         this.handleSearchAndFilterCombination();
+        
+        // Only hide no-opportunities message when filtering (there ARE opportunities)
+        const noOpportunitiesMessage = document.querySelector('.no-opportunities-message');
+        if (opportunities.length > 0 && noOpportunitiesMessage) {
+            noOpportunitiesMessage.style.display = 'none';
+        }
     }
     
     updateResultsDisplay(visibleCount) {
@@ -963,15 +1057,29 @@ class OrganizationFilter {
         const noResults = document.getElementById('noResults');
         const opportunityGrid = document.getElementById('opportunityGrid');
         const searchResultsInfo = document.getElementById('searchResultsInfo');
+        const noOpportunitiesMessage = document.querySelector('.no-opportunities-message');
+        const allOpportunities = document.querySelectorAll('.opp-card');
 
         resultsCount.textContent = visibleCount;
 
         if (visibleCount === 0) {
             noResults.style.display = 'block';
             opportunityGrid.style.display = 'none';
+            // Only hide no-opportunities message when there ARE opportunities but none match filter
+            if (allOpportunities.length > 0 && noOpportunitiesMessage) {
+                noOpportunitiesMessage.style.display = 'none';
+            }
         } else {
             noResults.style.display = 'none';
             opportunityGrid.style.display = 'grid';
+            // Only hide no-opportunities message when there ARE opportunities
+            if (allOpportunities.length > 0 && noOpportunitiesMessage) {
+                noOpportunitiesMessage.style.display = 'none';
+            }
+            // Keep no-opportunities message visible when there are truly no opportunities
+            if (allOpportunities.length === 0 && noOpportunitiesMessage) {
+                noOpportunitiesMessage.style.display = 'block';
+            }
         }
 
         // Show results info when filtered
@@ -1006,6 +1114,13 @@ class OrganizationFilter {
         this.updateSelectedOrgsDisplay();
         this.updateVisualState();
         this.applyOrganizationFilter();
+        
+        // Only hide no-opportunities message when filtering (there ARE opportunities)
+        const noOpportunitiesMessage = document.querySelector('.no-opportunities-message');
+        const allOpportunities = document.querySelectorAll('.opp-card');
+        if (allOpportunities.length > 0 && noOpportunitiesMessage) {
+            noOpportunitiesMessage.style.display = 'none';
+        }
     }
 }
 
