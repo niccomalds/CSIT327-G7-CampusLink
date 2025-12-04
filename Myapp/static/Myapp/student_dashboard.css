@@ -295,6 +295,86 @@ nav a:hover, nav a.active {
   min-width: 140px;
 }
 
+/* ===== INLINE OPPORTUNITY TYPE FILTER ===== */
+.type-filter-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 10px;
+  padding: 5px 15px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.filter-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #475569;
+  white-space: nowrap;
+}
+
+.type-filter-options-inline {
+  display: flex;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+.type-checkbox-inline {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #64748b;
+  transition: all 0.2s ease;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.type-checkbox-inline:hover {
+  background: #e2e8f0;
+  color: #00c6ff;
+}
+
+.type-checkbox-inline input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.checkmark-inline {
+  width: 16px;
+  height: 16px;
+  background: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  margin-right: 6px;
+  transition: all 0.2s ease;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.type-checkbox-inline input:checked + .checkmark-inline {
+  background: #00c6ff;
+  border-color: #00c6ff;
+}
+
+.type-checkbox-inline input:checked + .checkmark-inline::after {
+  content: "✓";
+  position: absolute;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.type-label-inline {
+  white-space: nowrap;
+}
+
 .search-box:focus-within input {
   border-color: #00c6ff;
   box-shadow: 0 0 0 3px rgba(0, 198, 255, 0.1);

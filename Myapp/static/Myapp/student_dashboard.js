@@ -223,7 +223,7 @@ handleAllFilters(){
             }
         }
 
-        const selectedTypes = Array.from(document.querySelectorAll('input[name="opportunityType"]:checked'))
+        const selectedTypes = Array.from(document.querySelectorAll('.type-checkbox input[name="opportunityType"]:checked, .type-checkbox-inline input[name="opportunityType"]:checked'))
             .map(cb => cb.value);
         const oppType = opp.getAttribute('data-type');
         
@@ -478,7 +478,11 @@ handleSearchAndFilterCombination() {
 // Opportunity Type Filter Functionality
 class TypeFilter {
     constructor() {
-        this.typeCheckboxes = document.querySelectorAll('input[name="opportunityType"]');
+        // Get both old and new checkboxes
+        this.typeCheckboxes = document.querySelectorAll('.type-checkbox input[name="opportunityType"]');
+        this.inlineTypeCheckboxes = document.querySelectorAll('.type-checkbox-inline input[name="opportunityType"]');
+        this.allTypeCheckboxes = [...this.typeCheckboxes, ...this.inlineTypeCheckboxes];
+        
         this.typeCounts = {
             assistantship: document.getElementById('count-assistantship'),
             volunteer: document.getElementById('count-volunteer'),
@@ -486,7 +490,14 @@ class TypeFilter {
             leadership: document.getElementById('count-leadership'),
             other: document.getElementById('count-other')
         };
-        this.filterCount = document.getElementById('typeFilterCount');
+        
+        // Remove any null entries
+        Object.keys(this.typeCounts).forEach(key => {
+            if (!this.typeCounts[key]) {
+                delete this.typeCounts[key];
+            }
+        });
+        this.filterCount = document.getElementById('typeFilterCount'); // May be null if element doesn't exist
         this.opportunities = document.querySelectorAll('.opp-card');
         
         this.init();
@@ -499,9 +510,20 @@ class TypeFilter {
     }
     
     attachEventListeners() {
-        // Listen for checkbox changes
-        this.typeCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', () => {
+        // Listen for checkbox changes on both old and new checkboxes
+        this.allTypeCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                // Sync the other checkbox with the same value
+                const value = e.target.value;
+                const isChecked = e.target.checked;
+                
+                // Find and sync the corresponding checkbox
+                this.allTypeCheckboxes.forEach(otherCheckbox => {
+                    if (otherCheckbox !== e.target && otherCheckbox.value === value) {
+                        otherCheckbox.checked = isChecked;
+                    }
+                });
+                
                 this.handleTypeFilterChange();
             });
         });
@@ -524,7 +546,7 @@ class TypeFilter {
     
     getSelectedTypes() {
         const selectedTypes = [];
-        this.typeCheckboxes.forEach(checkbox => {
+        this.allTypeCheckboxes.forEach(checkbox => {
             if (checkbox.checked) {
                 selectedTypes.push(checkbox.value);
             }
@@ -611,6 +633,9 @@ class TypeFilter {
     }
     
     updateFilterCountText() {
+        // Skip if filterCount element doesn't exist
+        if (!this.filterCount) return;
+        
         const selectedTypes = this.getSelectedTypes();
         
         if (selectedTypes.length === 0) {
@@ -631,7 +656,7 @@ class TypeFilter {
     }
 
     resetTypeFilter() {
-        this.typeCheckboxes.forEach(checkbox => {
+        this.allTypeCheckboxes.forEach(checkbox => {
             checkbox.checked = false;
         });
         this.updateFilterCountText();
@@ -731,11 +756,7 @@ class OpportunitySorter {
     }
     
     updateSortIndicator() {
-        // Remove existing indicators
-        const existingIndicators = this.sortDropdown.querySelectorAll('.sort-indicator');
-        existingIndicators.forEach(indicator => indicator.remove());
-        
-        // Add new indicator to selected option
+        // Add indicator to selected option
         const selectedOption = this.sortDropdown.options[this.sortDropdown.selectedIndex];
         selectedOption.textContent = selectedOption.textContent.replace(/ ↑| ↓/g, '');
         selectedOption.textContent += this.sortDirection === 'asc' ? ' ↑' : ' ↓';
@@ -752,6 +773,8 @@ class OpportunitySorter {
 class OrganizationFilter {
     constructor() {
         this.organizationSelect = document.querySelector('.organization-multi-select');
+        if (!this.organizationSelect) return; // Exit if element doesn't exist
+        
         this.selectHeader = this.organizationSelect.querySelector('.select-header');
         this.selectDropdown = this.organizationSelect.querySelector('.select-dropdown');
         this.orgSearch = this.organizationSelect.querySelector('.org-search');
@@ -763,11 +786,14 @@ class OrganizationFilter {
     }
     
     init() {
+        if (!this.organizationSelect) return; // Exit if element doesn't exist
         this.attachEventListeners();
         this.updateVisualState();
     }
     
     attachEventListeners() {
+        if (!this.organizationSelect) return; // Exit if element doesn't exist
+        
         // Toggle dropdown
         this.selectHeader.addEventListener('click', (e) => {
             this.toggleDropdown();
@@ -794,6 +820,8 @@ class OrganizationFilter {
     }
     
     toggleDropdown() {
+        if (!this.organizationSelect) return; // Exit if element doesn't exist
+        
         if (this.selectDropdown.classList.contains('show')) {
             this.closeDropdown();
         } else {
@@ -802,12 +830,16 @@ class OrganizationFilter {
     }
     
     openDropdown() {
+        if (!this.organizationSelect) return; // Exit if element doesn't exist
+        
         this.selectDropdown.classList.add('show');
         this.selectHeader.classList.add('active');
         this.orgSearch.focus();
     }
     
     closeDropdown() {
+        if (!this.organizationSelect) return; // Exit if element doesn't exist
+        
         this.selectDropdown.classList.remove('show');
         this.selectHeader.classList.remove('active');
         this.orgSearch.value = '';
@@ -815,6 +847,8 @@ class OrganizationFilter {
     }
     
     filterOrganizations(searchTerm) {
+        if (!this.organizationSelect) return; // Exit if element doesn't exist
+        
         const term = searchTerm.toLowerCase();
         this.orgOptions.forEach(checkbox => {
             const orgName = checkbox.value.toLowerCase();
@@ -828,20 +862,23 @@ class OrganizationFilter {
     }
     
     handleOrganizationSelection(checkbox) {
+        if (!this.organizationSelect) return; // Exit if element doesn't exist
+        
         const orgName = checkbox.value;
         
         if (checkbox.checked) {
             this.selectedOrganizations.add(orgName);
         } else {
             this.selectedOrganizations.delete(orgName);
-        }
-        
+    }
         this.updateSelectedOrgsDisplay();
         this.updateVisualState();
         this.applyOrganizationFilter();
     }
     
     updateSelectedOrgsDisplay() {
+        if (!this.organizationSelect) return; // Exit if element doesn't exist
+        
         this.selectedOrgsContainer.innerHTML = '';
         
         this.selectedOrganizations.forEach(orgName => {
@@ -867,6 +904,8 @@ class OrganizationFilter {
     }
     
     removeOrganization(orgName) {
+        if (!this.organizationSelect) return; // Exit if element doesn't exist
+        
         this.selectedOrganizations.delete(orgName);
         
         // Uncheck the corresponding checkbox
@@ -882,6 +921,8 @@ class OrganizationFilter {
     }
     
     updateVisualState() {
+        if (!this.organizationSelect) return; // Exit if element doesn't exist
+        
         if (this.selectedOrganizations.size > 0) {
             this.selectHeader.style.borderColor = '#00c6ff';
             this.selectHeader.style.backgroundColor = '#f0f9ff';
@@ -892,6 +933,8 @@ class OrganizationFilter {
     }
     
     applyOrganizationFilter() {
+        if (!this.organizationSelect) return; // Exit if element doesn't exist
+        
         const opportunities = document.querySelectorAll('.opp-card');
         let visibleCount = 0;
 
@@ -914,6 +957,8 @@ class OrganizationFilter {
     }
     
     updateResultsDisplay(visibleCount) {
+        if (!this.organizationSelect) return; // Exit if element doesn't exist
+        
         const resultsCount = document.getElementById('resultsCount');
         const noResults = document.getElementById('noResults');
         const opportunityGrid = document.getElementById('opportunityGrid');
@@ -936,6 +981,8 @@ class OrganizationFilter {
     }
     
     handleSearchAndFilterCombination() {
+        if (!this.organizationSelect) return; // Exit if element doesn't exist
+        
         const searchInput = document.querySelector('.search-box input');
         const searchTerm = searchInput.value.trim();
         
@@ -950,6 +997,8 @@ class OrganizationFilter {
     }
     
     clearOrganizationFilter() {
+        if (!this.organizationSelect) return; // Exit if element doesn't exist
+        
         this.selectedOrganizations.clear();
         this.orgOptions.forEach(checkbox => {
             checkbox.checked = false;
@@ -965,18 +1014,24 @@ document.addEventListener('DOMContentLoaded', () => {
     window.deadlineFilterInstance = new DeadlineFilter(); 
     window.typeFilterInstance = new TypeFilter();
     window.opportunitySorterInstance = new OpportunitySorter();
-    window.categoryFilterInstance = new CategoryFilter();
-    window.organizationFilterInstance = new OrganizationFilter(); 
+    
+    // Only initialize organization filter if the HTML elements exist
+    const orgSelect = document.querySelector('.organization-multi-select');
+    if (orgSelect) {
+        window.organizationFilterInstance = new OrganizationFilter();
+    }
 
     const avatar = document.getElementById('profileAvatar');
     const menu = document.getElementById('profileMenu');
-    avatar.addEventListener('click', () => { 
-        menu.parentElement.classList.toggle('show'); 
-    });
-    
-    window.addEventListener('click', (e) => {
-        if (!avatar.contains(e.target) && !menu.contains(e.target)) { 
-            menu.parentElement.classList.remove('show'); 
-        }
-    });
+    if (avatar && menu) {
+        avatar.addEventListener('click', () => { 
+            menu.parentElement.classList.toggle('show'); 
+        });
+        
+        window.addEventListener('click', (e) => {
+            if (!avatar.contains(e.target) && !menu.contains(e.target)) { 
+                menu.parentElement.classList.remove('show'); 
+            }
+        });
+    }
 });

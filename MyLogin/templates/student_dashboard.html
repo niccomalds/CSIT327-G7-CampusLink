@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CampusLink – Student Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="{% static 'Myapp/student_dashboard.css' %}?v=2.9">
+  <link rel="stylesheet" href="{% static 'Myapp/student_dashboard.css' %}?v=3.0">
 </head>
 <body>
   <header class="header">
@@ -75,6 +75,37 @@
       <option value="month">Due This Month</option>
       <option value="custom">Custom Range</option>
     </select>
+    
+    <div class="type-filter-inline">
+      <span class="filter-label">Type:</span>
+      <div class="type-filter-options-inline">
+        <label class="type-checkbox-inline">
+          <input type="checkbox" name="opportunityType" value="assistantship">
+          <span class="checkmark-inline"></span>
+          <span class="type-label-inline">Assistantship</span>
+        </label>
+        <label class="type-checkbox-inline">
+          <input type="checkbox" name="opportunityType" value="volunteer">
+          <span class="checkmark-inline"></span>
+          <span class="type-label-inline">Volunteer</span>
+        </label>
+        <label class="type-checkbox-inline">
+          <input type="checkbox" name="opportunityType" value="sports">
+          <span class="checkmark-inline"></span>
+          <span class="type-label-inline">Sports</span>
+        </label>
+        <label class="type-checkbox-inline">
+          <input type="checkbox" name="opportunityType" value="leadership">
+          <span class="checkmark-inline"></span>
+          <span class="type-label-inline">Leadership</span>
+        </label>
+        <label class="type-checkbox-inline">
+          <input type="checkbox" name="opportunityType" value="other">
+          <span class="checkmark-inline"></span>
+          <span class="type-label-inline">Other</span>
+        </label>
+      </div>
+    </div>
   </div>
 
   <div class="filter-controls-group">
@@ -87,49 +118,6 @@
     <div class="search-results-info" id="searchResultsInfo">
       Showing <span id="resultsCount">0</span> results
     </div>
-  </div>
-</section>
-<section class="type-filter-section">
-  <div class="type-filter-header">
-    <h3>Filter postings by opportunity type</h3>
-    <span class="filter-count" id="typeFilterCount">No types selected</span>
-  </div>
-  
-  <div class="type-filter-options">
-    <label class="type-checkbox">
-      <input type="checkbox" name="opportunityType" value="assistantship">
-      <span class="checkmark"></span>
-      <span class="type-label">Assistantship</span>
-      <span class="type-count" id="count-assistantship">0</span>
-    </label>
-    
-    <label class="type-checkbox">
-      <input type="checkbox" name="opportunityType" value="volunteer">
-      <span class="checkmark"></span>
-      <span class="type-label">Volunteer</span>
-      <span class="type-count" id="count-volunteer">0</span>
-    </label>
-    
-    <label class="type-checkbox">
-      <input type="checkbox" name="opportunityType" value="sports">
-      <span class="checkmark"></span>
-      <span class="type-label">Sports</span>
-      <span class="type-count" id="count-sports">0</span>
-    </label>
-    
-    <label class="type-checkbox">
-      <input type="checkbox" name="opportunityType" value="leadership">
-      <span class="checkmark"></span>
-      <span class="type-label">Leadership</span>
-      <span class="type-count" id="count-leadership">0</span>
-    </label>
-    
-    <label class="type-checkbox">
-      <input type="checkbox" name="opportunityType" value="other">
-      <span class="checkmark"></span>
-      <span class="type-label">Other</span>
-      <span class="type-count" id="count-other">0</span>
-    </label>
   </div>
 </section>
 
@@ -232,6 +220,6 @@
       <p>Try adjusting your search terms or filters</p>
     </div>
   </main>
-  <script src="{% static 'Myapp/student_dashboard.js' %}?v=1.7"></script>
+  <script src="{% static 'Myapp/student_dashboard.js' %}?v=1.8"></script>
 </body>
 </html>
