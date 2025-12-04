@@ -649,6 +649,14 @@ def admin_posting_stats(request):
 @login_required
 @role_required(allowed_roles=['Organization'])
 def post_opportunity(request):
+    # Check if organization is verified
+    profile = request.user.profile
+    is_verified = profile.is_verified_organization()
+    
+    # If not verified, show error message
+    if not is_verified:
+        messages.error(request, "Only verified organizations can post opportunities. Please verify your organization first.")
+        return redirect('organization_dashboard')
 
     if request.method == "POST":
         title = request.POST.get('title')
@@ -675,16 +683,25 @@ def post_opportunity(request):
             return redirect('post_opportunity')
 
         # --- CREATE POSTING ---
+        # Auto-approve for verified organizations
+        approval_status = 'approved' if is_verified else 'pending'
+        
         Posting.objects.create(
             organization=request.user,
             title=title,
             description=description,
             deadline=deadline,
             tags=tags_str,
-            approval_status='pending'
+            approval_status=approval_status
         )
 
-        messages.success(request, "Opportunity created successfully! Waiting for admin approval.")
+        success_message = "Opportunity created successfully!" 
+        if is_verified:
+            success_message += " Your posting is now live."
+        else:
+            success_message += " Waiting for admin approval."
+            
+        messages.success(request, success_message)
         return redirect('organization_dashboard')
 
     return render(request, 'post_opportunity.html')
@@ -724,6 +741,7 @@ def save_org_profile(request):
     # ---------------------------
     import re
     # More flexible URL regex that accepts various formats including social media usernames
+    # Accepts: full URLs, domain names, and social media usernames
     url_regex = re.compile(r'^(https?://)?([a-zA-Z0-9.-]+\.[a-zA-Z]{2,}.*|[a-zA-Z0-9._-]+|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$')
     email_regex = re.compile(r"[^@]+@[^@]+\.[^@]+")
 
@@ -761,11 +779,11 @@ def save_org_profile(request):
 
     contact_email = request.POST.get("contact_email", "").strip()
     if contact_email and not valid_email(contact_email):
-        errors["contact_email"] = "Invalid email format."
+        errors["contact_email"] = "Invalid email format. Please enter a valid email address."
 
     website = request.POST.get("website", "").strip()
     if website and not valid_url(website):
-        errors["website"] = "Invalid website URL. Please enter a valid URL starting with http:// or https:// or a domain name."
+        errors["website"] = "Invalid website URL. Please enter a full URL (e.g., https://www.yourwebsite.com) or just your domain (e.g., yourwebsite.com)."
 
     # Validate social links - check submitted values
     social_links = {
@@ -775,7 +793,7 @@ def save_org_profile(request):
     }
     for key, val in social_links.items():
         if val and not valid_url(val):
-            errors[f"social_{key}"] = f"Invalid {key.capitalize()} URL. Please enter a valid URL or username."
+            errors[f"social_{key}"] = f"Invalid {key.capitalize()} URL. Please enter a valid URL (e.g., https://facebook.com/yourpage) or just your username (e.g., yourpage)."
 
     # ---------------------------
     # LOGO UPLOAD (optional)
