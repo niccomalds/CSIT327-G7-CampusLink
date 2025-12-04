@@ -80,7 +80,13 @@
         </div>
       {% endfor %}
     {% endif %}
-
+    
+    {% if not user.profile.is_verified_organization %}
+      <div class="feedback error">
+        <strong>Verification Required:</strong> Only verified organizations can post opportunities. 
+        <a href="{% url 'submit_verification' %}" style="color: #fff; text-decoration: underline;">Click here to verify your organization</a>.
+      </div>
+    {% else %}
     <form method="POST">
   {% csrf_token %}
 
@@ -122,6 +128,7 @@
     <i class="fa-solid fa-circle-check"></i> Submit Posting
   </button>
 </form>
+  {% endif %}
 
   </div>
 
