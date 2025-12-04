@@ -420,6 +420,19 @@ nav a:hover, nav a.active {
   grid-column: 1 / -1;
 }
 
+.no-opportunities-message {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #6b7280;
+  display: none;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  max-width: 500px;
+  margin: 50px auto;
+  grid-column: 1 / -1;
+}
+
 .no-results i {
   font-size: 3rem;
   margin-bottom: 1rem;
@@ -434,6 +447,24 @@ nav a:hover, nav a.active {
 
 .no-results p {
   color: #6b7280;
+}
+
+.no-results-tip {
+  margin-top: 20px;
+  padding: 12px 16px;
+  background: #eff6ff;
+  border-radius: 12px;
+  border-left: 4px solid #00c6ff;
+  font-size: 0.9rem;
+  color: #1e40af;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.no-results-tip i {
+  font-size: 1.2rem;
+  color: #00c6ff;
 }
 
 .highlight {
