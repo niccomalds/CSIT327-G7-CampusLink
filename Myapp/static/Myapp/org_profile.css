@@ -1,256 +1,503 @@
 /* ============================================================
-   GENERAL PAGE LAYOUT
-   Matches org dashboard theme (white panels + soft gray)
+   GLOBAL PAGE LAYOUT
 ============================================================ */
 body {
-    margin: 0;
-    padding: 0;
-    background: #f3f4f6; /* dashboard background */
-    font-family: "Inter", sans-serif;
+  background: #f5f7fa;
+  font-family: "Inter", sans-serif;
+  color: #1f2937;
 }
 
 /* Container */
-.profile-container {
-    width: 85%;
-    margin: 30px auto;
-    background: white;
-    padding: 35px;
-    border-radius: 14px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+.org-profile-container {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 0 24px;
+}
+
+/* Page Header */
+.page-header h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.page-header p {
+  font-size: 1rem;
+  color: #6b7280;
+  margin-bottom: 24px;
+}
+
+
+
+/* ============================================================
+   CARD LAYOUT — Modern SaaS
+============================================================ */
+.card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 28px 32px;
+  margin-bottom: 28px;
+
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb;
+
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.08);
 }
 
 /* Section Title */
-.section-title,
-.wizard-title {
-    font-size: 26px;
-    font-weight: 600;
-    margin-bottom: 25px;
-    color: #1a1a1a;
+.card h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0ea5e9;
+  margin-bottom: 20px;
+
+  animation: fadeInSlide 0.5s ease;
 }
 
+/* Header Animation */
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+
 /* ============================================================
-   WIZARD PROGRESS BAR
+   DROP ZONE — Polished Version
 ============================================================ */
-.wizard-progress {
-    width: 85%;
-    margin: 20px auto 30px;
+.drop-zone {
+  border: 2px dashed #00b5e2;
+  border-radius: 14px;
+  padding: 24px;
+
+  background: #f0faff;
+  cursor: pointer;
+  text-align: center;
+
+  transition: 0.2s ease;
 }
 
-.wizard-progress .step {
-    display: inline-block;
-    width: 19%;
-    text-align: center;
-    font-size: 14px;
-    padding: 6px 0;
-    color: #777;
-    font-weight: 500;
-    cursor: pointer;
-    transition: .2s ease;
+.drop-zone:hover, 
+.drop-zone.dragover {
+  background: #e3f8ff;
+  border-color: #009dc8;
 }
 
-.wizard-progress .step.active {
-    color: #0055ff;
-    font-weight: 600;
+.drop-zone img.org-logo {
+  width: 110px;
+  height: 110px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 3px solid #ffffff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+  margin-bottom: 10px;
 }
 
-.progress-bar {
-    width: 100%;
-    height: 6px;
-    background: #e5e7eb;
-    border-radius: 10px;
-    margin-top: 8px;
-    position: relative;
+.drop-text {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-top: 6px;
 }
 
-.progress-fill {
-    width: 0%;
-    height: 100%;
-    background: #0055ff;
-    border-radius: 10px;
-    transition: width .4s ease;
+/* Upload button */
+.upload-btn {
+  margin-top: 12px;
+  display: inline-block;
+  background: #00c6ff;
+  color: white;
+  padding: 9px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.95rem;
 }
+
+.upload-btn:hover {
+  background: #00addf;
+}
+.logo-section {
+    margin-bottom: 16px;
+}
+
+.drop-zone {
+    margin-bottom: 10px;
+}
+
+
+
+
 
 /* ============================================================
-   WIZARD PANELS
-============================================================ */
-.wizard-panel {
-    display: none;
-    animation: fadeIn .4s ease;
-}
-
-.wizard-panel.active {
-    display: block;
-}
-
-@keyframes fadeIn {
-    from {opacity: 0; transform: translateY(10px);}
-    to {opacity: 1; transform: translateY(0);}
-}
-
-/* ============================================================
-   FORMS — MATCH DASHBOARD INPUT STYLE
+   FORM GRID — FIXED SPACING & ALIGNMENT
 ============================================================ */
 .form-group {
-    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
 
-label {
-    font-size: 14px;
+/* Full-width items (Description & Mission) */
+.form-group.full {
+    grid-column: span 2;
+}
+
+/* Labels */
+.form-group label {
     font-weight: 600;
-    margin-bottom: 7px;
-    display: block;
-    color: #333;
+    font-size: 0.92rem;
+    margin-bottom: 6px;
+    color: #374151;
 }
 
-input,
-textarea,
-select {
+/* Inputs / Textareas */
+.form-group input,
+.form-group textarea,
+.form-group select {
     width: 100%;
     padding: 12px 14px;
+
+    background: #f9fafb;
     border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 15px;
-    background: #fafafa;
-    transition: border-color .2s ease;
+    border-radius: 10px;
+
+    font-size: 1rem;
+
+    transition: 0.15s ease;
 }
 
-input:focus,
-textarea:focus,
-select:focus {
-    border-color: #0055ff;
+/* Prevent overlap by removing resize handle vertical overflow */
+textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+/* Focus styling */
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: #00c6ff;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(0, 198, 255, 0.25);
     outline: none;
 }
 
-.form-row {
-    display: flex;
-    gap: 20px;
-}
 
-.form-row .form-group {
-    flex: 1;
-}
+
 
 /* ============================================================
-   LOGO SECTION + CROP BUTTON
+   ERROR STATE UI — Clean & Aligned
 ============================================================ */
-.logo-section {
-    text-align: center;
-    margin-bottom: 30px;
+.input-error {
+  border-color: #ef4444 !important;
+  background: #fef2f2 !important;
+  box-shadow: 0 0 0 3px rgba(239,68,68,0.2) !important;
 }
 
-.org-logo {
-    width: 140px;
-    height: 140px;
-    object-fit: cover;
-    border-radius: 14px;
-    border: 3px solid #e5e7eb;
-    margin-bottom: 15px;
-    background: white;
+.error-message {
+  color: #ef4444;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  display: none;
 }
 
-#logoInput {
-    margin-top: 10px;
+.error-message.show {
+  display: block;
 }
 
-.crop-btn {
-    margin-top: 15px;
-    background: #0055ff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-}
 
-.crop-btn:hover {
-    background: #0041d8;
-}
 
 /* ============================================================
-   SAVE BUTTON
+   SAVE BUTTON — Modern Gradient
 ============================================================ */
 .save-btn {
-    display: inline-block;
-    padding: 12px 25px;
-    background: #0055ff;
-    color: white;
-    font-size: 16px;
-    font-weight: 600;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    margin-top: 20px;
+  width: 100%;
+  border: none;
+
+  background: linear-gradient(135deg, #00c6ff, #0ea5e9);
+  color: white;
+
+  padding: 15px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  margin-top: 14px;
+  transition: 0.2s ease;
 }
 
 .save-btn:hover {
-    background: #0042db;
+  opacity: 0.95;
+  transform: translateY(-1px);
 }
 
-.final-save {
-    margin-top: 30px;
-    text-align: center;
+/* Spinner */
+.save-btn.loading {
+  pointer-events: none;
+  opacity: 0.7;
+  position: relative;
 }
+
+.save-btn.loading::after {
+  content: "";
+  position: absolute;
+  right: 20px;
+  width: 18px;
+  height: 18px;
+  border: 3px solid white;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+
 
 /* ============================================================
-   CROPPER MODAL
+   TOAST
 ============================================================ */
-.crop-modal {
-    display: none;
-    position: fixed;
-    z-index: 9999;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.6);
+.toast {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+
+  padding: 14px 20px;
+  border-radius: 10px;
+
+  background: #00c6ff;
+  color: white;
+
+  font-weight: 600;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition: 0.3s ease;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+
+/* ============================================================
+   RESPONSIVE LAYOUT
+============================================================ */
+@media (max-width: 900px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-group.full {
+    grid-column: span 1;
+  }
+  
+  .card {
+    padding: 24px;
+  }
+}
+/* === FIX ALIGNMENT OF FULL-WIDTH TEXTAREAS === */
+.form-group {
+    margin: 0;
+    padding: 0;
+}
+
+.form-group.full {
+    grid-column: span 2;
+    margin-bottom: 16px;
+}
+
+.form-group textarea {
+    width: 100%;
+    min-height: 120px !important;
+    margin: 0 !important;
+    padding: 14px;
+    line-height: 1.4;
+    border-radius: 10px;
+}
+
+/* Ensure spacing is consistent */
+textarea {
+    resize: vertical;
+}
+/* FIX: Add spacing so fields do NOT touch card edges */
+.card {
+    padding: 32px 36px !important; /* More breathing room */
+}
+
+/* Fix grid spacing from top */
+/* FINAL OVERRIDE — ensures spacing works */
+.form-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    column-gap: 32px !important;   /* Horizontal spacing between inputs */
+    row-gap: 28px !important;      /* Vertical spacing between rows */
+    margin-top: 20px !important;
+}
+
+
+/* Add spacing below textareas */
+.form-group.full {
+    margin-bottom: 22px !important;
+}
+
+/* Ensure textareas have space inside the card */
+.form-group textarea {
+    margin-top: 6px !important;
+}
+
+/* Extra padding to make textareas not touch right side */
+textarea {
+    padding-right: 20px !important;
+}
+
+/* FIX: add left/right interior padding so inputs don't touch shades */
+.form-group input,
+.form-group textarea {
+    padding-left: 9px !important;
+    padding-right: 0px !important;
+}
+.disabled-upload {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* VIEW MODE — show only the profile picture */
+.view-mode-logo {
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.crop-modal-content {
-    width: 600px;
-    background: white;
-    padding: 20px;
-    border-radius: 14px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+/* Hide the text and dashed styling */
+.view-mode-logo .drop-text {
+    display: none !important;
 }
 
-.crop-header {
+/* Hide upload button completely */
+.hide-upload {
+    display: none !important;
+}
+
+/* Prevent interaction but WITHOUT fading */
+.view-mode-logo {
+    pointer-events: none;
+}
+/* Circle profile photo */
+.profile-photo-wrapper {
+    position: relative;
+    width: 130px;
+    height: 130px;
+    margin: 0 auto;
+}
+
+.profile-photo {
+    width: 130px;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid #fff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+/* Edit icon circle */
+.edit-photo-icon {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: #0284ff;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-}
-
-.crop-header h3 {
-    margin: 0;
-}
-
-.close-cropper {
     cursor: pointer;
-    font-size: 22px;
+
+    color: #fff;
+    font-size: 16px;
+
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+
+    transition: 0.2s ease;
 }
 
-.crop-body {
-    width: 100%;
-    height: 350px;
-    overflow: hidden;
-    margin: 15px 0;
+/* Hover effect */
+.edit-photo-icon:hover {
+    background: #0066d6;
 }
 
-#cropperImage {
-    width: 100%;
+/* Hidden by default */
+.hide-upload {
+    display: none !important;
 }
-
-.apply-crop-btn {
-    width: 100%;
-    padding: 12px;
-    background: #0055ff;
-    color: white;
+/* Social Links View Mode Styling */
+.social-view {
+    font-size: 15px;
+    padding: 10px 0;
+    display: inline-block;
+    color: #007bff;
+    text-decoration: none;
     font-weight: 600;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
 }
 
-.apply-crop-btn:hover {
-    background: #0041d8;
+.social-view:hover {
+    text-decoration: underline;
+}
+
+.hide-view {
+    display: none !important;
+}
+
+.social-input.hide-input {
+    display: none !important;
+}
+.view-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 0;
+}
+
+.view-row .pin {
+    font-size: 18px;
+}
+
+.view-row a {
+    color: #007bff;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.view-row a:hover {
+    text-decoration: underline;
+}
+
+.hide-view {
+    display: none !important;
+}
+
+.hide-input {
+    display: none !important;
 }

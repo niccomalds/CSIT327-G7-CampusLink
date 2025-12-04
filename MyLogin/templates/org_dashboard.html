@@ -24,9 +24,6 @@
       <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
       <a href="{% url 'manage_postings' %}">Applicants</a>
       <a href="{% url 'org_profile' %}">Org Profile</a>
-      <a href="#" onclick="openVerificationModal(); return false;" class="verification-nav-btn">
-          <i class="fa-solid fa-shield-check"></i> Verify Account
-      </a>
     </nav>
 
     <div class="search-profile">
@@ -41,14 +38,12 @@
                    {% endif %}"
                alt="Profile"
                class="avatar"
-               id="profileAvatar">
+               id="profileAvatar">  
 
           <div class="dropdown-menu" id="orgDropdownMenu">
               <div class="dropdown-header">Organization</div>
               <a href="{% url 'org_profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
-              <a href="#" onclick="openVerificationModal(); return false;">
-                  <i class="fa-solid fa-shield-check"></i> Verify Account
-              </a>
+              <!-- Removed Verify Account link from dropdown -->
               <a href="{% url 'org_settings' %}"><i class="fa-solid fa-gear"></i> Settings</a>
               <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
           </div>
@@ -152,10 +147,7 @@
     </h2>
     <p>Manage your opportunities and connect with talented students.</p>
 </div>
-      <a href="{% url 'post_opportunity' %}" class="quick-action-card-btn">
-        <i class="fa-regular fa-clock"></i>
-    Post Opportunity
-      </a>
+
 
 
 
@@ -202,7 +194,7 @@
       </div>
 
       <div class="quick-actions-list">
-        <button class="quick-action-card-btn">
+        <button class="quick-action-card-btn" onclick="window.location.href='{% url 'post_opportunity' %}'">
           <i class="fa-regular fa-clock"></i>
           Post Opportunity
         </button>

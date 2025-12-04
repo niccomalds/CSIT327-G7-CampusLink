@@ -2,18 +2,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Organization Profile Wizard – CampusLink</title>
+    <meta charset="UTF-8">
+    <title>Organization Profile – CampusLink</title>
 
-  <!-- Dashboard theme -->
-  <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
-  <link rel="stylesheet" href="{% static 'Myapp/org_profile.css' %}">
-
-  <!-- Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <!-- CropperJS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
+    <!-- Dashboard Header Styles -->
+    <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
+    <!-- New Profile Page Styles -->
+    <link rel="stylesheet" href="{% static 'Myapp/org_profile.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
@@ -21,15 +17,15 @@
 <!-- ========================= HEADER ========================= -->
 <header class="header">
     <div class="logo">
-      <i class="fa-solid fa-graduation-cap"></i>
-      <span>CampusLink</span>
+        <i class="fa-solid fa-graduation-cap"></i>
+        <span>CampusLink</span>
     </div>
 
     <nav>
-      <a href="{% url 'organization_dashboard' %}">Dashboard</a>
-      <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
-      <a href="{% url 'manage_postings' %}">Applicants</a>
-      <a href="{% url 'org_profile' %}" class="active">Org Profile</a>
+        <a href="{% url 'organization_dashboard' %}">Dashboard</a>
+        <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
+        <a href="{% url 'manage_postings' %}">Applicants</a>
+        <a href="{% url 'org_profile' %}" class="active">Profile</a>
     </nav>
 
     <div class="search-profile">
@@ -39,7 +35,7 @@
             <img src="{% if user.profile.profile_picture %}{{ user.profile.profile_picture.url }}{% else %}/static/Myapp/default-avatar.png{% endif %}"
                  class="avatar" id="profileAvatar">
 
-            <div class="dropdown-menu" id="orgDropdownMenu">
+            <div class="dropdown-menu" id="profileMenu">
                 <div class="dropdown-header">Organization</div>
                 <a href="{% url 'org_profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
                 <a href="{% url 'org_settings' %}"><i class="fa-solid fa-gear"></i> Settings</a>
@@ -50,257 +46,337 @@
 </header>
 
 
-<!-- ========================= MAIN WIZARD ========================= -->
-<main class="profile-container">
 
-  <!-- PROGRESS BAR -->
-  <div class="wizard-progress">
-      <div class="progress-bar">
-          <div class="progress-fill"></div>
-      </div>
+<!-- ========================= MAIN CONTENT ========================= -->
+<div class="org-profile-container">
 
-      <div class="step active">Overview</div>
-      <div class="step">Branding</div>
-      <div class="step">Contacts</div>
-      <div class="step">Socials</div>
-      <div class="step">Visibility</div>
-  </div>
-
-  <form id="wizardForm" method="POST" enctype="multipart/form-data">
-      {% csrf_token %}
-
-      <!-- ============================================================
-           STEP 1 — OVERVIEW
-      ============================================================ -->
-      <div class="wizard-panel active">
-        <h2 class="wizard-title">Organization Overview</h2>
-
-        <div class="form-group">
-          <label>Organization Name</label>
-          <input name="org_name" type="text" value="{{ profile.org_name }}">
-        </div>
-
-        <div class="form-group">
-          <label>Description</label>
-          <textarea name="description" rows="3">{{ profile.description }}</textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Mission</label>
-          <textarea name="mission" rows="2">{{ profile.mission }}</textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Department</label>
-          <input name="department" type="text" value="{{ profile.department }}">
-        </div>
-
-        <div class="form-group">
-          <label>Website</label>
-          <input name="website" type="url" placeholder="https://example.com" value="{{ profile.website }}">
-        </div>
-
-        <button type="button" class="next-btn save-btn">Next</button>
-      </div>
-
-      <!-- ============================================================
-           STEP 2 — BRANDING
-      ============================================================ -->
-      <div class="wizard-panel">
-        <h2 class="wizard-title">Branding</h2>
-
-        <div class="logo-section">
-          <img id="logoPreview"
-               src="{% if profile.org_logo %}{{ profile.org_logo.url }}{% else %}/static/Myapp/default-logo.png{% endif %}"
-               class="org-logo">
-
-          <input id="logoInput" type="file" accept="image/*">
-        </div>
-
-        <button type="button" class="back-btn save-btn">Back</button>
-        <button type="button" class="next-btn save-btn">Next</button>
-      </div>
-
-      <!-- ============================================================
-           STEP 3 — CONTACTS
-      ============================================================ -->
-      <div class="wizard-panel">
-        <h2 class="wizard-title">Contact Information</h2>
-
-        <div class="form-group">
-          <label>Email</label>
-          <input name="contact_email" type="email" value="{{ profile.contact_email }}">
-        </div>
-
-        <div class="form-group">
-          <label>Phone</label>
-          <input name="contact_phone" type="text" value="{{ profile.contact_phone }}">
-        </div>
-
-        <div class="form-group">
-          <label>Address</label>
-          <input name="address" type="text" value="{{ profile.address }}">
-        </div>
-
-        <button type="button" class="back-btn save-btn">Back</button>
-        <button type="button" class="next-btn save-btn">Next</button>
-      </div>
-
-      <!-- ============================================================
-           STEP 4 — SOCIALS
-      ============================================================ -->
-      <div class="wizard-panel">
-        <h2 class="wizard-title">Social Media</h2>
-
-        <div class="form-group">
-          <label>Facebook</label>
-          <input name="social_facebook" type="url" value="{{ profile.social_facebook }}">
-        </div>
-
-        <div class="form-group">
-          <label>Instagram</label>
-          <input name="social_instagram" type="url" value="{{ profile.social_instagram }}">
-        </div>
-
-        <div class="form-group">
-          <label>LinkedIn</label>
-          <input name="social_linkedin" type="url" value="{{ profile.social_linkedin }}">
-        </div>
-
-        <button type="button" class="back-btn save-btn">Back</button>
-        <button type="button" class="next-btn save-btn">Next</button>
-      </div>
-
-      <!-- ============================================================
-           STEP 5 — VISIBILITY
-      ============================================================ -->
-      <div class="wizard-panel">
-        <h2 class="wizard-title">Profile Visibility</h2>
-
-        <div class="form-group">
-          <label>Who can see your profile?</label>
-          <select name="is_public">
-            <option value="True" {% if profile.is_public %}selected{% endif %}>Public</option>
-            <option value="False" {% if not profile.is_public %}selected{% endif %}>Applicants Only</option>
-          </select>
-        </div>
-
-        <button type="button" class="back-btn save-btn">Back</button>
-        <button type="button" id="finalSaveBtn" class="save-btn">Save Profile</button>
-      </div>
-
-  </form>
-</main>
-
-
-<!-- ========================= CROPPER MODAL ========================= -->
-<div id="cropModal" class="crop-modal">
-    <div class="crop-modal-content">
-        <div class="crop-header">
-            <h3>Crop Logo</h3>
-            <span class="close-cropper">&times;</span>
-        </div>
-
-        <div class="crop-body">
-            <img id="cropperImage">
-        </div>
-
-        <button id="applyCropBtn" class="apply-crop-btn">Apply Crop</button>
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>Organization Profile</h1>
+        <p>Manage your organization's branding, details, and online presence.</p>
     </div>
+
+    <!-- ===================== CARD: ORGANIZATION INFO ====================== -->
+    <div class="card">
+    <h2>Organization Overview</h2>
+
+    <div class="logo-section">
+        <div class="profile-photo-wrapper">
+    {% if profile.org_logo %}
+        <img id="orgLogoPreview" src="{{ profile.org_logo.url }}" class="profile-photo">
+    {% else %}
+        <img id="orgLogoPreview" src="{% static 'Myapp/default-logo.png' %}" class="profile-photo">
+    {% endif %}
+
+    <!-- EDIT ICON (hidden until Edit Mode) -->
+    <label id="photoEditIcon" class="edit-photo-icon hide-upload">
+        <input type="file" id="logoInput" accept="image/*" hidden>
+        <i class="fa-solid fa-pen"></i>
+    </label>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 
+    <!-- ⭐ The entire grid stays inside the card -->
+    <div class="form-grid">
+
+    <div class="form-group">
+        <label>Organization Name</label>
+        <input id="org_name" type="text" value="{{ profile.org_name }}">
+    </div>
+
+    <div class="form-group">
+        <label>Department</label>
+        <input id="department" type="text" value="{{ profile.department }}">
+    </div>
+
+    <div class="form-group full">
+        <label>Description</label>
+        <textarea id="description">{{ profile.description }}</textarea>
+    </div>
+
+    <div class="form-group full">
+        <label>Mission</label>
+        <textarea id="mission">{{ profile.mission }}</textarea>
+    </div>
+
+</div>
+
+
+
+
+
+    <!-- ===================== CARD: CONTACT INFO ====================== -->
+    <div class="card">
+        <h2>Contact Information</h2>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Email</label>
+                <input id="contact_email" type="email" value="{{ profile.contact_email }}">
+            </div>
+
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input id="contact_phone" type="text" value="{{ profile.contact_phone }}">
+            </div>
+
+            <div class="form-group full">
+                <label>Address</label>
+                <input id="address" type="text" value="{{ profile.address }}">
+            </div>
+
+            <div class="form-group full">
+                <label>Website</label>
+                <input id="website" type="url" value="{{ profile.website }}">
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ===================== CARD: SOCIAL LINKS ====================== -->
+    <div class="card">
+        <h2>Social Links</h2>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Facebook</label>
+                <input id="social_facebook" type="url" value="{{ profile.social_facebook }}">
+            </div>
+
+            <div class="form-group">
+                <label>Instagram</label>
+                <input id="social_instagram" type="url" value="{{ profile.social_instagram }}">
+            </div>
+
+            <div class="form-group">
+                <label>LinkedIn</label>
+                <input id="social_linkedin" type="url" value="{{ profile.social_linkedin }}">
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ===================== CARD: VISIBILITY ====================== -->
+    <div class="card">
+        <h2>Visibility</h2>
+
+        <div class="form-group">
+            <label>Profile Visibility</label>
+            <select id="is_public">
+                <option value="True" {% if profile.is_public %}selected{% endif %}>Public</option>
+                <option value="False" {% if not profile.is_public %}selected{% endif %}>Applicants Only</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- SAVE BUTTON -->
+    <button id="editSaveBtn" class="save-btn">Edit Profile</button>
+
+
+    <!-- Toast -->
+    <div id="toast" class="toast">Profile updated successfully!</div>
+
+</div>
+
+
+
+<!-- ========================= INLINE JAVASCRIPT ========================= -->
 <script>
-/* ============================================================
-   WIZARD NAVIGATION
-============================================================ */
-let currentStep = 0;
-const steps = document.querySelectorAll(".wizard-panel");
-const indicators = document.querySelectorAll(".step");
-const progress = document.querySelector(".progress-fill");
 
-function showStep(i){
-    steps.forEach((s,idx)=> s.classList.toggle("active", idx===i));
-    indicators.forEach((s,idx)=> s.classList.toggle("active", idx===i));
-    progress.style.width = (i/(steps.length-1))*100 + "%";
-    currentStep = i;
-}
+/* ========================= DROPDOWN MENU ========================= */
+const avatar = document.getElementById('profileAvatar');
+const menu = document.getElementById('profileMenu');
 
-document.querySelectorAll(".next-btn").forEach(btn =>
-    btn.onclick = () => showStep(currentStep + 1)
-);
-
-document.querySelectorAll(".back-btn").forEach(btn =>
-    btn.onclick = () => showStep(currentStep - 1)
-);
-
-indicators.forEach((indicator, index) =>
-    indicator.onclick = () => showStep(index)
-);
-
-showStep(0);
-
-
-/* ============================================================
-   CROPPER HANDLING
-============================================================ */
-let cropper = null;
-const modal = document.getElementById("cropModal");
-const cropImg = document.getElementById("cropperImage");
-const preview = document.getElementById("logoPreview");
-const input = document.getElementById("logoInput");
-
-input.addEventListener("change", e => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    cropImg.src = URL.createObjectURL(file);
-    modal.style.display = "flex";
-
-    setTimeout(() => {
-        if (cropper) cropper.destroy();
-        cropper = new Cropper(cropImg, { aspectRatio: 1, viewMode: 1 });
-    }, 200);
-});
-
-document.querySelector(".close-cropper").onclick =
-    () => modal.style.display = "none";
-
-document.getElementById("applyCropBtn").onclick = () => {
-    const canvas = cropper.getCroppedCanvas({ width: 300 });
-    canvas.toBlob(blob => {
-        preview.src = URL.createObjectURL(blob);
-        window.croppedLogo = blob;
-        modal.style.display = "none";
-    });
-};
-
-
-/* ============================================================
-   SAVE PROFILE (AJAX)
-============================================================ */
-document.getElementById("finalSaveBtn").onclick = async () => {
-    const form = document.getElementById("wizardForm");
-    const fd = new FormData(form);
-
-    // Add cropped logo if exists
-    if (window.croppedLogo)
-        fd.append("org_logo", window.croppedLogo, "logo.png");
-
-    const res = await fetch("{% url 'save_org_profile' %}", {
-        method: "POST",
-        body: fd
-    });
-
-    const data = await res.json();
-    if (data.success) {
-        alert("Profile updated successfully!");
-        location.reload();
-    } else {
-        alert("Error: " + (data.error || "Something went wrong"));
+avatar.onclick = () => menu.parentElement.classList.toggle("show");
+window.onclick = (e) => {
+    if (!avatar.contains(e.target) && !menu.contains(e.target)) {
+        menu.parentElement.classList.remove("show");
     }
 };
+
+
+/* ========================= PHOTO PREVIEW ========================= */
+document.getElementById("logoInput").addEventListener("change", function () {
+    const file = this.files[0];
+    if (file) {
+        document.getElementById("orgLogoPreview").src = URL.createObjectURL(file);
+    }
+});
+
+
+/* ========================= INITIAL VIEW MODE ========================= */
+document.querySelectorAll(".form-grid input, .form-grid textarea, .form-grid select")
+    .forEach(el => el.setAttribute("disabled", true));
+
+document.getElementById("logoInput").setAttribute("disabled", true);
+document.getElementById("photoEditIcon").classList.add("hide-upload");
+
+let isEditing = false;
+
+
+/* ========================= SAVE PROFILE ========================= */
+async function saveProfile() {
+
+    const saveBtn = document.getElementById("editSaveBtn");
+    saveBtn.classList.add("loading");
+
+    let formData = new FormData();
+    formData.append("org_name", document.getElementById("org_name").value);
+    formData.append("department", document.getElementById("department").value);
+    formData.append("description", document.getElementById("description").value);
+    formData.append("mission", document.getElementById("mission").value);
+
+    formData.append("contact_email", document.getElementById("contact_email").value);
+    formData.append("contact_phone", document.getElementById("contact_phone").value);
+    formData.append("address", document.getElementById("address").value);
+    formData.append("website", document.getElementById("website").value);
+
+    formData.append("social_facebook", document.getElementById("social_facebook").value);
+    formData.append("social_instagram", document.getElementById("social_instagram").value);
+    formData.append("social_linkedin", document.getElementById("social_linkedin").value);
+
+    formData.append("is_public", document.getElementById("is_public").value);
+
+    const logoFile = document.getElementById("logoInput").files[0];
+    if (logoFile) formData.append("org_logo", logoFile);
+
+    // Save request
+    const res = await fetch("/organization/org-profile/save/", {
+        method: "POST",
+        headers: { "X-CSRFToken": getCookie("csrftoken") },
+        body: formData
+    });
+
+    saveBtn.classList.remove("loading");
+
+    // 🔥 ALWAYS return to view mode
+    showToast();
+    returnToViewMode();
+}
+
+
+
+
+/* ========================= RETURN TO VIEW MODE ========================= */
+function returnToViewMode() {
+
+    const saveBtn = document.getElementById("editSaveBtn");
+
+    isEditing = false;
+    saveBtn.textContent = "Edit Profile";
+
+    // Disable all fields
+    document.querySelectorAll(".form-grid input, .form-grid textarea, .form-grid select")
+        .forEach(el => el.setAttribute("disabled", true));
+
+    // Hide photo upload
+    document.getElementById("logoInput").setAttribute("disabled", true);
+    document.getElementById("photoEditIcon").classList.add("hide-upload");
+
+    // Social links switch back to view mode
+    toggleSocialLinksViewMode(true);
+}
+
+
+/* ========================= ENTER EDIT MODE ========================= */
+function enterEditMode() {
+
+    const saveBtn = document.getElementById("editSaveBtn");
+
+    isEditing = true;
+    saveBtn.textContent = "Save Changes";
+
+    // Enable all fields
+    document.querySelectorAll(".form-grid input, .form-grid textarea, .form-grid select")
+        .forEach(el => el.removeAttribute("disabled"));
+
+    // Enable image upload
+    document.getElementById("logoInput").removeAttribute("disabled");
+    document.getElementById("photoEditIcon").classList.remove("hide-upload");
+
+    // Social links input mode
+    toggleSocialLinksViewMode(false);
+}
+
+
+/* ========================= EDIT / SAVE BUTTON ========================= */
+document.getElementById("editSaveBtn").addEventListener("click", function () {
+    if (!isEditing) {
+        enterEditMode();
+    } else {
+        saveProfile();
+    }
+});
+
+
+/* ========================= SOCIAL LINKS VIEW MODE ========================= */
+function toggleSocialLinksViewMode(viewMode) {
+
+    const fb = document.getElementById("social_facebook");
+    const ig = document.getElementById("social_instagram");
+    const ln = document.getElementById("social_linkedin");
+
+    const socialFields = [fb, ig, ln];
+
+    socialFields.forEach(field => {
+
+        let wrapper = field.parentElement;
+
+        // Remove previous view rows before creating new ones
+        let existingRows = wrapper.querySelectorAll(".view-row");
+        existingRows.forEach(row => row.remove());
+
+        const value = field.value.trim();
+
+        // Create new view row fresh each time
+        wrapper.insertAdjacentHTML("beforeend", `
+            <div class="view-row ${viewMode ? "" : "hide-view"}">
+                <span class="pin">📌</span>
+                <a href="${value || "#"}" target="_blank" class="social-link-view">${value || ""}</a>
+            </div>
+        `);
+
+        let viewRow = wrapper.querySelector(".view-row");
+
+        if (viewMode) {
+            // VIEW MODE
+            field.classList.add("hide-input");   // hide input
+            viewRow.classList.remove("hide-view");
+        } else {
+            // EDIT MODE
+            field.classList.remove("hide-input");
+            viewRow.classList.add("hide-view");  // hide view
+        }
+    });
+}
+
+
+
+/* ========================= TOAST ========================= */
+function showToast() {
+    const t = document.getElementById("toast");
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2000);
+}
+
+
+/* ========================= CSRF ========================= */
+function getCookie(name) {
+    const cookieArr = document.cookie.split(";");
+    for (let c of cookieArr) {
+        const cookie = c.trim();
+        if (cookie.startsWith(name + "=")) {
+            return cookie.substring(name.length + 1);
+        }
+    }
+    return null;
+}
+
 </script>
+
+
+
+
+
 </body>
 </html>

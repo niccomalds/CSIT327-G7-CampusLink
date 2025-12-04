@@ -618,7 +618,7 @@ def post_opportunity(request):
 
 @login_required
 def org_profile(request):
-    """Load the 5-step wizard page."""
+    """Load the single-page organization profile UI."""
     profile = request.user.profile  # always exists
     context = {
         "user": request.user,
@@ -629,53 +629,108 @@ def org_profile(request):
 
 @login_required
 def save_org_profile(request):
-    """AJAX endpoint to save wizard data."""
+    """Optimized AJAX endpoint for updating the organization profile securely."""
 
     if request.method != "POST":
-        return JsonResponse({"error": "Invalid request"}, status=400)
+        return JsonResponse({"success": False, "error": "Invalid request method"}, status=405)
 
     profile = request.user.profile
+    errors = {}
+
+    # Simple helper
+    def get_clean(field):
+        return request.POST.get(field, "").strip()
 
     # ---------------------------
-    # OVERVIEW
+    # VALIDATION HELPERS
     # ---------------------------
-    profile.org_name = request.POST.get("org_name")
-    profile.description = request.POST.get("description")
-    profile.mission = request.POST.get("mission")
-    profile.department = request.POST.get("department")
-    profile.website = request.POST.get("website")
+    import re
+    url_regex = re.compile(r'^(https?://)?[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}.*$')
+    email_regex = re.compile(r"[^@]+@[^@]+\.[^@]+")
+
+    def valid_url(value):
+        return value == "" or url_regex.match(value)
+
+    def valid_email(value):
+        return value == "" or email_regex.match(value)
 
     # ---------------------------
-    # CONTACTS
+    # CLEAN INPUTS
     # ---------------------------
-    profile.contact_email = request.POST.get("contact_email")
-    profile.contact_phone = request.POST.get("contact_phone")
-    profile.address = request.POST.get("address")
+    profile.org_name = get_clean("org_name") or profile.org_name
+    profile.description = get_clean("description")
+    profile.mission = get_clean("mission")
+    profile.department = get_clean("department")
+    profile.website = get_clean("website")
+    profile.address = get_clean("address")
+
+    profile.contact_email = get_clean("contact_email")
+    profile.contact_phone = get_clean("contact_phone")
+
+    profile.social_facebook = get_clean("social_facebook")
+    profile.social_instagram = get_clean("social_instagram")
+    profile.social_linkedin = get_clean("social_linkedin")
+
+    profile.is_public = (request.POST.get("is_public") == "True")
 
     # ---------------------------
-    # SOCIAL LINKS
+    # VALIDATION CHECKS
     # ---------------------------
-    profile.social_facebook = request.POST.get("social_facebook")
-    profile.social_instagram = request.POST.get("social_instagram")
-    profile.social_linkedin = request.POST.get("social_linkedin")
+    if not profile.org_name:
+        errors["org_name"] = "Organization name is required."
+
+    if profile.contact_email and not valid_email(profile.contact_email):
+        errors["contact_email"] = "Invalid email format."
+
+    if profile.website and not valid_url(profile.website):
+        errors["website"] = "Invalid website URL."
+
+    # Validate social links
+    social_fields = {
+        "facebook": profile.social_facebook,
+        "instagram": profile.social_instagram,
+        "linkedin": profile.social_linkedin,
+    }
+    for key, val in social_fields.items():
+        if val and not valid_url(val):
+            errors[f"social_{key}"] = f"Invalid {key.capitalize()} URL."
 
     # ---------------------------
-    # VISIBILITY
-    # ---------------------------
-    is_public = request.POST.get("is_public")
-    profile.is_public = (is_public == "True")
-
-    # ---------------------------
-    # HANDLE CROPPED LOGO
+    # LOGO UPLOAD (optional)
     # ---------------------------
     if "org_logo" in request.FILES:
-        profile.org_logo = request.FILES["org_logo"]
+        logo = request.FILES["org_logo"]
 
-    # SAVE EVERYTHING
-    profile.save()
+        # Allow only safe image types
+        allowed_types = ["image/png", "image/jpeg", "image/jpg", "image/webp"]
+        if logo.content_type not in allowed_types:
+            errors["org_logo"] = "Invalid file type. Please upload PNG, JPG, or WebP."
 
-    return JsonResponse({"success": True})
+        # Max size 3MB
+        if logo.size > 3 * 1024 * 1024:
+            errors["org_logo"] = "File too large. Max file size is 3MB."
 
-@login_required
-def org_settings(request):
-    return render(request, "org_settings.html")
+        if "org_logo" not in errors:
+            profile.org_logo = logo
+
+    # If validation errors → return safely
+    if errors:
+        return JsonResponse({"success": False, "errors": errors}, status=400)
+
+    # ---------------------------
+    # SAVE (atomic)
+    # ---------------------------
+    try:
+        profile.save()
+        return JsonResponse({
+            "success": True,
+            "message": "Profile updated successfully!",
+            "updated": {
+                "org_name": profile.org_name,
+                "logo_url": profile.org_logo.url if profile.org_logo else None,
+                "is_public": profile.is_public,
+            }
+        })
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+

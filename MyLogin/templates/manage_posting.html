@@ -6,47 +6,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Manage Postings - CampusLink</title>
 
-  <link rel="stylesheet" href="{% static 'Myapp/manage_posting.css' %}?v=3">
+  <link rel="stylesheet" href="{% static 'Myapp/manage_posting.css' %}?v=1.0">
+  <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
 </head>
 
 <body>
-  <div class="navbar">
-    <div class="navbar-container">
-      <div class="logo"><i class="fa-solid fa-user-graduate"></i>CampusLink</div>
+  <header class="header">
+    <div class="logo">
+      <i class="fa-solid fa-graduation-cap"></i>
+      <span>CampusLink</span>
+    </div>
 
-      <div class="nav">
-        <a href="{% url 'organization_dashboard' %}">Dashboard</a>
-        <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
-        <a href="{% url 'manage_postings' %}" class="active">Applicants</a>
-        <a href="{% url 'org_profile' %}">Org Profile</a>
-      </div>
+    <nav>
+      <a href="{% url 'organization_dashboard' %}">Dashboard</a>
+      <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
+      <a href="{% url 'manage_postings' %}" class="active">Applicants</a>
+      <a href="{% url 'org_profile' %}">Org Profile</a>
+      <!-- Removed Verify Account link from nav -->
+    </nav>
 
-      <div class="searchbar">
-        <input type="text" placeholder="Search postings..." aria-label="Search Postings" id="postingSearch">
-      </div>
+    <div class="search-profile">
+      <input type="text" class="top-search" placeholder="Search opportunities...">
 
-      <div class="right">
-        <div class="notif" tabindex="0" aria-label="Notifications">
-          <i class="fa-regular fa-bell"></i>
-          <span class="notif-badge">2</span>
-        </div>
+      <!-- PROFILE DROPDOWN -->
+      <div class="profile-dropdown" id="orgProfileDropdown">
+          <img src="{% if user.profile.profile_picture %}
+                        {{ user.profile.profile_picture.url }}
+                   {% else %}
+                        /static/Myapp/default-avatar.png
+                   {% endif %}"
+               alt="Profile"
+               class="avatar"
+               id="profileAvatar">
 
-        <div class="avatar" tabindex="0" aria-label="User Profile">
-          <i class="fa-solid fa-user"></i>
-          <div class="dropdown-content">
-            <ul>
-              <li><span>Organization</span></li>
-              <li><a href="{% url 'org_profile' %}">Profile</a></li>
-              <li><a href="{% url 'org_settings' %}">Settings</a></li>
-              <li><a href="{% url 'logout' %}">Log out</a></li>
-            </ul>
+          <div class="dropdown-menu" id="orgDropdownMenu">
+              <div class="dropdown-header">Organization</div>
+              <a href="{% url 'org_profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
+              <!-- Removed Verify Account link from dropdown -->
+              <a href="{% url 'org_settings' %}"><i class="fa-solid fa-gear"></i> Settings</a>
+              <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
           </div>
-        </div>
       </div>
     </div>
-  </div>
+  </header>
 
   <main>
     <section class="content">
@@ -137,18 +141,35 @@
   </div>
 
   <script>
-    // Dropdown functionality
-    document.querySelector('.avatar').addEventListener('click', function() {
-      const dropdown = this.querySelector('.dropdown-content');
-      dropdown.style.display = (dropdown.style.display === 'block' ? 'none' : 'block');
+    /* ============================
+       DROPDOWN (STUDENT STYLE)
+    ============================ */
+    document.getElementById("profileAvatar").addEventListener("click", function () {
+        const menu = document.getElementById("orgDropdownMenu");
+        menu.style.display = menu.style.display === "flex" ? "none" : "flex";
     });
 
-    document.addEventListener('click', function(event) {
-      if (!event.target.closest('.avatar')) {
-        const dropdown = document.querySelector('.dropdown-content');
-        if (dropdown) dropdown.style.display = 'none';
-      }
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function (event) {
+        if (!event.target.closest(".profile-dropdown")) {
+            const menu = document.getElementById("orgDropdownMenu");
+            if (menu) menu.style.display = "none";
+        }
     });
+
+    /* ============================
+       VERIFICATION MODAL
+    ============================ */
+    function closeVerificationModal() {
+        // This function would need to be implemented if you want to include verification modals
+        // For now, we'll just have the placeholder
+    }
+
+    function openVerificationModal() {
+        // This function would need to be implemented if you want to include verification modals
+        // For now, we'll just have the placeholder
+        alert('Verification functionality would be implemented here');
+    }
 
     // Manage postings functionality
     document.addEventListener("DOMContentLoaded", () => {
@@ -165,7 +186,7 @@
       const confirmDelete = document.getElementById("confirmDelete");
       const cancelDelete = document.getElementById("cancelDelete");
 
-      const postingSearch = document.getElementById("postingSearch");
+      const postingSearch = document.querySelector(".top-search");
 
       let currentCard = null;
 
