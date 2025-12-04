@@ -5,58 +5,45 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CampusLink – Student Profile</title>
-  <link rel="stylesheet" href="{% static 'Myapp/profile.css' %}">
+  <link rel="stylesheet" href="{% static 'Myapp/profile.css' %}?v=1.3">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   
 </head>
 <body>
-  <!-- Header -->
-<header class="header">
-  <div class="logo">
-    <i class="fas fa-graduation-cap"></i>
-    <span>CampusLink</span>
-  </div>
+  <header class="header">
+    <div class="logo">
+      <i class="fa-solid fa-graduation-cap"></i>
+      <span>CampusLink</span>
+    </div>
+    <nav>
+      <a href="#" class="{% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">Home</a>
+      <a href="/my-applications/" class="{% if request.resolver_match.url_name == 'my_applications' %}active{% endif %}">My Applications</a>
+      <a href="{% url 'profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">Profile</a>
+      <a href="#">Notifications</a>
+    </nav>
+    <div class="search-profile">
+      <input type="text" class="top-search" placeholder="Search opportunities...">
 
-  <nav>
-    <a href="{% url 'student_dashboard' %}">Home</a>
-    <a href="{% url 'my_applications' %}">My Applications</a>
-    <a href="{% url 'profile' %}" class="active">Profile</a>
-    <a href="{% url 'notifications' %}">Notifications</a>
-  </nav>
+      <!-- PROFILE DROPDOWN -->
+      <div class="profile-dropdown">
+    <img src="{% if user.profile.profile_picture %}
+                {{ user.profile.profile_picture.url }}
+            {% else %}
+                /static/Myapp/default-avatar.png
+            {% endif %}"
+         alt="Profile"
+         class="avatar"
+         id="profileAvatar">
 
-  <div class="search-profile">
-    <input type="text" class="top-search" placeholder="Search opportunities...">
-
-    <div id="userMenuWrap">
-      <button id="userToggle">
-        <img src="{% if user.profile.profile_picture %}
-              {{ user.profile.profile_picture.url }}
-          {% else %}
-              /static/Myapp/default-avatar.png
-          {% endif %}"
-     alt="Profile"
-     id="profileAvatar">
-
-      </button>
-
-      <div id="userDropdown">
-        <div class="dropdown-item"><strong>User Menu</strong></div>
-
-        <a href="{% url 'profile' %}" class="dropdown-item">
-          <i class="fa-solid fa-user"></i> Profile
-        </a>
-
-        <a href="{% url 'settings' %}" class="dropdown-item">
-          <i class="fa-solid fa-gear"></i> Settings
-        </a>
-
-        <a href="{% url 'logout' %}" class="dropdown-item">
-          <i class="fa-solid fa-right-from-bracket"></i> Logout
-        </a>
+        <div class="dropdown-menu" id="profileMenu">
+          <div class="dropdown-header">Student</div>
+          <a href="{% url 'profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
+          <a href="#"><i class="fa-solid fa-gear"></i> Settings</a>
+          <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
+        </div>
       </div>
     </div>
-  </div>
-</header>
+  </header>
 
 
 
@@ -237,19 +224,7 @@
   </main>
   <!-- ✅ Scripts -->
   <script>
-    // Dropdown Toggle
-    const userToggle = document.getElementById("userToggle");
-    const userDropdown = document.getElementById("userDropdown");
-    userToggle.addEventListener("click", () => {
-      const isHidden = userDropdown.hasAttribute("hidden");
-      if (isHidden) {
-        userDropdown.removeAttribute("hidden");
-        userToggle.setAttribute("aria-expanded", "true");
-      } else {
-        userDropdown.setAttribute("hidden", "");
-        userToggle.setAttribute("aria-expanded", "false");
-      }
-    });
+    document.addEventListener('DOMContentLoaded', function() {
     // Edit / Save Profile
     const editBtn = document.getElementById("editBtn");
     const saveBtn = document.getElementById("saveBtn");
@@ -359,9 +334,21 @@ saveBtn.addEventListener("click", () => {
     document.querySelector(".profile-form").submit();
 });
 
-document.getElementById("userToggle").addEventListener("click", function () {
-    document.getElementById("userDropdown").classList.toggle("show");
-});
+        // Profile dropdown
+        const avatar = document.getElementById('profileAvatar');
+        const menu = document.getElementById('profileMenu');
+        if (avatar && menu) {
+            avatar.addEventListener('click', () => { 
+                menu.parentElement.classList.toggle('show'); 
+            });
+            
+            window.addEventListener('click', (e) => {
+                if (!avatar.contains(e.target) && !menu.contains(e.target)) { 
+                    menu.parentElement.classList.remove('show'); 
+                }
+            });
+        }
+    });
 
   </script>
 </body>

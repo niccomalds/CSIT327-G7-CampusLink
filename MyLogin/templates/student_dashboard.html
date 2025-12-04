@@ -15,9 +15,9 @@
       <span>CampusLink</span>
     </div>
     <nav>
-      <a href="#" class="active">Home</a>
-      <a href="/my-applications/">My Applications</a>
-      <a href="{% url 'profile' %}">Profile</a>
+      <a href="#" class="{% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">Home</a>
+      <a href="/my-applications/" class="{% if request.resolver_match.url_name == 'my_applications' %}active{% endif %}">My Applications</a>
+      <a href="{% url 'profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">Profile</a>
       <a href="#">Notifications</a>
     </nav>
     <div class="search-profile">
@@ -43,7 +43,7 @@
 </div>
 
   </header>
-  <main>
+  <main class="dashboard-main">
     <div class="dashboard-title">
       <h1>Discover Your Next <span style="color: #00c6ff;">Opportunity</span></h1>
       <p>Explore internships, research positions, and part-time jobs tailored for your academic journey.</p>

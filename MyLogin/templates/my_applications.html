@@ -15,9 +15,9 @@
       <span>CampusLink</span>
     </div>
     <nav>
-      <a href="{% url 'student_dashboard' %}">Home</a>
-      <a href="{% url 'my_applications' %}" class="active">My Applications</a>
-      <a href="{% url 'profile' %}">Profile</a>
+      <a href="{% url 'student_dashboard' %}" class="{% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">Home</a>
+      <a href="{% url 'my_applications' %}" class="{% if request.resolver_match.url_name == 'my_applications' %}active{% endif %}">My Applications</a>
+      <a href="{% url 'profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">Profile</a>
       <a href="#">Notifications</a>
     </nav>
     <div class="search-profile">
@@ -38,7 +38,7 @@
     </div>
   </header>
 
-  <main>
+  <main class="applications-main">
     <!-- Page Header -->
     <div class="dashboard-title">
       <h1>My <span class="highlight">Applications</span></h1>
