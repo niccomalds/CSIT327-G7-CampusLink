@@ -201,7 +201,7 @@ def organization_dashboard(request):
         'total_applicants': total_applicants,
         'total_views': total_views,
         'acceptance_rate': acceptance_rate,
-        'recent_postings': postings.order_by('-id'),
+        'recent_postings': postings.order_by('-id')[:3],  # Limit to 3 recent postings
         'today': date.today(),
         **verification_context
     }
@@ -679,4 +679,3 @@ def save_org_profile(request):
 @login_required
 def org_settings(request):
     return render(request, "org_settings.html")
-

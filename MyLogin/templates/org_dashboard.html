@@ -224,38 +224,25 @@
       <div class="left-content">
         <h3><i class="fa-solid fa-briefcase"></i> Recent Postings</h3>
 
+        {% for posting in recent_postings %}
         <div class="posting posting-hover">
           <div class="posting-details">
-            <h4>Software Engineering Intern <span class="badge active glow">Active</span></h4>
+            <h4>{{ posting.title }} <span class="badge {% if posting.status == 'Active' %}active glow{% else %}closed{% endif %}">{{ posting.status }}</span></h4>
             <div class="posting-meta">
-              <span><i class="fa-regular fa-user"></i> 24 applicants</span>
-              <span><i class="fa-regular fa-eye"></i> 156 views</span>
-              <span>Ended</span>
+              <span><i class="fa-regular fa-user"></i> {{ posting.applications.count }} applicants</span>
+              <span><i class="fa-regular fa-eye"></i> 0 views</span>
+              <span>{% if posting.deadline < today %}Ended{% else %}Ending {{ posting.deadline|date:"M d" }}{% endif %}</span>
             </div>
           </div>
         </div>
-
-        <div class="posting posting-hover">
+        {% empty %}
+        <div class="posting">
           <div class="posting-details">
-            <h4>Marketing Assistant <span class="badge active glow">Active</span></h4>
-            <div class="posting-meta">
-              <span><i class="fa-regular fa-user"></i> 12 applicants</span>
-              <span><i class="fa-regular fa-eye"></i> 89 views</span>
-              <span>Ended</span>
-            </div>
+            <h4>No postings yet</h4>
+            <p>Create your first opportunity to get started.</p>
           </div>
         </div>
-
-        <div class="posting posting-hover">
-          <div class="posting-details">
-            <h4>Research Volunteer <span class="badge closed">Closed</span></h4>
-            <div class="posting-meta">
-              <span><i class="fa-regular fa-user"></i> 18 applicants</span>
-              <span><i class="fa-regular fa-eye"></i> 203 views</span>
-              <span>Ended</span>
-            </div>
-          </div>
-        </div>
+        {% endfor %}
 
         <button class="view-all"><i class="fa-solid fa-arrow-right"></i> View All Postings</button>
       </div>
