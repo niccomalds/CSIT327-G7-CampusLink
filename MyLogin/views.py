@@ -227,8 +227,14 @@ def update_profile(request):
     if request.method == 'POST':
         profile = request.user.profile
 
+        # Update user email (since students should update their main email)
+        email = request.POST.get('email')
+        if email and email != request.user.email:
+            request.user.email = email
+            request.user.save()
+        
         profile.full_name = request.POST.get('full_name', profile.full_name)
-        profile.contact_email = request.POST.get('email', profile.contact_email)
+        # For students, we're using the user's email, not profile.contact_email
         profile.phone = request.POST.get('phone', profile.phone)
         profile.academic_year = request.POST.get('academic_year', profile.academic_year)
         profile.major = request.POST.get('major', profile.major)
