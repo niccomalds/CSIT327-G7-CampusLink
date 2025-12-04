@@ -1,0 +1,228 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Verification Dashboard – CampusLink</title>
+    
+    <!-- Dashboard theme -->
+    <link rel="stylesheet" href="{% static 'Myapp/admin_dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'Myapp/admin_verification.css' %}">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span>CampusLink</span>
+        </div>
+        
+        <nav>
+            <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+            <a href="#" class="active">Verifications</a>
+            <a href="#">Reports</a>
+            <a href="#">Settings</a>
+        </nav>
+        
+        <div class="search-profile">
+            <input type="text" class="top-search" placeholder="Search...">
+            
+            <div class="profile-dropdown" id="adminProfileDropdown">
+                <img src="/static/Myapp/default-avatar.png" alt="Profile" class="avatar" id="profileAvatar">
+                
+                <div class="dropdown-menu" id="adminDropdownMenu">
+                    <div class="dropdown-header">Administrator</div>
+                    <a href="#"><i class="fa-solid fa-user"></i> Profile</a>
+                    <a href="#"><i class="fa-solid fa-gear"></i> Settings</a>
+                    <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="admin-dashboard">
+        <div class="dashboard-header">
+            <h1><i class="fa-solid fa-shield-check"></i> Organization Verification</h1>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card total">
+                <div class="stat-label">Total Organizations</div>
+                <div class="stat-value">42</div>
+                <div class="stat-description">All registered organizations</div>
+            </div>
+            
+            <div class="stat-card pending">
+                <div class="stat-label">Pending Verifications</div>
+                <div class="stat-value">8</div>
+                <div class="stat-description">Awaiting review</div>
+            </div>
+            
+            <div class="stat-card verified">
+                <div class="stat-label">Verified Organizations</div>
+                <div class="stat-value">31</div>
+                <div class="stat-description">Successfully verified</div>
+            </div>
+            
+            <div class="stat-card rejected">
+                <div class="stat-label">Rejected Requests</div>
+                <div class="stat-value">3</div>
+                <div class="stat-description">Verification denied</div>
+            </div>
+        </div>
+        
+        <!-- Pending Requests -->
+        <h2 class="section-title">Pending Verification Requests</h2>
+        
+        <table class="requests-table">
+            <thead>
+                <tr>
+                    <th>Organization</th>
+                    <th>Email</th>
+                    <th>Submitted</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Computer Science Club</td>
+                    <td>contact@csclub.edu</td>
+                    <td>2023-06-15</td>
+                    <td><span class="status-badge pending">Pending</span></td>
+                    <td class="action-buttons">
+                        <button class="btn-action btn-view" 
+                                data-request-id="1" 
+                                data-org-name="Computer Science Club"
+                                data-email="contact@csclub.edu"
+                                data-document-url="">View</button>
+                        <button class="btn-action btn-approve" data-request-id="1">Approve</button>
+                        <button class="btn-action btn-reject" data-request-id="1">Reject</button>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>Engineering Society</td>
+                    <td>info@engsoc.org</td>
+                    <td>2023-06-14</td>
+                    <td><span class="status-badge pending">Pending</span></td>
+                    <td class="action-buttons">
+                        <button class="btn-action btn-view" 
+                                data-request-id="2" 
+                                data-org-name="Engineering Society"
+                                data-email="info@engsoc.org"
+                                data-document-url="">View</button>
+                        <button class="btn-action btn-approve" data-request-id="2">Approve</button>
+                        <button class="btn-action btn-reject" data-request-id="2">Reject</button>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>Business Analytics Group</td>
+                    <td>hello@bag.ac</td>
+                    <td>2023-06-12</td>
+                    <td><span class="status-badge pending">Pending</span></td>
+                    <td class="action-buttons">
+                        <button class="btn-action btn-view" 
+                                data-request-id="3" 
+                                data-org-name="Business Analytics Group"
+                                data-email="hello@bag.ac"
+                                data-document-url="">View</button>
+                        <button class="btn-action btn-approve" data-request-id="3">Approve</button>
+                        <button class="btn-action btn-reject" data-request-id="3">Reject</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <!-- Recent Activity -->
+        <h2 class="section-title">Recent Verification Activity</h2>
+        
+        <div class="activity-list">
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <i class="fa-solid fa-check-circle verified"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Mathematics Society verified</div>
+                    <div class="activity-meta">
+                        <span class="activity-date">2 hours ago</span>
+                        <span class="activity-user">by Admin</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <i class="fa-solid fa-times-circle rejected"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Physics Club verification rejected</div>
+                    <div class="activity-meta">
+                        <span class="activity-date">1 day ago</span>
+                        <span class="activity-user">by Admin</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <i class="fa-solid fa-clock pending"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">New verification request submitted</div>
+                    <div class="activity-meta">
+                        <span class="activity-date">2 days ago</span>
+                        <span class="activity-user">by Computer Science Club</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Document Modal -->
+    <div class="modal" id="documentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Verification Documents</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3>Organization: <span id="modalOrgName"></span></h3>
+                <p>Email: <span id="modalEmail"></span></p>
+                
+                <div class="document-preview" id="documentPreview">
+                    <!-- Document will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary close-modal">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'Myapp/admin_verification.js' %}"></script>
+    <script>
+        /* ============================
+           DROPDOWN (STUDENT STYLE)
+        ============================ */
+        document.getElementById("profileAvatar").addEventListener("click", function () {
+            const menu = document.getElementById("adminDropdownMenu");
+            menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", function (event) {
+            if (!event.target.closest(".profile-dropdown")) {
+                const menu = document.getElementById("adminDropdownMenu");
+                if (menu) menu.style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>
