@@ -138,7 +138,28 @@ def student_dashboard(request):
             return redirect(f"{reverse('login')}?session_expired=1")
 
     request.session['last_activity'] = now.isoformat()
-    return render(request, 'student_dashboard.html')
+    
+    # Get approved postings from verified organizations
+    postings = Posting.objects.filter(
+        approval_status='approved',
+        organization__profile__role='Organization',
+        organization__profile__verification_status='verified'
+    ).select_related('organization', 'organization__profile').order_by('-created_at')
+    
+    # Process tags for each posting (convert comma-separated string to list)
+    postings_list = []
+    for posting in postings:
+        tags_list = [tag.strip() for tag in posting.tags.split(',') if tag.strip()] if posting.tags else []
+        postings_list.append({
+            'posting': posting,
+            'tags_list': tags_list,
+        })
+    
+    context = {
+        'postings_list': postings_list,
+    }
+    
+    return render(request, 'student_dashboard.html', context)
 
 
 @login_required
