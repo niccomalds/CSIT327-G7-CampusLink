@@ -162,13 +162,6 @@ nav a.active {
 }
 
 
-
-
-
-
-
-
-
 /* Main Content */
 .profile-main {
   max-width: 1240px;
@@ -718,4 +711,21 @@ nav a.active {
 
 .upload-btn:hover {
   background: #0bb4ea;
+}
+/* 🔔 Fix notification dropdown position in Profile Page */
+.header .notification-wrapper {
+    position: relative !important;
+}
+
+.header .notif-dropdown {
+    position: absolute !important;
+    top: 45px !important;
+    right: 0 !important;
+    display: none;
+    z-index: 9999 !important;
+}
+
+.header .notif-dropdown.show {
+    display: flex !important;
+    flex-direction: column;
 }

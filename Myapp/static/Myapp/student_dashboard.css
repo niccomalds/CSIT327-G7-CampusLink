@@ -1043,3 +1043,94 @@ nav a:hover, nav a.active {
     font-size: 0.9rem;
     padding: 6px 12px;
 }
+/* 🔔 Notification Bell */
+.notification-wrapper {
+    position: relative;
+}
+
+.notif-bell {
+    position: relative;
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 6px 10px;
+    color: #4b5563;
+    transition: 0.2s;
+}
+
+.notif-bell:hover {
+    color: #00c6ff;
+}
+
+.notif-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #ef4444;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 999px;
+}
+
+/* 🔽 Notification Dropdown */
+.notif-dropdown {
+    position: absolute;
+    right: 0;
+    top: 42px;
+    width: 260px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 200;
+}
+
+.notif-dropdown.show {
+    display: flex;
+}
+
+.notif-header {
+    padding: 12px 16px;
+    font-weight: 700;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f8fafc;
+}
+
+.notif-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f3f4f6;
+    cursor: pointer;
+}
+
+.notif-item:hover {
+    background: #eaf8ff;
+}
+
+.notif-unread {
+    background: #e0f7ff;
+    font-weight: 600;
+}
+
+.notif-title {
+    color: #1f2937;
+    font-size: 0.9rem;
+}
+
+.notif-time {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+/* Empty state */
+.notif-empty {
+    text-align: center;
+    padding: 20px;
+    color: #6b7280;
+}
+
+.notif-empty i {
+    font-size: 2rem;
+    margin-bottom: 5px;
+}

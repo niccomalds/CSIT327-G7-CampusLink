@@ -11,38 +11,71 @@
 <body>
   <header class="header">
     <div class="logo">
-      <i class="fa-solid fa-graduation-cap"></i>
-      <span>CampusLink</span>
+        <i class="fa-solid fa-graduation-cap"></i>
+        <span>CampusLink</span>
     </div>
+
     <nav>
-      <a href="#" class="active">Home</a>
-      <a href="/my-applications/">My Applications</a>
-      <a href="{% url 'profile' %}">Profile</a>
-      <a href="#">Notifications</a>
+        <a href="#" class="active">Home</a>
+        <a href="/my-applications/">My Applications</a>
+        <a href="{% url 'profile' %}">Profile</a>
     </nav>
+
     <div class="search-profile">
-      <input type="text" class="top-search" placeholder="Search opportunities...">
+        <input type="text" class="top-search" placeholder="Search opportunities...">
 
-      <!-- PROFILE DROPDOWN -->
-      <div class="profile-dropdown">
-    <img src="{% if user.profile.profile_picture %}
-                {{ user.profile.profile_picture.url }}
-            {% else %}
-                /static/Myapp/default-avatar.png
-            {% endif %}"
-         alt="Profile"
-         class="avatar"
-         id="profileAvatar">
+        <!-- 🔔 NOTIFICATION BELL -->
+        <div class="notification-wrapper">
+            <div id="notifBell" class="notif-bell">
+                <i class="fa-solid fa-bell"></i>
+                {% if unread_count > 0 %}
+                <span class="notif-badge">{{ unread_count }}</span>
+                {% endif %}
+            </div>
 
-    <div class="dropdown-menu" id="profileMenu">
-        <div class="dropdown-header">Student</div>
-        <a href="{% url 'profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
-        <a href="#"><i class="fa-solid fa-gear"></i> Settings</a>
-        <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
+            <!-- 🔽 DROPDOWN -->
+            <div id="notifDropdown" class="notif-dropdown">
+                <div class="notif-header">
+                    Notifications
+                </div>
+
+                {% if notifications %}
+                    {% for n in notifications %}
+                        <div class="notif-item {% if not n.read %}notif-unread{% endif %}">
+                            <div class="notif-title">{{ n.title }}</div>
+                            <div class="notif-time">{{ n.timestamp|timesince }} ago</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="notif-empty">
+                        <i class="fa-regular fa-bell"></i>
+                        <p>No notifications yet</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- PROFILE DROPDOWN -->
+        <div class="profile-dropdown">
+            <img src="{% if user.profile.profile_picture %}
+                        {{ user.profile.profile_picture.url }}
+                    {% else %}
+                        /static/Myapp/default-avatar.png
+                    {% endif %}"
+                alt="Profile"
+                class="avatar"
+                id="profileAvatar">
+
+            <div class="dropdown-menu" id="profileMenu">
+                <div class="dropdown-header">Student</div>
+                <a href="{% url 'profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
+                <a href="#"><i class="fa-solid fa-gear"></i> Settings</a>
+                <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
+            </div>
+        </div>
     </div>
-</div>
+</header>
 
-  </header>
   <main>
     <div class="dashboard-title">
       <h1>Discover Your Next <span style="color: #00c6ff;">Opportunity</span></h1>
@@ -160,6 +193,48 @@
       <p>Try adjusting your search terms or filters</p>
     </div>
   </main>
-  <script src="{% static 'Myapp/student_dashboard.js' %}?v=1.8"></script>
+  <script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    /* ============================
+        🔔 NOTIFICATION DROPDOWN
+       ============================ */
+    const bell = document.getElementById("notifBell");
+    const dropdown = document.getElementById("notifDropdown");
+
+    // Toggle dropdown
+    bell.addEventListener("click", function(event) {
+        event.stopPropagation();
+        dropdown.classList.toggle("show");
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function(event) {
+        if (!dropdown.contains(event.target) && !bell.contains(event.target)) {
+            dropdown.classList.remove("show");
+        }
+    });
+
+
+    /* ============================
+        👤 PROFILE MENU DROPDOWN
+       ============================ */
+    const avatar = document.getElementById("profileAvatar");
+    const menu = document.getElementById("profileMenu");
+
+    avatar.addEventListener("click", function(event) {
+        event.stopPropagation();
+        menu.parentElement.classList.toggle("show");
+    });
+
+    document.addEventListener("click", function(event) {
+        if (!menu.contains(event.target) && !avatar.contains(event.target)) {
+            menu.parentElement.classList.remove("show");
+        }
+    });
+
+});
+</script>
+
 </body>
 </html>
