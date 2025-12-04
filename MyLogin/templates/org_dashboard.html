@@ -43,7 +43,7 @@
           <div class="dropdown-menu" id="orgDropdownMenu">
               <div class="dropdown-header">Organization</div>
               <a href="{% url 'org_profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
-              <!-- Removed Verify Account link from dropdown -->
+              <a href="{% url 'submit_verification' %}"><i class="fa-solid fa-shield-check"></i> Verify Organization</a>
               <a href="{% url 'org_settings' %}"><i class="fa-solid fa-gear"></i> Settings</a>
               <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
           </div>
@@ -76,7 +76,7 @@
         </div>
 
         <div class="modal-actions">
-            <a href="#" class="verify-btn" onclick="alert('Verification submission coming soon!'); return false;">
+            <a href="{% url 'submit_verification' %}" class="verify-btn">
                 <i class="fa-solid fa-shield-check"></i> Start Verification
             </a>
             <button class="later-btn" onclick="closeVerificationModal()">
