@@ -395,17 +395,18 @@ def admin_verify_organization(request, profile_id):
     if request.method == 'POST':
         action = request.POST.get('action')
         reason = request.POST.get('reason', '')
+        admin_notes = request.POST.get('admin_notes', '')
         
         if action == 'approve':
             profile.verification_status = 'verified'
             profile.verified_at = timezone.now()
-            profile.verification_reason = "Approved by administrator"
+            profile.verification_reason = admin_notes or "Approved by administrator"
             profile.save()
             messages.success(request, f"{profile.org_name} has been verified successfully!")
             
         elif action == 'reject':
             profile.verification_status = 'rejected'
-            profile.verification_reason = reason or "Verification rejected"
+            profile.verification_reason = admin_notes or reason or "Verification rejected"
             profile.save()
             messages.warning(request, f"{profile.org_name} verification has been rejected.")
         
@@ -428,6 +429,80 @@ def admin_verification_stats(request):
         'unverified_count': Profile.objects.filter(role='Organization', verification_status='unverified').count(),
     }
     return JsonResponse(stats)
+
+# === ORGANIZATION VERIFICATION SUBMISSION ===
+
+@login_required
+@role_required(allowed_roles=['Organization'])
+def submit_verification(request):
+    """Handle organization verification submission"""
+    profile = request.user.profile
+    
+    # Check if already verified or pending
+    if profile.verification_status == 'verified':
+        messages.info(request, "Your organization is already verified.")
+        return redirect('organization_dashboard')
+    
+    if profile.verification_status == 'pending':
+        messages.info(request, "Your verification request is already pending review.")
+        return redirect('organization_dashboard')
+    
+    if request.method == 'POST':
+        # Get form data
+        institutional_email = request.POST.get('institutional_email', '').strip()
+        organization_name = request.POST.get('organization_name', '').strip()
+        
+        # Validate required fields
+        if not institutional_email:
+            messages.error(request, "Institutional email is required.")
+            return render(request, 'org_verification_form.html', {'profile': profile})
+        
+        # Validate email format
+        import re
+        email_regex = re.compile(r"[^@]+@[^@]+\.[^@]+")
+        if not email_regex.match(institutional_email):
+            messages.error(request, "Please enter a valid institutional email address.")
+            return render(request, 'org_verification_form.html', {'profile': profile})
+        
+        # Check if email domain is valid (edu, ac, org)
+        domain = institutional_email.split('@')[1].lower()
+        if not (domain.endswith('.edu') or domain.endswith('.ac') or domain.endswith('.org')):
+            messages.error(request, "Please use an official institutional email (.edu, .ac, .org domains).")
+            return render(request, 'org_verification_form.html', {'profile': profile})
+        
+        # Handle document upload
+        verification_document = None
+        if 'verification_document' in request.FILES:
+            verification_document = request.FILES['verification_document']
+            
+            # Validate file type
+            allowed_types = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg']
+            if verification_document.content_type not in allowed_types:
+                messages.error(request, "Invalid file type. Please upload PDF, PNG, or JPG files only.")
+                return render(request, 'org_verification_form.html', {'profile': profile})
+            
+            # Validate file size (max 5MB)
+            if verification_document.size > 5 * 1024 * 1024:
+                messages.error(request, "File too large. Maximum file size is 5MB.")
+                return render(request, 'org_verification_form.html', {'profile': profile})
+        
+        # Update profile with verification information
+        profile.institutional_email = institutional_email
+        if organization_name:
+            profile.org_name = organization_name
+        if verification_document:
+            profile.verification_documents = verification_document
+        
+        # Set status to pending and save submission time
+        profile.verification_status = 'pending'
+        profile.verification_submitted_at = timezone.now()
+        profile.save()
+        
+        messages.success(request, "Verification request submitted successfully! Our team will review your request within 1-2 business days.")
+        return redirect('organization_dashboard')
+    
+    # GET request - show verification form
+    return render(request, 'org_verification_form.html', {'profile': profile})
 
 # === ADMIN POSTING APPROVAL VIEWS ===
 
