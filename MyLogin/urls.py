@@ -35,6 +35,9 @@ urlpatterns = [
     path('settings/', views.settings_view, name='settings'),
     path('notifications/', views.notifications, name='notifications'),
 
+    # === ORGANIZATION VERIFICATION SUBMISSION ===
+    path('organization/verify/', views.submit_verification, name='submit_verification'),
+
     # === ADMIN VERIFICATION ROUTES ===
     path('admin/verification/', views.admin_verification_dashboard, name='admin_verification_dashboard'),
     path('admin/verify/<int:profile_id>/', views.admin_verify_organization, name='admin_verify_organization'),
