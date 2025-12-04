@@ -210,10 +210,26 @@ textarea {
   font-size: 0.85rem;
   margin-top: 4px;
   display: none;
+  font-weight: 500;
 }
 
 .error-message.show {
   display: block;
+}
+
+/* Make error messages more prominent */
+.error-message::before {
+  content: "⚠ ";
+}
+
+/* General error container */
+.error-container {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 
