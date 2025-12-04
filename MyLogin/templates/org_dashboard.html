@@ -23,7 +23,7 @@
       <a href="{% url 'organization_dashboard' %}" class="active">Dashboard</a>
       <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
       <a href="{% url 'manage_postings' %}">Applicants</a>
-      <a href="{% url 'org_profile' %}">Org Profile</a>
+      <a href="{% url 'org_profile' %}">Profile</a>
       <a href="#" onclick="openVerificationModal(); return false;" class="verification-nav-btn">
           <i class="fa-solid fa-shield-check"></i> Verify Account
       </a>
@@ -41,7 +41,7 @@
                    {% endif %}"
                alt="Profile"
                class="avatar"
-               id="profileAvatar">
+               id="profileAvatar">  
 
           <div class="dropdown-menu" id="orgDropdownMenu">
               <div class="dropdown-header">Organization</div>
