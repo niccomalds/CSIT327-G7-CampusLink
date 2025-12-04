@@ -183,95 +183,35 @@
 
     <!-- OPPORTUNITY GRID -->
 <section class="opportunity-grid" id="opportunityGrid">
-  <div class="opp-card" data-deadline="2024-01-15" data-type="assistantship" data-posted="2024-01-10">
+  {% for item in postings_list %}
+  {% with posting=item.posting tags_list=item.tags_list %}
+  <div class="opp-card" data-deadline="{{ posting.deadline|date:'Y-m-d' }}" data-type="other" data-posted="{{ posting.created_at|date:'Y-m-d' }}">
     <div class="opp-header">
-      <h3>Software Engineering Intern</h3>
-      <span class="opp-org">Tech Innovations Lab</span>
+      <h3>{{ posting.title }}</h3>
+      <span class="opp-org">{{ posting.organization.profile.org_name|default:posting.organization.email }}</span>
     </div>
-    <div class="opp-desc">Join our dynamic team to work on cutting-edge software solutions.</div>
+    <div class="opp-desc">{{ posting.description|truncatewords:20 }}</div>
     <div class="opp-tags">
-      <span>React</span><span>Node.js</span><span>TypeScript</span>
+      {% for tag in tags_list %}
+        <span>{{ tag }}</span>
+      {% endfor %}
     </div>
     <div class="opp-details">
-      <span class="opp-type"><i class="fa-solid fa-laptop"></i> Remote</span>
-      <span class="opp-applicants">24 applicants</span>
-      <span class="opp-deadline"><i class="fa-solid fa-calendar"></i> Due: Jan 15, 2024</span>
-      <span class="type-badge assistantship">Assistantship</span>
-    </div>
-    <button class="apply-btn">Apply Now</button>
-  </div>
-
-  <div class="opp-card" data-deadline="2024-01-18" data-type="volunteer" data-posted="2024-01-08">
-    <div class="opp-header">
-      <h3>Data Science Research Assistant</h3>
-      <span class="opp-org">AI Research Center</span>
-    </div>
-    <div class="opp-desc">Work with machine learning models and data analysis for cutting-edge research projects.</div>
-    <div class="opp-tags">
-      <span>Python</span><span>Machine Learning</span><span>Data Analysis</span>
-    </div>
-    <div class="opp-details">
-      <span class="opp-type"><i class="fa-solid fa-building"></i> On-campus</span>
-      <span class="opp-applicants">18 applicants</span>
-      <span class="opp-deadline"><i class="fa-solid fa-calendar"></i> Due: Jan 18, 2024</span>
-      <span class="type-badge volunteer">Volunteer</span>
-    </div>
-    <button class="apply-btn">Apply Now</button>
-  </div>
-
-  <div class="opp-card" data-deadline="2024-01-25" data-type="sports" data-posted="2024-01-12">
-    <div class="opp-header">
-      <h3>Marketing Intern</h3>
-      <span class="opp-org">Global Marketing Firm</span>
-    </div>
-    <div class="opp-desc">Support digital marketing campaigns and social media strategy development.</div>
-    <div class="opp-tags">
-      <span>Social Media</span><span>Content Creation</span><span>Analytics</span>
-    </div>
-    <div class="opp-details">
-      <span class="opp-type"><i class="fa-solid fa-laptop"></i> Hybrid</span>
-      <span class="opp-applicants">32 applicants</span>
-      <span class="opp-deadline"><i class="fa-solid fa-calendar"></i> Due: Jan 25, 2024</span>
-      <span class="type-badge sports">Sports</span>
-    </div>
-    <button class="apply-btn">Apply Now</button>
-  </div>
-
-  <div class="opp-card" data-deadline="2024-02-01" data-type="leadership" data-posted="2024-01-05">
-    <div class="opp-header">
-      <h3>UX/UI Design Intern</h3>
-      <span class="opp-org">Creative Design Studio</span>
-    </div>
-    <div class="opp-desc">Create user-centered designs for web and mobile applications.</div>
-    <div class="opp-tags">
-      <span>Figma</span><span>UI Design</span><span>Wireframing</span>
-    </div>
-    <div class="opp-details">
-      <span class="opp-type"><i class="fa-solid fa-laptop"></i> Remote</span>
-      <span class="opp-applicants">15 applicants</span>
-      <span class="opp-deadline"><i class="fa-solid fa-calendar"></i> Due: Feb 1, 2024</span>
-      <span class="type-badge leadership">Leadership</span>
-    </div>
-    <button class="apply-btn">Apply Now</button>
-  </div>
-
-  <div class="opp-card" data-deadline="2024-02-10" data-type="other" data-posted="2024-01-15">
-    <div class="opp-header">
-      <h3>Campus Ambassador</h3>
-      <span class="opp-org">Student Affairs Office</span>
-    </div>
-    <div class="opp-desc">Represent the university and help new students navigate campus life.</div>
-    <div class="opp-tags">
-      <span>Communication</span><span>Outreach</span><span>Events</span>
-    </div>
-    <div class="opp-details">
-      <span class="opp-type"><i class="fa-solid fa-building"></i> On-campus</span>
-      <span class="opp-applicants">8 applicants</span>
-      <span class="opp-deadline"><i class="fa-solid fa-calendar"></i> Due: Feb 10, 2024</span>
+      <span class="opp-type"><i class="fa-solid fa-briefcase"></i> Opportunity</span>
+      <span class="opp-applicants">0 applicants</span>
+      <span class="opp-deadline"><i class="fa-solid fa-calendar"></i> Due: {{ posting.deadline|date:"M d, Y" }}</span>
       <span class="type-badge other">Other</span>
     </div>
     <button class="apply-btn">Apply Now</button>
   </div>
+  {% endwith %}
+  {% empty %}
+  <div class="no-results" style="display: block; grid-column: 1 / -1;">
+    <i class="fa-solid fa-inbox"></i>
+    <h3>No opportunities available</h3>
+    <p>Check back later for new postings from verified organizations</p>
+  </div>
+  {% endfor %}
 </section>
 
     <div class="no-results" id="noResults">
