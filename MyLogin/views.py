@@ -709,6 +709,9 @@ def save_org_profile(request):
     if request.method != "POST":
         return JsonResponse({"success": False, "error": "Invalid request method"}, status=405)
 
+    print("Received POST data:", request.POST)  # Debug print
+    print("Received FILES:", request.FILES)  # Debug print
+
     profile = request.user.profile
     errors = {}
 
@@ -720,7 +723,8 @@ def save_org_profile(request):
     # VALIDATION HELPERS
     # ---------------------------
     import re
-    url_regex = re.compile(r'^(https?://)?[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}.*$')
+    # More flexible URL regex that accepts various formats including social media usernames
+    url_regex = re.compile(r'^(https?://)?([a-zA-Z0-9.-]+\.[a-zA-Z]{2,}.*|[a-zA-Z0-9._-]+|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$')
     email_regex = re.compile(r"[^@]+@[^@]+\.[^@]+")
 
     def valid_url(value):
@@ -733,42 +737,45 @@ def save_org_profile(request):
     # CLEAN INPUTS
     # ---------------------------
     profile.org_name = get_clean("org_name") or profile.org_name
-    profile.description = get_clean("description")
-    profile.mission = get_clean("mission")
-    profile.department = get_clean("department")
-    profile.website = get_clean("website")
-    profile.address = get_clean("address")
+    profile.description = get_clean("description") or profile.description
+    profile.mission = get_clean("mission") or profile.mission
+    profile.department = get_clean("department") or profile.department
+    profile.website = get_clean("website") or profile.website
+    profile.address = get_clean("address") or profile.address
 
-    profile.contact_email = get_clean("contact_email")
-    profile.contact_phone = get_clean("contact_phone")
+    profile.contact_email = get_clean("contact_email") or profile.contact_email
+    profile.contact_phone = get_clean("contact_phone") or profile.contact_phone
 
-    profile.social_facebook = get_clean("social_facebook")
-    profile.social_instagram = get_clean("social_instagram")
-    profile.social_linkedin = get_clean("social_linkedin")
+    profile.social_facebook = get_clean("social_facebook") or profile.social_facebook
+    profile.social_instagram = get_clean("social_instagram") or profile.social_instagram
+    profile.social_linkedin = get_clean("social_linkedin") or profile.social_linkedin
 
     profile.is_public = (request.POST.get("is_public") == "True")
 
     # ---------------------------
     # VALIDATION CHECKS
     # ---------------------------
-    if not profile.org_name:
+    # Check submitted values, not final values
+    if not request.POST.get("org_name", "").strip():
         errors["org_name"] = "Organization name is required."
 
-    if profile.contact_email and not valid_email(profile.contact_email):
+    contact_email = request.POST.get("contact_email", "").strip()
+    if contact_email and not valid_email(contact_email):
         errors["contact_email"] = "Invalid email format."
 
-    if profile.website and not valid_url(profile.website):
-        errors["website"] = "Invalid website URL."
+    website = request.POST.get("website", "").strip()
+    if website and not valid_url(website):
+        errors["website"] = "Invalid website URL. Please enter a valid URL starting with http:// or https:// or a domain name."
 
-    # Validate social links
-    social_fields = {
-        "facebook": profile.social_facebook,
-        "instagram": profile.social_instagram,
-        "linkedin": profile.social_linkedin,
+    # Validate social links - check submitted values
+    social_links = {
+        "facebook": request.POST.get("social_facebook", "").strip(),
+        "instagram": request.POST.get("social_instagram", "").strip(),
+        "linkedin": request.POST.get("social_linkedin", "").strip(),
     }
-    for key, val in social_fields.items():
+    for key, val in social_links.items():
         if val and not valid_url(val):
-            errors[f"social_{key}"] = f"Invalid {key.capitalize()} URL."
+            errors[f"social_{key}"] = f"Invalid {key.capitalize()} URL. Please enter a valid URL or username."
 
     # ---------------------------
     # LOGO UPLOAD (optional)
@@ -790,12 +797,17 @@ def save_org_profile(request):
 
     # If validation errors → return safely
     if errors:
+        print("Validation errors:", errors)  # Debug print
         return JsonResponse({"success": False, "errors": errors}, status=400)
 
     # ---------------------------
     # SAVE (atomic)
     # ---------------------------
     try:
+        # If org_logo was uploaded, also update profile_picture for navbar consistency
+        if "org_logo" in request.FILES:
+            profile.profile_picture = profile.org_logo
+        
         profile.save()
         return JsonResponse({
             "success": True,
@@ -803,6 +815,7 @@ def save_org_profile(request):
             "updated": {
                 "org_name": profile.org_name,
                 "logo_url": profile.org_logo.url if profile.org_logo else None,
+                "profile_picture_url": profile.profile_picture.url if profile.profile_picture else None,
                 "is_public": profile.is_public,
             }
         })
