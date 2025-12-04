@@ -73,6 +73,9 @@
                 <li><strong>Verification Documents:</strong> Official documents proving organization status</li>
                 <li><strong>Processing Time:</strong> Typically 1-2 business days</li>
             </ul>
+            <p style="font-size: 0.9rem; color: #666; margin-top: 12px; font-style: italic;">
+                Note: You must be verified to post opportunities. Please complete the verification process to unlock all features.
+            </p>
         </div>
 
         <div class="modal-actions">
@@ -100,10 +103,13 @@
             <p style="font-size: 0.9rem; color: #666; margin-top: 8px;">
                 Thank you for your patience during the review process.
             </p>
+            <p style="font-size: 0.9rem; color: #666; margin-top: 12px; font-style: italic;">
+                Note: You must be fully verified to post opportunities. Please wait for the verification process to complete.
+            </p>
         </div>
         {% endif %}
 
-        <div class="modal-actions">
+        <div class="modal-actions" style="justify-content: center;">
             <button class="later-btn" onclick="closeVerificationModal()" style="flex: none; padding: 12px 40px;">
                 Continue to Dashboard
             </button>
@@ -199,12 +205,12 @@
           Post Opportunity
         </button>
 
-        <button class="quick-action-card-btn">
+        <button class="quick-action-card-btn" onclick="window.location.href='{% url 'manage_postings' %}'">
           <i class="fa-regular fa-user"></i>
           Review Applicants
         </button>
 
-        <button class="quick-action-card-btn">
+        <button class="quick-action-card-btn" onclick="window.location.href='{% url 'org_profile' %}'">
           <i class="fa-regular fa-star"></i>
           Update Profile
         </button>
