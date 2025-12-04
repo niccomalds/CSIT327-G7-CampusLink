@@ -60,45 +60,7 @@
       <i class="fa-solid fa-magnifying-glass"></i>
       <input type="text" placeholder="Search by title, organization, or skills..." />
     </div>
-
-      <div class="select-dropdown">
-        <div class="search-org">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" placeholder="Search organizations..." class="org-search">
-        </div>
-        <div class="org-options">
-          <label class="org-option">
-            <input type="checkbox" value="Tech Innovations Lab">
-            <span class="checkmark"></span>
-            <span class="org-name">Tech Innovations Lab</span>
-          </label>
-          <label class="org-option">
-            <input type="checkbox" value="AI Research Center">
-            <span class="checkmark"></span>
-            <span class="org-name">AI Research Center</span>
-          </label>
-          <label class="org-option">
-            <input type="checkbox" value="Global Marketing Firm">
-            <span class="checkmark"></span>
-            <span class="org-name">Global Marketing Firm</span>
-          </label>
-          <label class="org-option">
-            <input type="checkbox" value="Creative Design Studio">
-            <span class="checkmark"></span>
-            <span class="org-name">Creative Design Studio</span>
-          </label>
-          <label class="org-option">
-            <input type="checkbox" value="Student Affairs Office">
-            <span class="checkmark"></span>
-            <span class="org-name">Student Affairs Office</span>
-          </label>
-        </div>
-      </div>
-      <div class="selected-orgs" id="selectedOrgs"></div>
-    </div>
-  </div>
-
-  <div class="filter-controls-group">
+    
     <select class="filter-dropdown" id="sortDropdown">
       <option value="recent">Most Recent</option>
       <option value="deadline">Deadline Soonest</option>
@@ -113,7 +75,9 @@
       <option value="month">Due This Month</option>
       <option value="custom">Custom Range</option>
     </select>
+  </div>
 
+  <div class="filter-controls-group">
     <div class="custom-date-range" id="customDateRange" style="display: none;">
       <input type="date" id="startDate" class="date-input">
       <span>to</span>
