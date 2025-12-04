@@ -8,7 +8,7 @@
     <!-- Dashboard Header Styles -->
     <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
     <!-- New Profile Page Styles -->
-    <link rel="stylesheet" href="{% static 'Myapp/org_profile.css' %}">
+    <link rel="stylesheet" href="{% static 'Myapp/org_profile.css' %}?v=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -56,6 +56,12 @@
         <h1>Organization Profile</h1>
         <p>Manage your organization's branding, details, and online presence.</p>
     </div>
+    
+    <!-- General Error Container -->
+    <div id="general-errors" class="error-container" style="display: none; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 15px; margin-bottom: 20px; color: #ef4444;">
+        <strong>⚠ Please correct the following errors:</strong>
+        <ul id="error-list" style="margin-top: 10px; margin-bottom: 0; padding-left: 20px;"></ul>
+    </div>
 
     <!-- ===================== CARD: ORGANIZATION INFO ====================== -->
     <div class="card">
@@ -83,21 +89,25 @@
     <div class="form-group">
         <label>Organization Name</label>
         <input id="org_name" type="text" value="{{ profile.org_name|default_if_none:'' }}">
+        <span id="org_name-error" class="error-message"></span>
     </div>
 
     <div class="form-group">
         <label>Department</label>
         <input id="department" type="text" value="{{ profile.department|default_if_none:'' }}">
+        <span id="department-error" class="error-message"></span>
     </div>
 
     <div class="form-group full">
         <label>Description</label>
         <textarea id="description">{{ profile.description|default_if_none:'' }}</textarea>
+        <span id="description-error" class="error-message"></span>
     </div>
 
     <div class="form-group full">
         <label>Mission</label>
         <textarea id="mission">{{ profile.mission|default_if_none:'' }}</textarea>
+        <span id="mission-error" class="error-message"></span>
     </div>
 
 </div>
@@ -114,21 +124,25 @@
             <div class="form-group">
                 <label>Email</label>
                 <input id="contact_email" type="email" value="{{ profile.contact_email|default_if_none:'' }}">
+                <span id="contact_email-error" class="error-message"></span>
             </div>
 
             <div class="form-group">
                 <label>Phone Number</label>
                 <input id="contact_phone" type="text" value="{{ profile.contact_phone|default_if_none:'' }}">
+                <span id="contact_phone-error" class="error-message"></span>
             </div>
 
             <div class="form-group full">
                 <label>Address</label>
                 <input id="address" type="text" value="{{ profile.address|default_if_none:'' }}">
+                <span id="address-error" class="error-message"></span>
             </div>
 
             <div class="form-group full">
                 <label>Website</label>
                 <input id="website" type="url" value="{{ profile.website|default_if_none:'' }}">
+                <span id="website-error" class="error-message"></span>
             </div>
         </div>
     </div>
@@ -142,16 +156,19 @@
             <div class="form-group">
                 <label>Facebook</label>
                 <input id="social_facebook" type="url" value="{{ profile.social_facebook|default_if_none:'' }}">
+                <span id="social_facebook-error" class="error-message"></span>
             </div>
 
             <div class="form-group">
                 <label>Instagram</label>
                 <input id="social_instagram" type="url" value="{{ profile.social_instagram|default_if_none:'' }}">
+                <span id="social_instagram-error" class="error-message"></span>
             </div>
 
             <div class="form-group">
                 <label>LinkedIn</label>
                 <input id="social_linkedin" type="url" value="{{ profile.social_linkedin|default_if_none:'' }}">
+                <span id="social_linkedin-error" class="error-message"></span>
             </div>
         </div>
     </div>
@@ -217,6 +234,8 @@ let isEditing = false;
 
 /* ========================= SAVE PROFILE ========================= */
 async function saveProfile() {
+    // Clear previous error messages
+    clearErrors();
 
     const saveBtn = document.getElementById("editSaveBtn");
     saveBtn.classList.add("loading");
@@ -258,8 +277,9 @@ async function saveProfile() {
     saveBtn.classList.remove("loading");
 
     // Handle response properly
+    const data = await res.json();
+    
     if (res.ok) {
-        const data = await res.json();
         if (data.success) {
             showToast();
             
@@ -272,12 +292,89 @@ async function saveProfile() {
             }
             
             returnToViewMode();
-        } else {
-            // Show error messages
-            alert(data.errors ? Object.values(data.errors).join('\n') : 'Error saving profile');
         }
     } else {
-        alert('Error saving profile');
+        // Handle error responses (400 validation errors, 500 server errors, etc.)
+        if (data.errors) {
+            // Show validation error messages
+            displayErrors(data.errors);
+        } else {
+            // Show general error message
+            alert(data.error || 'Error saving profile');
+        }
+    }
+}
+
+/* ========================= ERROR HANDLING ========================= */
+function clearErrors() {
+    // Clear all field-specific error messages
+    document.querySelectorAll('.error-message').forEach(el => {
+        el.textContent = '';
+        el.classList.remove('show');
+    });
+    
+    // Remove error styling from inputs
+    document.querySelectorAll('.form-group input, .form-group textarea').forEach(el => {
+        el.classList.remove('input-error');
+    });
+    
+    // Hide general error container
+    const generalErrors = document.getElementById('general-errors');
+    if (generalErrors) {
+        generalErrors.style.display = 'none';
+    }
+}
+
+function displayErrors(errors) {
+    // Clear previous errors first
+    clearErrors();
+    
+    // Display each error message
+    let firstErrorField = null;
+    for (const [field, message] of Object.entries(errors)) {
+        const errorElement = document.getElementById(`${field}-error`);
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
+            
+            // Add error styling to the input
+            const inputElement = document.getElementById(field);
+            if (inputElement) {
+                inputElement.classList.add('input-error');
+                
+                // Keep track of the first error field for scrolling
+                if (!firstErrorField) {
+                    firstErrorField = inputElement;
+                }
+            }
+        }
+    }
+    
+    // Display general error summary
+    const generalErrors = document.getElementById('general-errors');
+    const errorList = document.getElementById('error-list');
+    if (generalErrors && errorList && Object.keys(errors).length > 0) {
+        // Clear previous error list
+        errorList.innerHTML = '';
+        
+        // Add each error to the list
+        for (const [field, message] of Object.entries(errors)) {
+            const listItem = document.createElement('li');
+            listItem.textContent = message;
+            errorList.appendChild(listItem);
+        }
+        
+        // Show the general error container
+        generalErrors.style.display = 'block';
+        
+        // Scroll to the general error container
+        generalErrors.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    
+    // Scroll to the first error field
+    if (firstErrorField) {
+        firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstErrorField.focus();
     }
 }
 
