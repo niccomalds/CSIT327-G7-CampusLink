@@ -422,56 +422,157 @@ nav a:hover, nav a.active {
 
 /* ===== OPPORTUNITY TYPE FILTER STYLES ===== */
 .type-filter-section {
-  background: white;
-  border-radius: 16px;
-  padding: 20px;
-  margin: 0 50px 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, #ffffff, #f8f9fa);
+  border-radius: 20px;
+  padding: 25px;
+  margin: 0 50px 30px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Removed the top blue line as requested */
+
+/* ===== OPPORTUNITY TYPE BADGES ===== */
+.type-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.type-badge.assistantship {
+  background: linear-gradient(135deg, #00c6ff, #0072ff);
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 198, 255, 0.3);
+}
+
+.type-badge.volunteer {
+  background: linear-gradient(135deg, #198754, #0f5132);
+  color: white;
+  box-shadow: 0 2px 8px rgba(25, 135, 84, 0.3);
+}
+
+.type-badge.sports {
+  background: linear-gradient(135deg, #dc3545, #a71e2a);
+  color: white;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.type-badge.leadership {
+  background: linear-gradient(135deg, #ffc107, #d39e00);
+  color: #212529;
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+.type-badge.other {
+  background: linear-gradient(135deg, #6c757d, #495057);
+  color: white;
+  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
 }
 
 .type-filter-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
   border-bottom: 1px solid #e5e7eb;
+  position: relative;
+}
+
+.type-filter-header::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #00c6ff, #0072ff);
+  border-radius: 3px;
+  box-shadow: 0 0 8px rgba(0, 198, 255, 0.5);
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 5px rgba(0, 198, 255, 0.5); }
+  to { box-shadow: 0 0 15px rgba(0, 198, 255, 0.8); }
 }
 
 .type-filter-header h3 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #374151;
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: #111827;
   margin: 0;
+  letter-spacing: -0.5px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  background: linear-gradient(135deg, #111827, #374151);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .filter-count {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #6b7280;
   font-weight: 500;
+  background: #f3f4f6;
+  padding: 6px 14px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.filter-count:hover {
+  background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  color: #1f2937;
+  font-weight: 600;
 }
 
 .type-filter-options {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 15px;
+  justify-content: flex-start;
 }
 
 .type-checkbox {
   display: flex;
   align-items: center;
-  padding: 8px 16px;
-  background: #f8fafc;
-  border-radius: 8px;
+  padding: 12px 20px;
+  background: #ffffff;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid #e5e7eb;
   position: relative;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  min-width: 140px;
 }
 
 .type-checkbox:hover {
-  background: #f0f9ff;
+  background: #f8f9ff;
   border-color: #00c6ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 198, 255, 0.15);
 }
 
 .type-checkbox input {
@@ -481,26 +582,35 @@ nav a:hover, nav a.active {
 }
 
 .checkmark {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   background: white;
   border: 2px solid #d1d5db;
-  border-radius: 4px;
-  margin-right: 8px;
+  border-radius: 6px;
+  margin-right: 12px;
   transition: all 0.3s ease;
   position: relative;
+  flex-shrink: 0;
 }
 
 .type-checkbox input:checked + .checkmark {
   background: #00c6ff;
   border-color: #00c6ff;
+  transform: scale(1.1);
+  animation: pulse 0.3s ease-in-out;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1.1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1.1); }
 }
 
 .type-checkbox input:checked + .checkmark::after {
   content: "✓";
   position: absolute;
   color: white;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: bold;
   top: 50%;
   left: 50%;
@@ -508,26 +618,56 @@ nav a:hover, nav a.active {
 }
 
 .type-label {
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 600;
   color: #374151;
-  margin-right: 8px;
+  margin-right: 10px;
+  transition: color 0.3s ease;
 }
 
 .type-count {
-  font-size: 0.8rem;
-  color: #6b7280;
-  background: white;
-  padding: 2px 6px;
-  border-radius: 10px;
-  min-width: 20px;
+  font-size: 0.95rem;
+  color: #0072ff;
+  background: linear-gradient(135deg, rgba(0, 198, 255, 0.15), rgba(0, 114, 255, 0.1));
+  padding: 5px 12px;
+  border-radius: 16px;
+  min-width: 30px;
   text-align: center;
+  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0, 114, 255, 0.1);
+  border: 1px solid rgba(0, 198, 255, 0.2);
+}
+
+.type-checkbox:hover .type-count {
+  background: linear-gradient(135deg, rgba(0, 198, 255, 0.25), rgba(0, 114, 255, 0.15));
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 114, 255, 0.15);
+  border: 1px solid rgba(0, 198, 255, 0.3);
+}
+
+.type-checkbox input:checked ~ .type-label {
+  color: #0072ff;
+}
+
+.type-checkbox input:checked ~ .type-count {
+  background: linear-gradient(135deg, rgba(0, 198, 255, 0.3), rgba(0, 114, 255, 0.2));
+  color: #0056b3;
+  box-shadow: 0 4px 8px rgba(0, 114, 255, 0.2);
+  border: 1px solid rgba(0, 114, 255, 0.4);
+  animation: bounce 0.3s ease;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
 .type-checkbox.active {
-  background: #e0f2ff;
+  background: linear-gradient(135deg, #e0f2ff, #d1e7ff);
   border-color: #00c6ff;
-  box-shadow: 0 0 0 2px rgba(0, 198, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(0, 198, 255, 0.2), 0 6px 16px rgba(0, 198, 255, 0.15);
+  transform: translateY(-2px);
 }
 
 /* ===== ORGANIZATION MULTI-SELECT DROPDOWN ===== */

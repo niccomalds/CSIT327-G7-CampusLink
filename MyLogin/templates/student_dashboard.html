@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CampusLink – Student Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="{% static 'Myapp/student_dashboard.css' %}?v=2.8">
+  <link rel="stylesheet" href="{% static 'Myapp/student_dashboard.css' %}?v=2.9">
 </head>
 <body>
   <header class="header">
@@ -61,11 +61,6 @@
       <input type="text" placeholder="Search by title, organization, or skills..." />
     </div>
 
-    <div class="organization-multi-select">
-      <div class="select-header">
-        <span>Organizations</span>
-        <i class="fa-solid fa-chevron-down"></i>
-      </div>
       <div class="select-dropdown">
         <div class="search-org">
           <i class="fa-solid fa-magnifying-glass"></i>
@@ -111,13 +106,6 @@
       <option value="title">Title A-Z</option>
     </select>
 
-    <select class="filter-dropdown" id="categoryFilter">
-      <option value="">All Categories</option>
-      <option value="internship">Internship</option>
-      <option value="research">Research</option>
-      <option value="part-time">Part-time</option>
-    </select>
-
     <select class="filter-dropdown" id="deadlineFilter">
       <option value="">All Deadlines</option>
       <option value="today">Due Today</option>
@@ -139,7 +127,7 @@
 </section>
 <section class="type-filter-section">
   <div class="type-filter-header">
-    <h3>Opportunity Type</h3>
+    <h3>Filter postings by opportunity type</h3>
     <span class="filter-count" id="typeFilterCount">No types selected</span>
   </div>
   
@@ -280,6 +268,6 @@
       <p>Try adjusting your search terms or filters</p>
     </div>
   </main>
-  <script src="{% static 'Myapp/student_dashboard.js' %}?v=1.6"></script>
+  <script src="{% static 'Myapp/student_dashboard.js' %}?v=1.7"></script>
 </body>
 </html>

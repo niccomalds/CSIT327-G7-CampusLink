@@ -581,12 +581,11 @@ class TypeFilter {
         opportunityGrid.style.display = 'grid';
     }
 
-    if (this.categoryDropdown.value !== '') {
-        searchResultsInfo.style.display = 'block';
-    }
+    searchResultsInfo.style.display = 'block';
 }
     
     updateTypeCounts() {
+        // Reset counts
         const counts = {
             assistantship: 0,
             volunteer: 0,
@@ -595,6 +594,7 @@ class TypeFilter {
             other: 0
         };
         
+        // Count opportunities for each type
         this.opportunities.forEach(opp => {
             const type = opp.getAttribute('data-type');
             if (counts.hasOwnProperty(type)) {
@@ -602,6 +602,7 @@ class TypeFilter {
             }
         });
     
+        // Update the display for each type count
         Object.keys(counts).forEach(type => {
             if (this.typeCounts[type]) {
                 this.typeCounts[type].textContent = counts[type];
@@ -611,11 +612,8 @@ class TypeFilter {
     
     updateFilterCountText() {
         const selectedTypes = this.getSelectedTypes();
-        const totalTypes = this.typeCheckboxes.length;
         
-        if (selectedTypes.length === totalTypes) {
-            this.filterCount.textContent = 'All types';
-        } else if (selectedTypes.length === 0) {
+        if (selectedTypes.length === 0) {
             this.filterCount.textContent = 'No types selected';
         } else {
             this.filterCount.textContent = `${selectedTypes.length} type${selectedTypes.length > 1 ? 's' : ''} selected`;
@@ -634,9 +632,10 @@ class TypeFilter {
 
     resetTypeFilter() {
         this.typeCheckboxes.forEach(checkbox => {
-            checkbox.checked = true;
+            checkbox.checked = false;
         });
         this.updateFilterCountText();
+        this.showAllOpportunities();
     }
 }
 
@@ -748,136 +747,6 @@ class OpportunitySorter {
     
 }
 
-// ===== CATEGORY FILTER FUNCTIONALITY =====
-class CategoryFilter {
-    constructor() {
-        this.categoryDropdown = document.getElementById('categoryFilter'); // Updated
-        this.init();
-    }
-    
-    init() {
-        this.attachEventListeners();
-    }
-    
-    attachEventListeners() {
-        this.categoryDropdown.addEventListener('change', (e) => {
-            this.handleCategoryFilter(e.target.value);
-        });
-    }
-    
-    handleCategoryFilter(category) {
-    const opportunities = document.querySelectorAll('.opp-card');
-    let visibleCount = 0;
-
-    opportunities.forEach(opp => {
-        let shouldShow = true;
-
-        if (category && category !== '') {
-            switch(category) {
-                case 'internship':
-                    shouldShow = this.isInternship(opp);
-                    break;
-                case 'research':
-                    shouldShow = this.isResearch(opp);
-                    break;
-                case 'part-time':
-                    shouldShow = this.isPartTime(opp);
-                    break;
-            }
-        }
-
-        opp.style.display = shouldShow ? 'block' : 'none';
-        if (shouldShow) visibleCount++;
-    });
-
-    this.updateResultsDisplay(visibleCount);
-    this.handleSearchAndFilterCombination();
-}
-    
-    isInternship(opp) {
-        const title = opp.querySelector('.opp-header h3')?.textContent.toLowerCase() || '';
-        const desc = opp.querySelector('.opp-desc')?.textContent.toLowerCase() || '';
-        
-        return title.includes('intern') || 
-               title.includes('internship') || 
-               desc.includes('intern') ||
-               desc.includes('internship');
-    }
-    
-    isResearch(opp) {
-        const title = opp.querySelector('.opp-header h3')?.textContent.toLowerCase() || '';
-        const desc = opp.querySelector('.opp-desc')?.textContent.toLowerCase() || '';
-        const org = opp.querySelector('.opp-org')?.textContent.toLowerCase() || '';
-        
-        return title.includes('research') || 
-               title.includes('assistant') ||
-               desc.includes('research') ||
-               desc.includes('data analysis') ||
-               org.includes('research') ||
-               org.includes('lab');
-    }
-    
-    isPartTime(opp) {
-        const title = opp.querySelector('.opp-header h3')?.textContent.toLowerCase() || '';
-        const desc = opp.querySelector('.opp-desc')?.textContent.toLowerCase() || '';
-        
-        return title.includes('part-time') || 
-               title.includes('part time') ||
-               desc.includes('part-time') ||
-               desc.includes('part time') ||
-               desc.includes('flexible hours') ||
-               desc.includes('20 hours') ||
-               desc.includes('15-20 hours');
-    }
-    
-    updateResultsDisplay(visibleCount) {
-        const resultsCount = document.getElementById('resultsCount');
-        const noResults = document.getElementById('noResults');
-        const opportunityGrid = document.getElementById('opportunityGrid');
-        const searchResultsInfo = document.getElementById('searchResultsInfo');
-
-        resultsCount.textContent = visibleCount;
-
-        if (visibleCount === 0) {
-            noResults.style.display = 'block';
-            opportunityGrid.style.display = 'none';
-        } else {
-            noResults.style.display = 'none';
-            opportunityGrid.style.display = 'grid';
-        }
-
-        // Show results info when filtered
-        if (this.categoryDropdown.value !== 'All Categories') {
-            searchResultsInfo.style.display = 'block';
-        }
-    }
-    
-    handleSearchAndFilterCombination() {
-        const searchInput = document.querySelector('.search-box input');
-        const searchTerm = searchInput.value.trim();
-        
-        if (searchTerm) {
-            const searchEvent = new Event('input', { bubbles: true });
-            searchInput.dispatchEvent(searchEvent);
-        }
-        
-        // Refresh sorting if needed
-        if (window.opportunitySorterInstance) {
-            window.opportunitySorterInstance.refreshSort();
-        }
-    }
-    
-    clearCategoryFilter() {
-        this.categoryDropdown.value = '';
-        const opportunities = document.querySelectorAll('.opp-card');
-        opportunities.forEach(opp => {
-            opp.style.display = 'block';
-        });
-        
-        const searchResultsInfo = document.getElementById('searchResultsInfo');
-        searchResultsInfo.style.display = 'none';
-    }
-}
 
 // ===== PROFESSIONAL ORGANIZATION MULTI-SELECT FUNCTIONALITY =====
 class OrganizationFilter {
