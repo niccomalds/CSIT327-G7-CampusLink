@@ -1,0 +1,122 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - CampusLink</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'Myapp/admin_dashboard.css' %}">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-4">
+                    <div class="d-flex align-items-center px-3 mb-4">
+                        <i class="fas fa-graduation-cap fa-2x me-2 text-white"></i>
+                        <h5 class="mb-0">CampusLink Admin</h5>
+                    </div>
+                    <ul class="nav flex-column px-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'admin_dashboard' %}">
+                                <i class="fas fa-home"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'admin_posting_approval' %}">
+                                <i class="fas fa-check-circle"></i>
+                                Posting Approval
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'admin_verification_dashboard' %}">
+                                <i class="fas fa-building"></i>
+                                Org Verification
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-3 mb-4 border-bottom">
+                    <h1 class="h2 text-primary">
+                        <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
+                    </h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <a href="{% url 'logout' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-sign-out-alt me-1"></i>Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Header Banner -->
+                <div class="header-banner">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h2 class="mb-2">Welcome, Administrator!</h2>
+                            <p class="mb-0">Manage posting approvals and organization verifications.</p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <span class="badge bg-light text-dark fs-5">
+                                <i class="fas fa-calendar-alt me-1"></i>Today: {{ today|date:"M d, Y" }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="card-title mb-1">Pending Approvals</h5>
+                                        <p class="card-text text-muted mb-0">Postings awaiting your review</p>
+                                    </div>
+                                    <div class="text-end">
+                                        <h2 class="mb-0 text-primary">{{ pending_postings_count }}</h2>
+                                        <a href="{% url 'admin_posting_approval' %}" class="btn btn-primary btn-sm">Review Now</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="card-title mb-1">Org Verification</h5>
+                                        <p class="card-text text-muted mb-0">Organizations awaiting verification</p>
+                                    </div>
+                                    <div class="text-end">
+                                        <h2 class="mb-0 text-primary">{{ pending_verifications_count }}</h2>
+                                        <a href="{% url 'admin_verification_dashboard' %}" class="btn btn-primary btn-sm">Review Now</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

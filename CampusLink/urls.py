@@ -4,8 +4,8 @@ from django.conf import settings
 from django.conf.urls.static import static   # <-- required
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-
+    # path('admin/', admin.site.urls),  # Disabled default Django admin interface
+    
     # Include MyLogin app URLs
     path('', include('MyLogin.urls')),
 ]
@@ -13,4 +13,3 @@ urlpatterns = [
 # Serve uploaded media files (profile pictures, resumes)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-

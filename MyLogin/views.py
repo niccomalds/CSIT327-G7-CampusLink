@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, login as auth_login
 from django.contrib import messages
 from django.urls import reverse
 from django.utils import timezone
@@ -26,6 +26,10 @@ def role_required(allowed_roles=[]):
             if not request.user.is_authenticated:
                 messages.error(request, "You must log in first.")
                 return redirect('login')
+
+            # Allow superusers to access any role-restricted view
+            if request.user.is_superuser:
+                return view_func(request, *args, **kwargs)
 
             if hasattr(request.user, 'profile') and request.user.profile.role in allowed_roles:
                 return view_func(request, *args, **kwargs)
@@ -76,6 +80,33 @@ def logout_view(request):
     logout(request)
     messages.info(request, "You have been logged out.")
     return redirect('login')
+
+
+def admin_redirect(request):
+    """Redirect /admin/ to admin login page"""
+    return redirect('admin_login')
+
+
+# --- Admin Login View ---
+def admin_login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(request, username=username, password=password)
+        if user is not None and user.is_staff:
+            auth_login(request, user)
+            # Redirect to admin dashboard
+            print(f"User {user.username} authenticated and is staff: {user.is_staff}")
+            return redirect('admin_dashboard')
+        elif user is not None:
+            print(f"User {user.username} authenticated but is not staff: {user.is_staff}")
+            messages.error(request, "Insufficient permissions. Admin access required.")
+        else:
+            print("Authentication failed")
+            messages.error(request, "Invalid credentials.")
+    
+    return render(request, 'admin_login.html')
 
 
 # --- Registration View ---
@@ -211,7 +242,82 @@ def organization_dashboard(request):
 @login_required
 @role_required(allowed_roles=['Admin'])
 def admin_dashboard(request):
-    return render(request, 'admin_dashboard.html')
+    """Admin dashboard with platform statistics"""
+    # Get pending postings count
+    pending_postings_count = Posting.objects.filter(approval_status='pending').count()
+    
+    # Sample data for the dashboard
+    from datetime import date
+    context = {
+        'total_users': 1248,
+        'active_postings': 142,
+        'applications_submitted': 856,
+        'success_rate': 78,
+        'server_status': 'Operational',
+        'database_status': 'Connected',
+        'error_rate': 'Low (0.2%)',
+        'today': date.today(),
+        'pending_postings_count': pending_postings_count,
+    }
+    return render(request, 'admin_dashboard.html', context)
+
+
+# --- Admin Posting Approval Views ---
+@login_required
+@role_required(allowed_roles=['Admin'])
+def admin_posting_approval(request):
+    """Display pending postings for admin approval"""
+    pending_postings = Posting.objects.filter(approval_status='pending').select_related('organization', 'organization__profile').order_by('-created_at')
+    
+    context = {
+        'pending_postings': pending_postings,
+    }
+    return render(request, 'admin_posting_approval.html', context)
+
+
+@login_required
+@role_required(allowed_roles=['Admin'])
+def approve_posting(request, posting_id):
+    """Approve a pending posting"""
+    if request.method == 'POST':
+        try:
+            posting = Posting.objects.select_related('organization').get(id=posting_id, approval_status='pending')
+            posting.approval_status = 'approved'
+            posting.approved_at = timezone.now()
+            posting.approved_by = request.user
+            posting.save()
+            
+            messages.success(request, f'Posting "{posting.title}" has been approved.')
+        except Posting.DoesNotExist:
+            messages.error(request, 'Posting not found or already processed.')
+        
+        return redirect('admin_posting_approval')
+    
+    return redirect('admin_posting_approval')
+
+
+@login_required
+@role_required(allowed_roles=['Admin'])
+def reject_posting(request, posting_id):
+    """Reject a pending posting"""
+    if request.method == 'POST':
+        try:
+            posting = Posting.objects.select_related('organization').get(id=posting_id, approval_status='pending')
+            rejection_reason = request.POST.get('rejection_reason', '')
+            
+            posting.approval_status = 'rejected'
+            posting.rejection_reason = rejection_reason
+            posting.approved_at = timezone.now()
+            posting.approved_by = request.user
+            posting.save()
+            
+            messages.success(request, f'Posting "{posting.title}" has been rejected.')
+        except Posting.DoesNotExist:
+            messages.error(request, 'Posting not found or already processed.')
+        
+        return redirect('admin_posting_approval')
+    
+    return redirect('admin_posting_approval')
 
 
 # --- Profile ---
@@ -364,78 +470,6 @@ def check_application_status(request, posting_id):
         'application_id': application.id if application else None
     })
 
-# === ADMIN VERIFICATION VIEWS ===
-
-@staff_member_required
-@role_required(allowed_roles=['Admin'])
-def admin_verification_dashboard(request):
-    """Admin dashboard for managing organization verifications"""
-    # Get organizations pending verification
-    pending_verifications = Profile.objects.filter(
-        role='Organization', 
-        verification_status='pending'
-    ).select_related('user')
-    
-    # Get recent verification activity
-    recent_activity = Profile.objects.filter(
-        role='Organization'
-    ).exclude(verification_status='unverified').order_by('-verification_submitted_at')[:10]
-    
-    context = {
-        'pending_verifications': pending_verifications,
-        'recent_activity': recent_activity,
-        'pending_count': pending_verifications.count(),
-    }
-    return render(request, 'MyLogin/admin_verification_dashboard.html', context)
-
-@staff_member_required
-@role_required(allowed_roles=['Admin'])
-def admin_verify_organization(request, profile_id):
-    """Admin view to verify an organization"""
-    try:
-        profile = Profile.objects.get(id=profile_id, role='Organization')
-    except Profile.DoesNotExist:
-        messages.error(request, "Organization profile not found.")
-        return redirect('admin_verification_dashboard')
-    
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        reason = request.POST.get('reason', '')
-        admin_notes = request.POST.get('admin_notes', '')
-        
-        if action == 'approve':
-            profile.verification_status = 'verified'
-            profile.verified_at = timezone.now()
-            profile.verification_reason = admin_notes or "Approved by administrator"
-            profile.save()
-            messages.success(request, f"{profile.org_name} has been verified successfully!")
-            
-        elif action == 'reject':
-            profile.verification_status = 'rejected'
-            profile.verification_reason = admin_notes or reason or "Verification rejected"
-            profile.save()
-            messages.warning(request, f"{profile.org_name} verification has been rejected.")
-        
-        return redirect('admin_verification_dashboard')
-    
-    context = {
-        'profile': profile,
-    }
-    return render(request, 'MyLogin/admin_verify_organization.html', context)
-
-@staff_member_required
-@role_required(allowed_roles=['Admin'])
-def admin_verification_stats(request):
-    """API endpoint for verification statistics"""
-    stats = {
-        'total_organizations': Profile.objects.filter(role='Organization').count(),
-        'verified_count': Profile.objects.filter(role='Organization', verification_status='verified').count(),
-        'pending_count': Profile.objects.filter(role='Organization', verification_status='pending').count(),
-        'rejected_count': Profile.objects.filter(role='Organization', verification_status='rejected').count(),
-        'unverified_count': Profile.objects.filter(role='Organization', verification_status='unverified').count(),
-    }
-    return JsonResponse(stats)
-
 # === ORGANIZATION VERIFICATION SUBMISSION ===
 
 @login_required
@@ -510,148 +544,6 @@ def submit_verification(request):
     # GET request - show verification form
     return render(request, 'org_verification_form.html', {'profile': profile})
 
-# === ADMIN POSTING APPROVAL VIEWS ===
-
-@staff_member_required
-@role_required(allowed_roles=['Admin'])
-def admin_posting_approval(request):
-    """Admin dashboard for reviewing pending postings"""
-    # Get postings pending approval, ordered by creation date (oldest first)
-    pending_postings = Posting.objects.filter(
-        approval_status='pending'
-    ).select_related('organization', 'organization__profile').order_by('created_at')
-    
-    # Get recently approved/rejected for context
-    recent_actions = Posting.objects.exclude(
-        approval_status='pending'
-    ).select_related('organization', 'organization__profile', 'approved_by').order_by('-approved_at')[:10]
-    
-    # Approval criteria checklist
-    approval_criteria = [
-        "Content is appropriate and professional",
-        "Opportunity is valid and legitimate", 
-        "Description is clear and complete",
-        "Deadline is reasonable",
-        "Organization is verified",
-        "No spam or promotional content",
-        "Complies with platform guidelines"
-    ]
-    
-    context = {
-        'pending_postings': pending_postings,
-        'recent_actions': recent_actions,
-        'page_title': 'Posting Approval Dashboard',
-        'pending_count': pending_postings.count(),
-        'approval_criteria': approval_criteria,
-    }
-    return render(request, 'MyLogin/admin_posting_approval.html', context)
-
-@staff_member_required
-@role_required(allowed_roles=['Admin'])
-def approve_posting(request, posting_id):
-    """Approve a specific posting"""
-    posting = get_object_or_404(Posting, id=posting_id)
-    
-    if request.method == 'POST':
-        # Get checklist results from form
-        criteria_met = request.POST.get('criteria_met', '')
-        additional_notes = request.POST.get('additional_notes', '')
-        
-        posting.approval_status = 'approved'
-        posting.approved_by = request.user
-        posting.approved_at = timezone.now()
-        
-        # Store approval notes if provided
-        if additional_notes:
-            posting.rejection_reason = f"Approval Notes: {additional_notes}"
-        
-        posting.save()
-        
-        messages.success(request, f'Posting "{posting.title}" has been approved and published.')
-        return redirect('admin_posting_approval')
-    
-    # If not POST, show confirmation page with criteria checklist
-    approval_criteria = [
-        "Content is appropriate and professional",
-        "Opportunity is valid and legitimate", 
-        "Description is clear and complete",
-        "Deadline is reasonable",
-        "Organization is verified",
-        "No spam or promotional content",
-        "Complies with platform guidelines"
-    ]
-    
-    context = {
-        'posting': posting,
-        'action': 'approve',
-        'approval_criteria': approval_criteria,
-    }
-    return render(request, 'MyLogin/admin_approval_confirm.html', context)
-
-@staff_member_required
-@role_required(allowed_roles=['Admin'])
-def reject_posting(request, posting_id):
-    """Reject a specific posting"""
-    posting = get_object_or_404(Posting, id=posting_id)
-    
-    if request.method == 'POST':
-        rejection_reason = request.POST.get('rejection_reason', '')
-        criteria_violations = request.POST.getlist('criteria_violations')  # Get checklist of violations
-        
-        posting.approval_status = 'rejected'
-        posting.approved_by = request.user
-        posting.approved_at = timezone.now()
-        
-        # Build comprehensive rejection reason
-        full_rejection_reason = rejection_reason
-        if criteria_violations:
-            violations_text = "Violations: " + ", ".join(criteria_violations)
-            full_rejection_reason = f"{violations_text}. {rejection_reason}"
-        
-        posting.rejection_reason = full_rejection_reason
-        posting.save()
-        
-        messages.warning(request, f'Posting "{posting.title}" has been rejected.')
-        return redirect('admin_posting_approval')
-    
-    # Rejection criteria
-    rejection_criteria = [
-        "Inappropriate content",
-        "Spam or promotional content", 
-        "Unclear or incomplete description",
-        "Unreasonable deadline",
-        "Organization not verified",
-        "Violates platform guidelines",
-        "Duplicate posting",
-        "Other (specify in notes)"
-    ]
-    
-    context = {
-        'posting': posting,
-        'action': 'reject',
-        'rejection_criteria': rejection_criteria,
-    }
-    return render(request, 'MyLogin/admin_approval_confirm.html', context)
-
-@staff_member_required
-@role_required(allowed_roles=['Admin'])
-def posting_detail_modal(request, posting_id):
-    """Return posting details for modal display"""
-    posting = get_object_or_404(Posting, id=posting_id)
-    return render(request, 'MyLogin/posting_detail_modal.html', {'posting': posting})
-
-@staff_member_required
-@role_required(allowed_roles=['Admin'])
-def admin_posting_stats(request):
-    """API endpoint for posting approval statistics"""
-    stats = {
-        'total_postings': Posting.objects.count(),
-        'approved_count': Posting.objects.filter(approval_status='approved').count(),
-        'pending_count': Posting.objects.filter(approval_status='pending').count(),
-        'rejected_count': Posting.objects.filter(approval_status='rejected').count(),
-    }
-    return JsonResponse(stats)
-
 @login_required
 @role_required(allowed_roles=['Organization'])
 def post_opportunity(request):
@@ -711,7 +603,6 @@ def post_opportunity(request):
         return redirect('organization_dashboard')
 
     return render(request, 'post_opportunity.html')
-
 
 
 @login_required
@@ -846,3 +737,64 @@ def save_org_profile(request):
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)}, status=500)
 
+
+# === ADMIN ORGANIZATION VERIFICATION ===
+
+@login_required
+@role_required(allowed_roles=['Admin'])
+def admin_verification_dashboard(request):
+    """Display pending organization verification requests"""
+    pending_verifications = Profile.objects.filter(
+        role='Organization',
+        verification_status='pending'
+    ).select_related('user').order_by('-verification_submitted_at')
+    
+    context = {
+        'pending_verifications': pending_verifications,
+    }
+    return render(request, 'admin_verification_dashboard.html', context)
+
+
+@login_required
+@role_required(allowed_roles=['Admin'])
+def approve_organization(request, profile_id):
+    """Approve an organization verification request"""
+    if request.method == 'POST':
+        try:
+            profile = Profile.objects.select_related('user').get(id=profile_id, verification_status='pending')
+            
+            # Update verification status
+            profile.verification_status = 'verified'
+            profile.verified_at = timezone.now()
+            profile.save()
+            
+            messages.success(request, f'Organization "{profile.org_name or profile.user.get_full_name()}" has been verified.')
+        except Profile.DoesNotExist:
+            messages.error(request, 'Organization not found or already processed.')
+        
+        return redirect('admin_verification_dashboard')
+    
+    return redirect('admin_verification_dashboard')
+
+
+@login_required
+@role_required(allowed_roles=['Admin'])
+def reject_organization(request, profile_id):
+    """Reject an organization verification request"""
+    if request.method == 'POST':
+        try:
+            profile = Profile.objects.select_related('user').get(id=profile_id, verification_status='pending')
+            rejection_reason = request.POST.get('rejection_reason', '')
+            
+            # Update verification status
+            profile.verification_status = 'rejected'
+            profile.verification_reason = rejection_reason
+            profile.save()
+            
+            messages.success(request, f'Organization "{profile.org_name or profile.user.get_full_name()}" has been rejected.')
+        except Profile.DoesNotExist:
+            messages.error(request, 'Organization not found or already processed.')
+        
+        return redirect('admin_verification_dashboard')
+    
+    return redirect('admin_verification_dashboard')

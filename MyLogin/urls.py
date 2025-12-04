@@ -5,6 +5,8 @@ urlpatterns = [
 
     # --- Authentication ---
     path('', views.login_view, name='login'),
+    path('admin/', views.admin_redirect, name='admin_redirect'),  # Redirect /admin/ to admin login
+    path('admin/login/', views.admin_login_view, name='admin_login'),
     path('register/', views.register_view, name='register'),
     path('logout/', views.logout_view, name='logout'),
 
@@ -38,17 +40,19 @@ urlpatterns = [
     # === ORGANIZATION VERIFICATION SUBMISSION ===
     path('organization/verify/', views.submit_verification, name='submit_verification'),
 
-    # === ADMIN VERIFICATION ROUTES ===
-    path('admin/verification/', views.admin_verification_dashboard, name='admin_verification_dashboard'),
-    path('admin/verify/<int:profile_id>/', views.admin_verify_organization, name='admin_verify_organization'),
-    path('admin/verification/stats/', views.admin_verification_stats, name='admin_verification_stats'),
-
-    # === ADMIN POSTING APPROVAL ROUTES ===
+    # === ADMIN DASHBOARD ===
+    path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    
+    # === ADMIN POSTING APPROVAL ===
     path('admin/postings/approval/', views.admin_posting_approval, name='admin_posting_approval'),
-    path('admin/postings/approve/<int:posting_id>/', views.approve_posting, name='approve_posting'),
-    path('admin/postings/reject/<int:posting_id>/', views.reject_posting, name='reject_posting'),
-    path('admin/postings/detail/<int:posting_id>/', views.posting_detail_modal, name='posting_detail_modal'),
-    path('admin/postings/stats/', views.admin_posting_stats, name='admin_posting_stats'),
+    path('admin/postings/<int:posting_id>/approve/', views.approve_posting, name='approve_posting'),
+    path('admin/postings/<int:posting_id>/reject/', views.reject_posting, name='reject_posting'),
+    
+    # === ADMIN ORGANIZATION VERIFICATION ===
+    path('admin/verification/', views.admin_verification_dashboard, name='admin_verification_dashboard'),
+    path('admin/verification/<int:profile_id>/approve/', views.approve_organization, name='approve_organization'),
+    path('admin/verification/<int:profile_id>/reject/', views.reject_organization, name='reject_organization'),
+
     path("organization/settings/", views.org_settings, name="org_settings"),
 
 ]
