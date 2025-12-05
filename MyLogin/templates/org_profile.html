@@ -7,20 +7,27 @@
 
     <!-- Dashboard Header Styles -->
     <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
-    <!-- New Profile Page Styles -->
+    
+    <!-- Profile Page Styles -->
     <link rel="stylesheet" href="{% static 'Myapp/org_profile.css' %}">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
 
-<!-- ========================= HEADER ========================= -->
+<!-- ============================================================
+     HEADER
+============================================================ -->
 <header class="header">
+
+    <!-- LOGO -->
     <div class="logo">
         <i class="fa-solid fa-graduation-cap"></i>
         <span>CampusLink</span>
     </div>
 
+    <!-- NAVIGATION -->
     <nav>
         <a href="{% url 'organization_dashboard' %}">Dashboard</a>
         <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
@@ -28,15 +35,53 @@
         <a href="{% url 'org_profile' %}" class="active">Profile</a>
     </nav>
 
+    <!-- SEARCH + BELL + PROFILE -->
     <div class="search-profile">
         <input type="text" class="top-search" placeholder="Search opportunities...">
 
+        <!-- 🔔 NOTIFICATION BELL -->
+        <div class="notification-wrapper">
+            <div id="notifBell" class="notif-bell">
+                <i class="fa-solid fa-bell"></i>
+                {% if unread_count > 0 %}
+                    <span class="notif-badge">{{ unread_count }}</span>
+                {% endif %}
+            </div>
+
+            <!-- 🔽 DROP DOWN EXACTLY SAME AS STUDENT DASHBOARD -->
+            <div id="notifDropdown" class="notif-dropdown">
+                
+                <div class="notif-header">Notifications</div>
+
+                {% if notifications %}
+                    {% for n in notifications %}
+                        <div class="notif-item {% if not n.read %}notif-unread{% endif %}">
+                            <div class="notif-title">{{ n.title }}</div>
+                            <div class="notif-time">{{ n.timestamp|timesince }} ago</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="notif-empty">
+                        <i class="fa-regular fa-bell"></i>
+                        <p>No notifications yet</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 👤 PROFILE DROPDOWN -->
         <div class="profile-dropdown">
-            <img src="{% if user.profile.profile_picture %}{{ user.profile.profile_picture.url }}{% else %}/static/Myapp/default-avatar.png{% endif %}"
-                 class="avatar" id="profileAvatar">
+            <img src="{% if user.profile.profile_picture %}
+                        {{ user.profile.profile_picture.url }}
+                     {% else %}
+                        /static/Myapp/default-avatar.png
+                     {% endif %}"
+                class="avatar"
+                id="profileAvatar">
 
             <div class="dropdown-menu" id="profileMenu">
                 <div class="dropdown-header">Organization</div>
+
                 <a href="{% url 'org_profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
                 <a href="{% url 'submit_verification' %}"><i class="fa-solid fa-shield-check"></i> Verify Organization</a>
                 <a href="{% url 'org_settings' %}"><i class="fa-solid fa-gear"></i> Settings</a>
@@ -46,67 +91,71 @@
     </div>
 </header>
 
-
-
-<!-- ========================= MAIN CONTENT ========================= -->
+<!-- ============================================================
+     MAIN CONTENT
+============================================================ -->
 <div class="org-profile-container">
 
-    <!-- Page Header -->
+    <!-- PAGE INTRO -->
     <div class="page-header">
         <h1>Organization Profile</h1>
         <p>Manage your organization's branding, details, and online presence.</p>
     </div>
 
-    <!-- ===================== CARD: ORGANIZATION INFO ====================== -->
+
+
+
+    <!-- ============================================================
+         ORGANIZATION OVERVIEW CARD
+    ============================================================ -->
     <div class="card">
-    <h2>Organization Overview</h2>
+        <h2>Organization Overview</h2>
 
-    <div class="logo-section">
-        <div class="profile-photo-wrapper">
-    {% if profile.org_logo %}
-        <img id="orgLogoPreview" src="{{ profile.org_logo.url }}" class="profile-photo">
-    {% else %}
-        <img id="orgLogoPreview" src="{% static 'Myapp/default-logo.png' %}" class="profile-photo">
-    {% endif %}
+        <div class="logo-section">
+            <div class="profile-photo-wrapper">
+                {% if profile.org_logo %}
+                    <img id="orgLogoPreview" src="{{ profile.org_logo.url }}" class="profile-photo">
+                {% else %}
+                    <img id="orgLogoPreview" src="{% static 'Myapp/default-logo.png' %}" class="profile-photo">
+                {% endif %}
 
-    <!-- EDIT ICON (hidden until Edit Mode) -->
-    <label id="photoEditIcon" class="edit-photo-icon hide-upload">
-        <input type="file" id="logoInput" accept="image/*" hidden>
-        <i class="fa-solid fa-pen"></i>
-    </label>
-</div>
+                <label id="photoEditIcon" class="edit-photo-icon hide-upload">
+                    <input type="file" id="logoInput" accept="image/*" hidden>
+                    <i class="fa-solid fa-pen"></i>
+                </label>
+            </div>
+        </div>
 
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Organization Name</label>
+                <input id="org_name" type="text" value="{{ profile.org_name|default_if_none:'' }}">
+            </div>
 
-    <!-- ⭐ The entire grid stays inside the card -->
-    <div class="form-grid">
+            <div class="form-group">
+                <label>Department</label>
+                <input id="department" type="text" value="{{ profile.department|default_if_none:'' }}">
+            </div>
 
-    <div class="form-group">
-        <label>Organization Name</label>
-        <input id="org_name" type="text" value="{{ profile.org_name|default_if_none:'' }}">
+            <div class="form-group full">
+                <label>Description</label>
+                <textarea id="description">{{ profile.description|default_if_none:'' }}</textarea>
+            </div>
+
+            <div class="form-group full">
+                <label>Mission</label>
+                <textarea id="mission">{{ profile.mission|default_if_none:'' }}</textarea>
+            </div>
+        </div>
     </div>
 
-    <div class="form-group">
-        <label>Department</label>
-        <input id="department" type="text" value="{{ profile.department|default_if_none:'' }}">
-    </div>
-
-    <div class="form-group full">
-        <label>Description</label>
-        <textarea id="description">{{ profile.description|default_if_none:'' }}</textarea>
-    </div>
-
-    <div class="form-group full">
-        <label>Mission</label>
-        <textarea id="mission">{{ profile.mission|default_if_none:'' }}</textarea>
-    </div>
-
-</div>
 
 
 
 
-
-    <!-- ===================== CARD: CONTACT INFO ====================== -->
+    <!-- ============================================================
+         CONTACT INFORMATION
+    ============================================================ -->
     <div class="card">
         <h2>Contact Information</h2>
 
@@ -134,7 +183,11 @@
     </div>
 
 
-    <!-- ===================== CARD: SOCIAL LINKS ====================== -->
+
+
+    <!-- ============================================================
+         SOCIAL LINKS
+    ============================================================ -->
     <div class="card">
         <h2>Social Links</h2>
 
@@ -157,7 +210,11 @@
     </div>
 
 
-    <!-- ===================== CARD: VISIBILITY ====================== -->
+
+
+    <!-- ============================================================
+         VISIBILITY SETTINGS
+    ============================================================ -->
     <div class="card">
         <h2>Visibility</h2>
 
@@ -170,9 +227,10 @@
         </div>
     </div>
 
+
+
     <!-- SAVE BUTTON -->
     <button id="editSaveBtn" class="save-btn">Edit Profile</button>
-
 
     <!-- Toast -->
     <div id="toast" class="toast">Profile updated successfully!</div>
@@ -181,22 +239,26 @@
 
 
 
-<!-- ========================= INLINE JAVASCRIPT ========================= -->
+
+<!-- ============================================================
+     JAVASCRIPT (CLEAN + FINAL VERSION)
+============================================================ -->
 <script>
 
-/* ========================= DROPDOWN MENU ========================= */
+/* ----------------------- PROFILE MENU DROPDOWN ----------------------- */
 const avatar = document.getElementById('profileAvatar');
 const menu = document.getElementById('profileMenu');
 
 avatar.onclick = () => menu.parentElement.classList.toggle("show");
-window.onclick = (e) => {
+
+window.addEventListener("click", (e) => {
     if (!avatar.contains(e.target) && !menu.contains(e.target)) {
         menu.parentElement.classList.remove("show");
     }
-};
+});
 
 
-/* ========================= PHOTO PREVIEW ========================= */
+/* ----------------------- PHOTO PREVIEW ----------------------- */
 document.getElementById("logoInput").addEventListener("change", function () {
     const file = this.files[0];
     if (file) {
@@ -205,7 +267,7 @@ document.getElementById("logoInput").addEventListener("change", function () {
 });
 
 
-/* ========================= INITIAL VIEW MODE ========================= */
+/* ----------------------- INITIAL VIEW MODE ----------------------- */
 document.querySelectorAll(".form-grid input, .form-grid textarea, .form-grid select")
     .forEach(el => el.setAttribute("disabled", true));
 
@@ -215,40 +277,36 @@ document.getElementById("photoEditIcon").classList.add("hide-upload");
 let isEditing = false;
 
 
-/* ========================= SAVE PROFILE ========================= */
+/* ----------------------- SAVE PROFILE ----------------------- */
 async function saveProfile() {
 
     const saveBtn = document.getElementById("editSaveBtn");
     saveBtn.classList.add("loading");
 
     let formData = new FormData();
-    // Helper function to get clean value
-    function getCleanValue(id) {
-        const value = document.getElementById(id).value;
-        // Treat "None" as empty string
-        return value === "None" ? "" : value;
+
+    function getValue(id) {
+        const v = document.getElementById(id).value;
+        return v === "None" ? "" : v;
     }
-    
-    formData.append("org_name", getCleanValue("org_name"));
-    formData.append("department", getCleanValue("department"));
-    formData.append("description", getCleanValue("description"));
-    formData.append("mission", getCleanValue("mission"));
 
-    formData.append("contact_email", getCleanValue("contact_email"));
-    formData.append("contact_phone", getCleanValue("contact_phone"));
-    formData.append("address", getCleanValue("address"));
-    formData.append("website", getCleanValue("website"));
-
-    formData.append("social_facebook", getCleanValue("social_facebook"));
-    formData.append("social_instagram", getCleanValue("social_instagram"));
-    formData.append("social_linkedin", getCleanValue("social_linkedin"));
+    formData.append("org_name", getValue("org_name"));
+    formData.append("department", getValue("department"));
+    formData.append("description", getValue("description"));
+    formData.append("mission", getValue("mission"));
+    formData.append("contact_email", getValue("contact_email"));
+    formData.append("contact_phone", getValue("contact_phone"));
+    formData.append("address", getValue("address"));
+    formData.append("website", getValue("website"));
+    formData.append("social_facebook", getValue("social_facebook"));
+    formData.append("social_instagram", getValue("social_instagram"));
+    formData.append("social_linkedin", getValue("social_linkedin"));
 
     formData.append("is_public", document.getElementById("is_public").value);
 
     const logoFile = document.getElementById("logoInput").files[0];
     if (logoFile) formData.append("org_logo", logoFile);
 
-    // Save request
     const res = await fetch("/organization/org-profile/save/", {
         method: "POST",
         headers: { "X-CSRFToken": getCookie("csrftoken") },
@@ -257,77 +315,54 @@ async function saveProfile() {
 
     saveBtn.classList.remove("loading");
 
-    // Handle response properly
     if (res.ok) {
         const data = await res.json();
+
         if (data.success) {
             showToast();
-            
-            // Update navbar avatar if profile picture was updated
-            if (data.updated && data.updated.profile_picture_url) {
-                const navbarAvatar = document.getElementById('profileAvatar');
-                if (navbarAvatar) {
-                    navbarAvatar.src = data.updated.profile_picture_url;
-                }
+
+            if (data.updated?.profile_picture_url) {
+                document.getElementById("profileAvatar").src = data.updated.profile_picture_url;
             }
-            
+
             returnToViewMode();
         } else {
-            // Show error messages
-            alert(data.errors ? Object.values(data.errors).join('\n') : 'Error saving profile');
+            alert(data.errors ? Object.values(data.errors).join("\n") : "Error saving profile");
         }
     } else {
-        alert('Error saving profile');
+        alert("Error saving profile");
     }
 }
 
 
-
-
-/* ========================= RETURN TO VIEW MODE ========================= */
+/* ----------------------- RETURN TO VIEW MODE ----------------------- */
 function returnToViewMode() {
-
-    const saveBtn = document.getElementById("editSaveBtn");
-
     isEditing = false;
-    saveBtn.textContent = "Edit Profile";
+    document.getElementById("editSaveBtn").textContent = "Edit Profile";
 
-    // Disable all fields
     document.querySelectorAll(".form-grid input, .form-grid textarea, .form-grid select")
         .forEach(el => el.setAttribute("disabled", true));
 
-    // Hide photo upload
     document.getElementById("logoInput").setAttribute("disabled", true);
     document.getElementById("photoEditIcon").classList.add("hide-upload");
-
-    // Social links switch back to view mode
-    toggleSocialLinksViewMode(true);
 }
 
 
-/* ========================= ENTER EDIT MODE ========================= */
+/* ----------------------- ENTER EDIT MODE ----------------------- */
 function enterEditMode() {
-
-    const saveBtn = document.getElementById("editSaveBtn");
-
     isEditing = true;
-    saveBtn.textContent = "Save Changes";
+    document.getElementById("editSaveBtn").textContent = "Save Changes";
 
-    // Enable all fields
     document.querySelectorAll(".form-grid input, .form-grid textarea, .form-grid select")
         .forEach(el => el.removeAttribute("disabled"));
 
-    // Enable image upload
     document.getElementById("logoInput").removeAttribute("disabled");
     document.getElementById("photoEditIcon").classList.remove("hide-upload");
-
-    // Social links input mode
-    toggleSocialLinksViewMode(false);
 }
 
 
-/* ========================= EDIT / SAVE BUTTON ========================= */
-document.getElementById("editSaveBtn").addEventListener("click", function () {
+/* ----------------------- EDIT BUTTON ----------------------- */
+document.getElementById("editSaveBtn").addEventListener("click", () => {
     if (!isEditing) {
         enterEditMode();
     } else {
@@ -336,50 +371,7 @@ document.getElementById("editSaveBtn").addEventListener("click", function () {
 });
 
 
-/* ========================= SOCIAL LINKS VIEW MODE ========================= */
-function toggleSocialLinksViewMode(viewMode) {
-
-    const fb = document.getElementById("social_facebook");
-    const ig = document.getElementById("social_instagram");
-    const ln = document.getElementById("social_linkedin");
-
-    const socialFields = [fb, ig, ln];
-
-    socialFields.forEach(field => {
-
-        let wrapper = field.parentElement;
-
-        // Remove previous view rows before creating new ones
-        let existingRows = wrapper.querySelectorAll(".view-row");
-        existingRows.forEach(row => row.remove());
-
-        const value = field.value.trim();
-
-        // Create new view row fresh each time
-        wrapper.insertAdjacentHTML("beforeend", `
-            <div class="view-row ${viewMode ? "" : "hide-view"}">
-                <span class="pin">📌</span>
-                <a href="${value || "#"}" target="_blank" class="social-link-view">${value || ""}</a>
-            </div>
-        `);
-
-        let viewRow = wrapper.querySelector(".view-row");
-
-        if (viewMode) {
-            // VIEW MODE
-            field.classList.add("hide-input");   // hide input
-            viewRow.classList.remove("hide-view");
-        } else {
-            // EDIT MODE
-            field.classList.remove("hide-input");
-            viewRow.classList.add("hide-view");  // hide view
-        }
-    });
-}
-
-
-
-/* ========================= TOAST ========================= */
+/* ----------------------- TOAST ----------------------- */
 function showToast() {
     const t = document.getElementById("toast");
     t.classList.add("show");
@@ -387,10 +379,10 @@ function showToast() {
 }
 
 
-/* ========================= CSRF ========================= */
+/* ----------------------- CSRF ----------------------- */
 function getCookie(name) {
-    const cookieArr = document.cookie.split(";");
-    for (let c of cookieArr) {
+    const cookies = document.cookie.split(";");
+    for (let c of cookies) {
         const cookie = c.trim();
         if (cookie.startsWith(name + "=")) {
             return cookie.substring(name.length + 1);
@@ -399,11 +391,26 @@ function getCookie(name) {
     return null;
 }
 
+
+/* =====================================================
+   🔔 NOTIFICATION DROPDOWN — FINAL WORKING VERSION
+===================================================== */
+const notifBell = document.getElementById("notifBell");
+const notifDropdown = document.getElementById("notifDropdown");
+
+notifBell.addEventListener("click", function (event) {
+    event.stopPropagation();
+    notifDropdown.classList.toggle("show");
+});
+
+document.addEventListener("click", function (event) {
+    if (!notifDropdown.contains(event.target) && !notifBell.contains(event.target)) {
+        notifDropdown.classList.remove("show");
+    }
+});
+
+
 </script>
-
-
-
-
 
 </body>
 </html>

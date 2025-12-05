@@ -672,3 +672,103 @@ body {
   from { opacity: 0; transform: translateY(-6px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ============================================================
+   🔔 NOTIFICATION BELL (STUDENT STYLE)
+============================================================ */
+
+.notification-wrapper {
+    position: relative;
+}
+
+.notif-bell {
+    cursor: pointer;
+    position: relative;
+}
+
+.notif-bell i {
+    font-size: 18px;
+    color: #6b7280;
+    transition: color 0.25s ease, transform 0.15s ease;
+}
+
+.notif-bell:hover i {
+    color: #00c6ff !important;
+    transform: scale(1.1);
+}
+
+/* Badge */
+.notif-badge {
+    background: #ff4e4e;
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 999px;
+    position: absolute;
+    top: -6px;
+    right: -6px;
+}
+
+/* Dropdown */
+.notif-dropdown {
+    position: absolute;
+    top: 45px;
+    right: 0;
+    width: 260px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.12);
+    display: none;
+    overflow: hidden;
+    z-index: 9999;
+    flex-direction: column;
+}
+
+.notif-dropdown.show {
+    display: flex;
+}
+
+/* Header */
+.notif-header {
+    padding: 12px 16px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    background: #f8fafc;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* Items */
+.notif-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f3f4f6;
+    cursor: pointer;
+}
+
+.notif-item:hover {
+    background: #eaf8ff;
+}
+
+.notif-unread {
+    background: #e0f7ff;
+}
+
+.notif-title {
+    font-weight: 600;
+}
+
+.notif-time {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+/* Empty state */
+.notif-empty {
+    text-align: center;
+    padding: 20px;
+    color: #6b7280;
+}
+
+.notif-empty i {
+    font-size: 2rem;
+    margin-bottom: 6px;
+}

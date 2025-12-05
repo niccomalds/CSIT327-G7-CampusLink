@@ -25,9 +25,40 @@
       <a href="{% url 'manage_postings' %}" class="active">Applicants</a>
       <a href="{% url 'org_profile' %}">Profile</a>
     </nav>
+    
 
     <div class="search-profile">
       <input type="text" class="top-search" placeholder="Search opportunities...">
+
+      <!-- 🔔 NOTIFICATION BELL (CLEAN VERSION) -->
+<!-- 🔔 NOTIFICATION BELL — FULL STUDENT STYLE -->
+<div class="notification-wrapper">
+    <div id="notifBell" class="notif-bell">
+        <i class="fa-solid fa-bell"></i>
+        {% if unread_count > 0 %}
+            <span class="notif-badge">{{ unread_count }}</span>
+        {% endif %}
+    </div>
+
+    <div id="notifDropdown" class="notif-dropdown">
+
+        <div class="notif-header">Notifications</div>
+
+        {% if notifications %}
+            {% for n in notifications %}
+                <div class="notif-item {% if not n.read %}notif-unread{% endif %}">
+                    <div class="notif-title">{{ n.title }}</div>
+                    <div class="notif-time">{{ n.timestamp|timesince }} ago</div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="notif-empty">
+                <i class="fa-regular fa-bell"></i>
+                <p>No notifications yet</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
 
       <!-- PROFILE DROPDOWN -->
       <div class="profile-dropdown" id="orgProfileDropdown">
@@ -320,6 +351,25 @@
         setTimeout(() => toast.remove(), 3000);
       }
     });
+
+    
+/* ============================
+   NOTIFICATION DROPDOWN
+============================ */
+const notifBell = document.getElementById("notifBell");
+const notifDropdown = document.getElementById("notifDropdown");
+
+notifBell.addEventListener("click", function (event) {
+    event.stopPropagation();
+    notifDropdown.classList.toggle("show");
+});
+
+// Close dropdown when clicking outside
+document.addEventListener("click", function (event) {
+    if (!notifDropdown.contains(event.target) && !notifBell.contains(event.target)) {
+        notifDropdown.classList.remove("show");
+    }
+});
   </script>
 </body>
 </html>
