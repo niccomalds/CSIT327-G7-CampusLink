@@ -138,7 +138,7 @@ def register_view(request):
 
         # Create profile
         if role == "Organization":
-            Profile.objects.create(user=user, role=role, org_name=org_name)
+            Profile.objects.create(user=user, role=role, org_name=org_name, institutional_email=email)
         else:
             Profile.objects.create(user=user, role=role)
 
@@ -223,7 +223,12 @@ def organization_dashboard(request):
         'verification_status': profile.verification_status,
         'needs_verification': profile.role == 'Organization' and profile.verification_status in ['unverified', 'rejected'],
         'is_pending': profile.verification_status == 'pending',
+        'show_verified_modal': profile.is_verified_organization() and not request.session.get('verified_modal_shown', False)
     }
+    
+    # Mark the verified modal as shown if the user is verified
+    if profile.is_verified_organization() and not request.session.get('verified_modal_shown', False):
+        request.session['verified_modal_shown'] = True
     
     context = {
         'profile': profile,
@@ -488,28 +493,6 @@ def submit_verification(request):
         return redirect('organization_dashboard')
     
     if request.method == 'POST':
-        # Get form data
-        institutional_email = request.POST.get('institutional_email', '').strip()
-        organization_name = request.POST.get('organization_name', '').strip()
-        
-        # Validate required fields
-        if not institutional_email:
-            messages.error(request, "Institutional email is required.")
-            return render(request, 'org_verification_form.html', {'profile': profile})
-        
-        # Validate email format
-        import re
-        email_regex = re.compile(r"[^@]+@[^@]+\.[^@]+")
-        if not email_regex.match(institutional_email):
-            messages.error(request, "Please enter a valid institutional email address.")
-            return render(request, 'org_verification_form.html', {'profile': profile})
-        
-        # Check if email domain is valid (edu, ac, org)
-        domain = institutional_email.split('@')[1].lower()
-        if not (domain.endswith('.edu') or domain.endswith('.ac') or domain.endswith('.org')):
-            messages.error(request, "Please use an official institutional email (.edu, .ac, .org domains).")
-            return render(request, 'org_verification_form.html', {'profile': profile})
-        
         # Handle document upload
         verification_document = None
         if 'verification_document' in request.FILES:
@@ -527,9 +510,6 @@ def submit_verification(request):
                 return render(request, 'org_verification_form.html', {'profile': profile})
         
         # Update profile with verification information
-        profile.institutional_email = institutional_email
-        if organization_name:
-            profile.org_name = organization_name
         if verification_document:
             profile.verification_documents = verification_document
         
@@ -551,10 +531,10 @@ def post_opportunity(request):
     profile = request.user.profile
     is_verified = profile.is_verified_organization()
     
-    # If not verified, show error message
+    # If not verified, redirect to verification page
     if not is_verified:
         messages.error(request, "Only verified organizations can post opportunities. Please verify your organization first.")
-        return redirect('organization_dashboard')
+        return redirect('submit_verification')
 
     if request.method == "POST":
         title = request.POST.get('title')

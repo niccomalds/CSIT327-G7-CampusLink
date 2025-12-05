@@ -24,9 +24,6 @@
       <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
       <a href="{% url 'manage_postings' %}">Applicants</a>
       <a href="{% url 'org_profile' %}">Org Profile</a>
-      <a href="#" onclick="openVerificationModal(); return false;" class="verification-nav-btn">
-          <i class="fa-solid fa-shield-check"></i> Verify Account
-      </a>
     </nav>
 
     <div class="search-profile">
@@ -78,9 +75,6 @@
           <div class="dropdown-menu" id="orgDropdownMenu">
               <div class="dropdown-header">Organization</div>
               <a href="{% url 'org_profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
-              <a href="#" onclick="openVerificationModal(); return false;">
-                  <i class="fa-solid fa-shield-check"></i> Verify Account
-              </a>
               <a href="{% url 'org_settings' %}"><i class="fa-solid fa-gear"></i> Settings</a>
               <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
           </div>
@@ -116,7 +110,7 @@
         </div>
 
         <div class="modal-actions">
-            <a href="#" class="verify-btn" onclick="alert('Verification submission coming soon!'); return false;">
+            <a href="{% url 'submit_verification' %}" class="verify-btn">
                 <i class="fa-solid fa-shield-check"></i> Start Verification
             </a>
             <button class="later-btn" onclick="closeVerificationModal()">
@@ -153,11 +147,10 @@
         </div>
     </div>
 </div>
-{% elif is_verified %}
+{% elif show_verified_modal %}
 <div class="verification-overlay" id="verificationOverlay">
     <div class="verification-modal">
         <div class="modal-header">
-            <div class="modal-icon">✅</div>
             <h3>Organization Verified!</h3>
             <p>Your organization has been successfully verified. You now have full access to all features.</p>
         </div>
@@ -171,7 +164,7 @@
         </div>
         {% endif %}
 
-        <div class="modal-actions">
+        <div class="modal-actions" style="justify-content: center;">
             <button class="verify-btn" onclick="closeVerificationModal()" style="flex: none; padding: 12px 40px;">
                 Start Posting Opportunities
             </button>
@@ -184,16 +177,9 @@
     <div class="org-header-row">
       <div class="org-header">
     <h2>Organization <span class="accent">Dashboard</span> 
-        {% if is_verified %}
-        <span class="verified-badge verified-badge-large">✅ Verified</span>
-        {% endif %}
     </h2>
     <p>Manage your opportunities and connect with talented students.</p>
 </div>
-      <a href="{% url 'post_opportunity' %}" class="quick-action-card-btn">
-        <i class="fa-regular fa-clock"></i>
-    Post Opportunity
-      </a>
 
 
 
@@ -240,7 +226,7 @@
       </div>
 
       <div class="quick-actions-list">
-        <button class="quick-action-card-btn">
+        <button class="quick-action-card-btn" onclick="window.location.href='{% url 'post_opportunity' %}'">
           <i class="fa-regular fa-clock"></i>
           Post Opportunity
         </button>

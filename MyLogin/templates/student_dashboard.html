@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CampusLink – Student Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="{% static 'Myapp/student_dashboard.css' %}?v=3.4">
+  <link rel="stylesheet" href="{% static 'Myapp/student_dashboard.css' %}?v=3.5">
 </head>
 <body>
   <header class="header">
@@ -197,5 +197,28 @@
     </div>
   </main>
   <script src="{% static 'Myapp/student_dashboard.js' %}?v=1.8"></script>
+  <script>
+    /* ============================
+       NOTIFICATION DROPDOWN
+    ============================ */
+    document.addEventListener("DOMContentLoaded", function() {
+        const notifBell = document.getElementById("notifBell");
+        const notifDropdown = document.getElementById("notifDropdown");
+        
+        if (notifBell && notifDropdown) {
+            notifBell.addEventListener("click", function (event) {
+                event.stopPropagation();
+                notifDropdown.classList.toggle("show");
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener("click", function (event) {
+                if (!notifDropdown.contains(event.target) && !notifBell.contains(event.target)) {
+                    notifDropdown.classList.remove("show");
+                }
+            });
+        }
+    });
+  </script>
 </body>
 </html>

@@ -77,29 +77,17 @@
             <div class="requirements">
                 <h3><i class="fa-solid fa-circle-info"></i> Required for Verification</h3>
                 <ul>
-                    <li><strong>Institutional Email:</strong> Official email address (.edu, .ac, .org domains)</li>
                     <li><strong>Verification Documents:</strong> Official documents proving organization status (PDF, PNG, JPG - max 5MB)</li>
                     <li><strong>Processing Time:</strong> Typically 1-2 business days</li>
                 </ul>
             </div>
             
             <div class="note">
-                <p><i class="fa-solid fa-triangle-exclamation"></i> <strong>Note:</strong> Your verification request will be reviewed by our team. You'll receive an email notification once your organization is verified.</p>
+                <p><i class="fa-solid fa-triangle-exclamation"></i> <strong>Note:</strong> Your verification request will be reviewed by our team. You'll be notified once your organization is verified.</p>
             </div>
             
             <form class="verification-form" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
-                
-                <div class="form-group">
-                    <label for="organization_name">Organization Name *</label>
-                    <input type="text" id="organization_name" name="organization_name" value="{{ profile.org_name }}" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="institutional_email">Institutional Email *</label>
-                    <input type="email" id="institutional_email" name="institutional_email" value="{{ profile.institutional_email }}" placeholder="e.g., contact@organization.edu" required>
-                    <small>Please use your official institutional email address</small>
-                </div>
                 
                 <div class="form-group">
                     <label for="verification_document">Verification Document</label>

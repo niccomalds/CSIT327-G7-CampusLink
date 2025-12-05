@@ -18,8 +18,71 @@
 
 <body>
 
-<header>
-    <h2 style="padding: 15px 30px;">Organization Settings</h2>
+<header class="header">
+    <div class="logo">
+      <i class="fa-solid fa-graduation-cap"></i>
+      <span>CampusLink</span>
+    </div>
+
+    <nav>
+      <a href="{% url 'organization_dashboard' %}">Dashboard</a>
+      <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
+      <a href="{% url 'manage_postings' %}">Applicants</a>
+      <a href="{% url 'org_profile' %}">Org Profile</a>
+    </nav>
+    
+    <div class="search-profile">
+      <input type="text" class="top-search" placeholder="Search opportunities...">
+      
+      <!-- 🔔 NOTIFICATION BELL (CLEAN VERSION) -->
+<div class="notification-wrapper">
+    <div id="notifBell" class="notif-bell">
+        <i class="fa-solid fa-bell"></i>
+        {% if unread_count > 0 %}
+            <span class="notif-badge">{{ unread_count }}</span>
+        {% endif %}
+    </div>
+
+    <div id="notifDropdown" class="notif-dropdown">
+
+        <div class="notif-header">Notifications</div>
+
+        {% if notifications %}
+            {% for n in notifications %}
+                <div class="notif-item {% if not n.read %}notif-unread{% endif %}">
+                    <div class="notif-title">{{ n.title }}</div>
+                    <div class="notif-time">{{ n.timestamp|timesince }} ago</div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="notif-empty">
+                <i class="fa-regular fa-bell"></i>
+                <p>No notifications yet</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+      <!-- PROFILE DROPDOWN -->
+      <div class="profile-dropdown">
+          <img src="{% if user.profile.profile_picture %}
+                        {{ user.profile.profile_picture.url }}
+                   {% else %}
+                        /static/Myapp/default-avatar.png
+                   {% endif %}"
+               alt="Profile"
+               class="avatar"
+               id="profileAvatar">
+
+          <div class="dropdown-menu" id="orgDropdownMenu">
+              <div class="dropdown-header">Organization</div>
+              <a href="{% url 'org_profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
+              <a href="{% url 'manage_postings' %}"><i class="fa-solid fa-users"></i> Applicants</a>
+              <a href="{% url 'submit_verification' %}"><i class="fa-solid fa-shield-check"></i> Verify Organization</a>
+              <a href="{% url 'org_settings' %}" class="active"><i class="fa-solid fa-gear"></i> Settings</a>
+              <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
+          </div>
+      </div>
+    </div>
 </header>
 
 <div class="settings-container">
@@ -71,6 +134,42 @@
     <button class="save-btn">Save Changes</button>
 
 </div>
+
+<script>
+/* ============================
+   PROFILE DROPDOWN
+============================ */
+document.getElementById("profileAvatar").addEventListener("click", function () {
+    const menu = document.getElementById("orgDropdownMenu");
+    menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+});
+
+// Close dropdown when clicking outside
+document.addEventListener("click", function (event) {
+    if (!event.target.closest(".profile-dropdown")) {
+        const menu = document.getElementById("orgDropdownMenu");
+        if (menu) menu.style.display = "none";
+    }
+});
+
+/* ============================
+   NOTIFICATION DROPDOWN
+============================ */
+const notifBell = document.getElementById("notifBell");
+const notifDropdown = document.getElementById("notifDropdown");
+
+notifBell.addEventListener("click", function (event) {
+    event.stopPropagation();
+    notifDropdown.classList.toggle("show");
+});
+
+// Close dropdown when clicking outside
+document.addEventListener("click", function (event) {
+    if (!notifDropdown.contains(event.target) && !notifBell.contains(event.target)) {
+        notifDropdown.classList.remove("show");
+    }
+});
+</script>
 
 </body>
 </html>

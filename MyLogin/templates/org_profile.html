@@ -32,7 +32,7 @@
         <a href="{% url 'organization_dashboard' %}">Dashboard</a>
         <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
         <a href="{% url 'manage_postings' %}">Applicants</a>
-        <a href="{% url 'org_profile' %}" class="active">Profile</a>
+        <a href="{% url 'org_profile' %}" class="active">Org Profile</a>
     </nav>
 
     <!-- SEARCH + BELL + PROFILE -->
@@ -83,7 +83,6 @@
                 <div class="dropdown-header">Organization</div>
 
                 <a href="{% url 'org_profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
-                <a href="{% url 'submit_verification' %}"><i class="fa-solid fa-shield-check"></i> Verify Organization</a>
                 <a href="{% url 'org_settings' %}"><i class="fa-solid fa-gear"></i> Settings</a>
                 <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
             </div>
@@ -130,12 +129,19 @@
                     <i class="fa-solid fa-pen"></i>
                 </label>
             </div>
+            <div class="org-header-info">
+                <h2>{{ profile.org_name|default_if_none:'Organization Name' }} 
+                    {% if profile.is_verified_organization %}<span class="verified-badge">Verified</span>{% endif %}
+                </h2>
+            </div>
         </div>
 
         <div class="form-grid">
             <div class="form-group">
                 <label>Organization Name</label>
-                <input id="org_name" type="text" value="{{ profile.org_name|default_if_none:'' }}">
+                <div class="org-name-container">
+                    <input id="org_name" type="text" value="{{ profile.org_name|default_if_none:'' }}">
+                </div>
                 <span id="org_name-error" class="error-message"></span>
             </div>
 
@@ -244,7 +250,6 @@
     </div>
 
 
-
     <!-- SAVE BUTTON -->
     <button id="editSaveBtn" class="save-btn">Edit Profile</button>
 
@@ -265,11 +270,15 @@
 const avatar = document.getElementById('profileAvatar');
 const menu = document.getElementById('profileMenu');
 
-avatar.onclick = () => menu.parentElement.classList.toggle("show");
+avatar.onclick = (e) => {
+    e.stopPropagation();
+    menu.classList.toggle("show");
+};
 
+// Close dropdown when clicking outside
 window.addEventListener("click", (e) => {
     if (!avatar.contains(e.target) && !menu.contains(e.target)) {
-        menu.parentElement.classList.remove("show");
+        menu.classList.remove("show");
     }
 });
 
