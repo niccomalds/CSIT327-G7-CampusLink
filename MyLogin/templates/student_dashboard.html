@@ -11,28 +11,60 @@
 <body>
   <header class="header">
     <div class="logo">
-      <i class="fa-solid fa-graduation-cap"></i>
-      <span>CampusLink</span>
+        <i class="fa-solid fa-graduation-cap"></i>
+        <span>CampusLink</span>
     </div>
-    <nav>
-      <a href="#" class="{% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">Home</a>
-      <a href="/my-applications/" class="{% if request.resolver_match.url_name == 'my_applications' %}active{% endif %}">My Applications</a>
-      <a href="{% url 'profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">Profile</a>
-      <a href="#">Notifications</a>
-    </nav>
-    <div class="search-profile">
-      <input type="text" class="top-search" placeholder="Search opportunities...">
 
-      <!-- PROFILE DROPDOWN -->
-      <div class="profile-dropdown">
-    <img src="{% if user.profile.profile_picture %}
-                {{ user.profile.profile_picture.url }}
-            {% else %}
-                /static/Myapp/default-avatar.png
-            {% endif %}"
-         alt="Profile"
-         class="avatar"
-         id="profileAvatar">
+    <nav>
+        <a href="#" class="active">Home</a>
+        <a href="/my-applications/">My Applications</a>
+        <a href="{% url 'profile' %}">Profile</a>
+    </nav>
+
+    <div class="search-profile">
+        <input type="text" class="top-search" placeholder="Search opportunities...">
+
+        <!-- 🔔 NOTIFICATION BELL -->
+        <div class="notification-wrapper">
+            <div id="notifBell" class="notif-bell">
+                <i class="fa-solid fa-bell"></i>
+                {% if unread_count > 0 %}
+                <span class="notif-badge">{{ unread_count }}</span>
+                {% endif %}
+            </div>
+
+            <!-- 🔽 DROPDOWN -->
+            <div id="notifDropdown" class="notif-dropdown">
+                <div class="notif-header">
+                    Notifications
+                </div>
+
+                {% if notifications %}
+                    {% for n in notifications %}
+                        <div class="notif-item {% if not n.read %}notif-unread{% endif %}">
+                            <div class="notif-title">{{ n.title }}</div>
+                            <div class="notif-time">{{ n.timestamp|timesince }} ago</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="notif-empty">
+                        <i class="fa-regular fa-bell"></i>
+                        <p>No notifications yet</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- PROFILE DROPDOWN -->
+        <div class="profile-dropdown">
+            <img src="{% if user.profile.profile_picture %}
+                        {{ user.profile.profile_picture.url }}
+                    {% else %}
+                        /static/Myapp/default-avatar.png
+                    {% endif %}"
+                alt="Profile"
+                class="avatar"
+                id="profileAvatar">
 
     <div class="dropdown-menu" id="profileMenu">
         <div class="dropdown-header">Student</div>
@@ -43,7 +75,7 @@
 </div>
 
   </header>
-  <main class="dashboard-main">
+  <main>
     <div class="dashboard-title">
       <h1>Discover Your Next <span style="color: #00c6ff;">Opportunity</span></h1>
       <p>Explore internships, research positions, and part-time jobs tailored for your academic journey.</p>
@@ -164,6 +196,6 @@
       <p>Try adjusting your search terms or filters</p>
     </div>
   </main>
-  <script src="{% static 'Myapp/student_dashboard.js' %}?v=2.3"></script>
+  <script src="{% static 'Myapp/student_dashboard.js' %}?v=1.8"></script>
 </body>
 </html>

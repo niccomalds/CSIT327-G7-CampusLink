@@ -24,10 +24,45 @@
       <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
       <a href="{% url 'manage_postings' %}">Applicants</a>
       <a href="{% url 'org_profile' %}">Org Profile</a>
+      <a href="#" onclick="openVerificationModal(); return false;" class="verification-nav-btn">
+          <i class="fa-solid fa-shield-check"></i> Verify Account
+      </a>
     </nav>
 
     <div class="search-profile">
       <input type="text" class="top-search" placeholder="Search opportunities...">
+
+      <!-- 🔔 NOTIFICATION BELL (CLEAN VERSION) -->
+<div class="notification-wrapper">
+    <div id="notifBell" class="notif-bell">
+        <i class="fa-solid fa-bell"></i>
+        {% if unread_count > 0 %}
+            <span class="notif-badge">{{ unread_count }}</span>
+        {% endif %}
+    </div>
+
+    <div id="notifDropdown" class="notif-dropdown">
+
+        <div class="notif-header">Notifications</div>
+
+        {% if notifications %}
+            {% for n in notifications %}
+                <div class="notif-item {% if not n.read %}notif-unread{% endif %}">
+                    <div class="notif-title">{{ n.title }}</div>
+                    <div class="notif-time">{{ n.timestamp|timesince }} ago</div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="notif-empty">
+                <i class="fa-regular fa-bell"></i>
+                <p>No notifications yet</p>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+
+
 
       <!-- PROFILE DROPDOWN -->
       <div class="profile-dropdown" id="orgProfileDropdown">
@@ -38,12 +73,14 @@
                    {% endif %}"
                alt="Profile"
                class="avatar"
-               id="profileAvatar">  
+               id="profileAvatar">
 
           <div class="dropdown-menu" id="orgDropdownMenu">
               <div class="dropdown-header">Organization</div>
               <a href="{% url 'org_profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
-              <a href="{% url 'submit_verification' %}"><i class="fa-solid fa-shield-check"></i> Verify Organization</a>
+              <a href="#" onclick="openVerificationModal(); return false;">
+                  <i class="fa-solid fa-shield-check"></i> Verify Account
+              </a>
               <a href="{% url 'org_settings' %}"><i class="fa-solid fa-gear"></i> Settings</a>
               <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
           </div>
@@ -79,7 +116,7 @@
         </div>
 
         <div class="modal-actions">
-            <a href="{% url 'submit_verification' %}" class="verify-btn">
+            <a href="#" class="verify-btn" onclick="alert('Verification submission coming soon!'); return false;">
                 <i class="fa-solid fa-shield-check"></i> Start Verification
             </a>
             <button class="later-btn" onclick="closeVerificationModal()">
@@ -153,7 +190,10 @@
     </h2>
     <p>Manage your opportunities and connect with talented students.</p>
 </div>
-
+      <a href="{% url 'post_opportunity' %}" class="quick-action-card-btn">
+        <i class="fa-regular fa-clock"></i>
+    Post Opportunity
+      </a>
 
 
 
@@ -200,7 +240,7 @@
       </div>
 
       <div class="quick-actions-list">
-        <button class="quick-action-card-btn" onclick="window.location.href='{% url 'post_opportunity' %}'">
+        <button class="quick-action-card-btn">
           <i class="fa-regular fa-clock"></i>
           Post Opportunity
         </button>
@@ -222,25 +262,38 @@
       <div class="left-content">
         <h3><i class="fa-solid fa-briefcase"></i> Recent Postings</h3>
 
-        {% for posting in recent_postings %}
         <div class="posting posting-hover">
           <div class="posting-details">
-            <h4>{{ posting.title }} <span class="badge {% if posting.status == 'Active' %}active glow{% else %}closed{% endif %}">{{ posting.status }}</span></h4>
+            <h4>Software Engineering Intern <span class="badge active glow">Active</span></h4>
             <div class="posting-meta">
-              <span><i class="fa-regular fa-user"></i> {{ posting.applications.count }} applicants</span>
-              <span><i class="fa-regular fa-eye"></i> 0 views</span>
-              <span>{% if posting.deadline < today %}Ended{% else %}Ending {{ posting.deadline|date:"M d" }}{% endif %}</span>
+              <span><i class="fa-regular fa-user"></i> 24 applicants</span>
+              <span><i class="fa-regular fa-eye"></i> 156 views</span>
+              <span>Ended</span>
             </div>
           </div>
         </div>
-        {% empty %}
-        <div class="posting">
+
+        <div class="posting posting-hover">
           <div class="posting-details">
-            <h4>No postings yet</h4>
-            <p>Create your first opportunity to get started.</p>
+            <h4>Marketing Assistant <span class="badge active glow">Active</span></h4>
+            <div class="posting-meta">
+              <span><i class="fa-regular fa-user"></i> 12 applicants</span>
+              <span><i class="fa-regular fa-eye"></i> 89 views</span>
+              <span>Ended</span>
+            </div>
           </div>
         </div>
-        {% endfor %}
+
+        <div class="posting posting-hover">
+          <div class="posting-details">
+            <h4>Research Volunteer <span class="badge closed">Closed</span></h4>
+            <div class="posting-meta">
+              <span><i class="fa-regular fa-user"></i> 18 applicants</span>
+              <span><i class="fa-regular fa-eye"></i> 203 views</span>
+              <span>Ended</span>
+            </div>
+          </div>
+        </div>
 
         <button class="view-all"><i class="fa-solid fa-arrow-right"></i> View All Postings</button>
       </div>
@@ -326,7 +379,7 @@ function closeVerificationModal() {
         }, 300);
     }
 }
-
+  
 function openVerificationModal() {
     const overlay = document.getElementById('verificationOverlay');
     if (overlay) {
@@ -361,6 +414,25 @@ document.addEventListener('keydown', function(event) {
         closeVerificationModal();
     }
 });
+
+/* ============================
+   NOTIFICATION DROPDOWN
+============================ */
+const notifBell = document.getElementById("notifBell");
+const notifDropdown = document.getElementById("notifDropdown");
+
+notifBell.addEventListener("click", function (event) {
+    event.stopPropagation();
+    notifDropdown.classList.toggle("show");
+});
+
+// Close dropdown when clicking outside
+document.addEventListener("click", function (event) {
+    if (!notifDropdown.contains(event.target) && !notifBell.contains(event.target)) {
+        notifDropdown.classList.remove("show");
+    }
+});
+
 </script>
 
 </body>

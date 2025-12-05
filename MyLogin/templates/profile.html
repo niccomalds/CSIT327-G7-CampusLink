@@ -6,47 +6,74 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CampusLink – Student Profile</title>
   <link rel="stylesheet" href="{% static 'Myapp/profile.css' %}?v=1.3">
+  <!-- REQUIRED for Notification Bell + Dropdown + Header Styles -->
+  <link rel="stylesheet" href="{% static 'Myapp/applications_main.css' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  
 </head>
+
 <body>
-  <header class="header">
+  <!-- Header -->
+<!-- UPDATED HEADER (IDENTICAL TO MY APPLICATIONS PAGE) -->
+<header class="header">
     <div class="logo">
-      <i class="fa-solid fa-graduation-cap"></i>
-      <span>CampusLink</span>
+        <i class="fa-solid fa-graduation-cap"></i>
+        <span>CampusLink</span>
     </div>
+
     <nav>
-      <a href="#" class="{% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">Home</a>
-      <a href="/my-applications/" class="{% if request.resolver_match.url_name == 'my_applications' %}active{% endif %}">My Applications</a>
-      <a href="{% url 'profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">Profile</a>
-      <a href="#">Notifications</a>
+        <a href="{% url 'student_dashboard' %}">Home</a>
+        <a href="{% url 'my_applications' %}">My Applications</a>
+        <a href="{% url 'profile' %}" class="active">Profile</a>
     </nav>
+
     <div class="search-profile">
-      <input type="text" class="top-search" placeholder="Search opportunities...">
+        <input type="text" class="top-search" placeholder="Search...">
 
-      <!-- PROFILE DROPDOWN -->
-      <div class="profile-dropdown">
-    <img src="{% if user.profile.profile_picture %}
-                {{ user.profile.profile_picture.url }}
-            {% else %}
-                /static/Myapp/default-avatar.png
-            {% endif %}"
-         alt="Profile"
-         class="avatar"
-         id="profileAvatar">
+        <!-- 🔔 Notification Bell -->
+<div class="notification-wrapper">
+    <div id="notifBell" class="notif-bell">
+        <i class="fa-solid fa-bell"></i>
 
-        <div class="dropdown-menu" id="profileMenu">
-          <div class="dropdown-header">Student</div>
-          <a href="{% url 'profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
-          <a href="#"><i class="fa-solid fa-gear"></i> Settings</a>
-          <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
-        </div>
-      </div>
+        {% if unread_count > 0 %}
+        <span class="notif-badge">{{ unread_count }}</span>
+        {% endif %}
     </div>
-  </header>
+
+    <!-- 🔽 Notification Dropdown -->
+    <div id="notifDropdown" class="notif-dropdown">
+        <div class="notif-header">Notifications</div>
+
+        {% if notifications %}
+            {% for n in notifications %}
+            <div class="notif-item {% if not n.read %}notif-unread{% endif %}">
+                <div class="notif-title">{{ n.title }}</div>
+                <div class="notif-time">{{ n.timestamp|timesince }} ago</div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="notif-empty">
+            <i class="fa-regular fa-bell"></i>
+            <p>No notifications yet</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
 
 
+        <!-- PROFILE DROPDOWN -->
+        <div class="profile-dropdown">
+            <img src="{{ user.profile.profile_picture.url|default:'/static/Myapp/default-avatar.png' }}"
+                alt="Profile" class="avatar" id="profileAvatar">
 
+            <div class="dropdown-menu" id="profileMenu">
+                <div class="dropdown-header">Student</div>
+                <a href="{% url 'profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
+                <a href="{% url 'settings' %}"><i class="fa-solid fa-gear"></i> Settings</a>
+                <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
+            </div>
+        </div>
+    </div>
+</header>
 
  <!-- Profile Section -->
 <main class="profile-main">
@@ -223,133 +250,148 @@
     
   </main>
   <!-- ✅ Scripts -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-    // Edit / Save Profile
+ <script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    /* ============================
+       PROFILE EDIT / SAVE HANDLING
+       ============================ */
     const editBtn = document.getElementById("editBtn");
     const saveBtn = document.getElementById("saveBtn");
     const inputs = document.querySelectorAll(".profile-form input, .profile-form textarea");
     const skillInputWrap = document.getElementById("skillInputWrap");
     const portfolioBlock = document.getElementById("portfolioLinkEditBlock");
 
-   editBtn.addEventListener('click', () => {
-    // Enable all text inputs + textarea
-    inputs.forEach(i => i.disabled = false);
+    editBtn.addEventListener("click", () => {
+        inputs.forEach(i => i.disabled = false);
+        document.getElementById("profile_picture").disabled = false;
+        document.getElementById("profilePictureWrapper").style.display = "block";
+        
+        editBtn.style.display = "none";
+        saveBtn.style.display = "inline-block";
 
-    // Enable profile picture input
-    document.getElementById("profile_picture").disabled = false;
+        skillInputWrap.style.display = "flex";
+        portfolioBlock.style.display = "block";
+    });
 
-    // Show the hidden profile picture upload field
-    document.getElementById("profilePictureWrapper").style.display = "block";
-
-    // Toggle buttons
-    editBtn.style.display = "none";
-    saveBtn.style.display = "inline-block";
-
-    // Enable skills + portfolio
-    skillInputWrap.style.display = "flex";
-    portfolioBlock.style.display = "block";
-});
+    saveBtn.addEventListener("click", () => {
+        document.querySelector(".profile-form").submit();
+    });
 
 
-
-    // Skills
+    /* ============================
+       SKILLS MANAGEMENT
+       ============================ */
     const skillsList = document.getElementById("skillsList");
     const addSkillBtn = document.getElementById("addSkillBtn");
     const newSkill = document.getElementById("newSkill");
+
     addSkillBtn.addEventListener("click", () => {
-      const skill = newSkill.value.trim();
-      if (skill) {
-        const skillDiv = document.createElement("div");
-        skillDiv.classList.add("skill-item");
-        skillDiv.textContent = skill;
-        const removeBtn = document.createElement("span");
-        removeBtn.textContent = "×";
-        removeBtn.classList.add("remove-skill");
-        removeBtn.onclick = () => skillDiv.remove();
-        skillDiv.appendChild(removeBtn);
-        skillsList.appendChild(skillDiv);
-        newSkill.value = "";
-      }
+        const skill = newSkill.value.trim();
+        if (skill) {
+            const skillDiv = document.createElement("div");
+            skillDiv.classList.add("skill-item");
+            skillDiv.textContent = skill;
+
+            const removeBtn = document.createElement("span");
+            removeBtn.classList.add("remove-skill");
+            removeBtn.textContent = "×";
+            removeBtn.onclick = () => skillDiv.remove();
+
+            skillDiv.appendChild(removeBtn);
+            skillsList.appendChild(skillDiv);
+
+            newSkill.value = "";
+        }
     });
-    // Portfolio Links
+
+
+    /* ============================
+       PORTFOLIO LINKS HANDLING
+       ============================ */
     const addLinkBtn = document.getElementById("addLinkBtn");
     const portfolioName = document.getElementById("portfolioName");
     const portfolioURL = document.getElementById("portfolioURL");
     const linksListView = document.getElementById("linksListView");
     const portfolioLinksEdit = document.getElementById("portfolioLinksEdit");
 
-    // Create link without delete button for view mode
-    const createViewLink = (name, url) => {
-      const linkEl = document.createElement("div");
-      linkEl.classList.add("portfolio-link");
-      linkEl.innerHTML = `<a href="${url}" target="_blank">${name}</a>`;
-      return linkEl;
-    };
-
-    // Create link with delete button for edit mode
-    const createEditLink = (name, url) => {
-      const linkEl = document.createElement("div");
-      linkEl.classList.add("portfolio-link");
-      linkEl.innerHTML = `
-        <a href="${url}" target="_blank">${name}</a>
-        <button type="button" class="remove-link" style="margin-left: 8px; color: #dc2626; background: none; border: none; cursor: pointer; font-weight: bold;">×</button>
-      `;
-      linkEl.querySelector(".remove-link").addEventListener("click", () => {
-        linkEl.remove();
-      });
-      return linkEl;
-    };
-
     addLinkBtn.addEventListener("click", () => {
-      const name = portfolioName.value.trim();
-      const url = portfolioURL.value.trim();
-      if (name && url) {
-        // Add link without delete button to view section
-        const viewLink = createViewLink(name, url);
-        linksListView.appendChild(viewLink);
+        const name = portfolioName.value.trim();
+        const url = portfolioURL.value.trim();
 
-        // Add link with delete button to edit section
-        const editLink = createEditLink(name, url);
-        portfolioLinksEdit.appendChild(editLink);
+        if (name && url) {
+            // View mode
+            const viewLink = document.createElement("div");
+            viewLink.classList.add("portfolio-link");
+            viewLink.innerHTML = `<a href="${url}" target="_blank">${name}</a>`;
+            linksListView.appendChild(viewLink);
 
-        // Clear inputs
-        portfolioName.value = "";
-        portfolioURL.value = "";
-      }
-    })
-  
-document.getElementById("resumeBtnView").addEventListener("click", function () {
-    const box = document.getElementById("resumeUploadBox");
+            // Edit mode
+            const editLink = document.createElement("div");
+            editLink.classList.add("portfolio-link");
+            editLink.innerHTML = `
+                <a href="${url}" target="_blank">${name}</a>
+                <button type="button" class="remove-link" 
+                    style="margin-left:8px;color:#dc2626;background:none;border:none;font-weight:bold;cursor:pointer;">×
+                </button>
+            `;
+            editLink.querySelector(".remove-link").onclick = () => editLink.remove();
+            portfolioLinksEdit.appendChild(editLink);
 
-    // toggle
-    if (box.style.display === "none" || box.style.display === "") {
-        box.style.display = "block";   // show
-    } else {
-        box.style.display = "none";    // hide
-    }
-});
-
-saveBtn.addEventListener("click", () => {
-    document.querySelector(".profile-form").submit();
-});
-
-        // Profile dropdown
-        const avatar = document.getElementById('profileAvatar');
-        const menu = document.getElementById('profileMenu');
-        if (avatar && menu) {
-            avatar.addEventListener('click', () => { 
-                menu.parentElement.classList.toggle('show'); 
-            });
-            
-            window.addEventListener('click', (e) => {
-                if (!avatar.contains(e.target) && !menu.contains(e.target)) { 
-                    menu.parentElement.classList.remove('show'); 
-                }
-            });
+            portfolioName.value = "";
+            portfolioURL.value = "";
         }
     });
 
-  </script>
+
+    /* ============================
+       RESUME UPLOAD BOX TOGGLE
+       ============================ */
+    document.getElementById("resumeBtnView").addEventListener("click", () => {
+        const box = document.getElementById("resumeUploadBox");
+        box.style.display = (box.style.display === "block") ? "none" : "block";
+    });
+
+
+    /* ============================
+       PROFILE AVATAR DROPDOWN
+       ============================ */
+    const avatar = document.getElementById("profileAvatar");
+    const menu = document.getElementById("profileMenu");
+
+    avatar.addEventListener("click", (event) => {
+        event.stopPropagation();
+        menu.parentElement.classList.toggle("show");
+    });
+
+    document.addEventListener("click", (event) => {
+        if (!menu.contains(event.target) && !avatar.contains(event.target)) {
+            menu.parentElement.classList.remove("show");
+        }
+    });
+
+
+    /* ============================
+       🔔 NOTIFICATION DROPDOWN
+       ============================ */
+    const bell = document.getElementById("notifBell");
+    const dropdown = document.getElementById("notifDropdown");
+
+    // Toggle dropdown
+    bell.addEventListener("click", (event) => {
+        event.stopPropagation();
+        dropdown.classList.toggle("show");
+    });
+
+    // Close notification dropdown when clicking outside
+    document.addEventListener("click", (event) => {
+        if (!dropdown.contains(event.target) && !bell.contains(event.target)) {
+            dropdown.classList.remove("show");
+        }
+    });
+
+});
+</script>
+
 </body>
 </html>
