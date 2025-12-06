@@ -68,30 +68,62 @@ body {
 
 
 /* ============================================================
-   CARD COMPONENT
+   SINGLE CONTAINER LAYOUT - REPLACES INDIVIDUAL CARDS
 ============================================================ */
-.card {
+.org-profile-container .card,
+.org-profile-container > .card {
   background: #ffffff;
   border-radius: 16px;
   padding: 32px 36px !important;
-  margin-bottom: 28px;
+  margin-bottom: 0; /* Remove individual card margins */
   box-shadow: 0 6px 18px rgba(0,0,0,0.06);
   border: 1px solid #e5e7eb;
   transition: 0.15s ease;
 }
 
+/* Create one big container by removing individual card styling */
+.org-profile-container .card:not(:first-child) {
+  border-top: 1px solid #f0f0f0; /* Add subtle separator line */
+  border-radius: 0;
+  box-shadow: none;
+  padding-top: 32px !important; /* Add padding to separate sections */
+}
+
+.org-profile-container .card:first-child {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.org-profile-container .card:last-child {
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+.org-profile-container .card:only-child {
+  border-radius: 16px;
+}
+
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 26px rgba(0,0,0,0.08);
+  transform: none; /* Remove hover effect for unified container */
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06); /* Keep subtle shadow */
 }
 
 .card h2 {
-  font-size: 1.25rem;
+  font-size: 1.35rem; /* Slightly larger headings */
   font-weight: 700;
   color: #0ea5e9;
-  margin-bottom: 20px;
+  margin-bottom: 22px; /* Increased margin */
+  padding-bottom: 14px; /* Increased padding */
+  border-bottom: 1px solid #e5e7eb; /* Separator between sections */
+  text-align: left; /* Ensure headings are left-aligned */
 }
 
+/* Remove border and adjust padding for last card heading */
+.org-profile-container .card:last-child h2 {
+  border-bottom: none;
+  margin-bottom: 12px;
+  padding-bottom: 0;
+}
 
 /* ============================================================
    PROFILE PHOTO UPLOAD
@@ -100,7 +132,7 @@ body {
   position: relative;
   width: 130px;
   height: 130px;
-  margin: 0 auto 16px;
+  margin: 0 auto 20px; /* Increased margin */
 }
 
 .profile-photo {
@@ -138,14 +170,15 @@ body {
 
 
 /* ============================================================
-   FORM GRID
+   FORM GRID - IMPROVED CENTERING AND SPACING
 ============================================================ */
 .form-grid {
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
   column-gap: 32px !important;
-  row-gap: 28px !important;
-  margin-top: 20px !important;
+  row-gap: 32px !important; /* Increased row gap for better spacing */
+  margin-top: 24px !important;
+  margin-bottom: 24px !important; /* Increased bottom margin for better separation */
 }
 
 .form-group {
@@ -161,23 +194,37 @@ body {
   font-weight: 600;
   font-size: 0.92rem;
   color: #374151;
-  margin-bottom: 6px;
+  margin-bottom: 8px; /* Increased margin for better spacing */
+  text-align: left; /* Ensure labels are left-aligned */
 }
 
 .form-group input,
 .form-group textarea,
 .form-group select {
   width: 100%;
-  padding: 12px 14px;
+  padding: 14px 16px; /* Increased padding for better touch targets */
   background: #f9fafb;
   border: 1px solid #d1d5db;
-  border-radius: 10px;
+  border-radius: 12px; /* Slightly more rounded corners */
   font-size: 1rem;
-  transition: 0.15s;
+  transition: 0.2s; /* Slightly longer transition */
+  box-sizing: border-box; /* Ensure padding is included in width */
+  /* Add subtle inner shadow for depth */
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* CUSTOM SELECT STYLING - FIX ARROW POSITIONING */
+.form-group select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 14px center; /* Adjusted position */
+  background-size: 16px;
+  padding-right: 42px; /* Adjusted padding to prevent text overlap with arrow */
 }
 
 .form-group textarea {
-  min-height: 120px !important;
+  min-height: 130px !important; /* Slightly taller textareas */
 }
 
 .form-group input:focus,
@@ -185,10 +232,10 @@ body {
 .form-group select:focus {
   border-color: #00c6ff;
   background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(0,198,255,0.25);
+  box-shadow: 0 0 0 4px rgba(0,198,255,0.2); /* Softer focus ring */
   outline: none;
+  transform: translateY(-1px); /* Subtle lift on focus */
 }
-
 
 /* ============================================================
    ERROR STATE UI — Clean & Aligned
@@ -202,7 +249,7 @@ body {
 .error-message {
   color: #ef4444;
   font-size: 0.85rem;
-  margin-top: 4px;
+  margin-top: 6px; /* Increased margin */
   display: none;
   font-weight: 500;
 }
@@ -233,7 +280,7 @@ body {
 .save-btn {
   width: 100%;
   border: none;
-  padding: 15px;
+  padding: 16px; /* Increased padding */
   background: linear-gradient(135deg, #00c6ff, #0ea5e9);
   color: white;
   border-radius: 12px;
@@ -241,11 +288,15 @@ body {
   font-weight: 700;
   cursor: pointer;
   transition: 0.2s ease;
+  margin-top: 32px; /* Increased top margin for better separation */
+  margin-bottom: 32px; /* Add bottom margin */
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25); /* Add subtle shadow */
 }
 
 .save-btn:hover {
   opacity: 0.95;
-  transform: translateY(-1px);
+  transform: translateY(-2px); /* Slightly more pronounced hover effect */
+  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.3); /* Enhanced shadow on hover */
 }
 
 .save-btn.loading {

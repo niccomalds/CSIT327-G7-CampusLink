@@ -658,6 +658,16 @@ def save_org_profile(request):
     if contact_email and not valid_email(contact_email):
         errors["contact_email"] = "Invalid email format. Please enter a valid email address."
 
+    # Validate Philippine phone number format
+    contact_phone = request.POST.get("contact_phone", "").strip()
+    if contact_phone:
+        # Philippine phone number validation
+        # Accepts formats like: 09123456789, +639123456789, 639123456789
+        import re
+        philippine_phone_pattern = r'^(09|\+639|639)\d{9}$'
+        if not re.match(philippine_phone_pattern, contact_phone):
+            errors["contact_phone"] = "Please enter a valid Philippine mobile number (e.g., 09123456789 or +639123456789)"
+
     website = request.POST.get("website", "").strip()
     if website and not valid_url(website):
         errors["website"] = "Invalid website URL. Please enter a full URL (e.g., https://www.yourwebsite.com) or just your domain (e.g., yourwebsite.com)."

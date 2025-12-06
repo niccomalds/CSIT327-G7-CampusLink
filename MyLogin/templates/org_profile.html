@@ -306,6 +306,21 @@ async function saveProfile() {
     // Clear previous error messages
     clearErrors();
 
+    // Frontend validation for Philippine phone number
+    const phoneInput = document.getElementById("contact_phone");
+    const phoneValue = phoneInput.value.trim();
+    
+    // Philippine phone number validation
+    // Accepts formats like: 09123456789, +639123456789, 639123456789
+    const philippinePhoneRegex = /^(09|\+639|639)\d{9}$/;
+    
+    if (phoneValue && !philippinePhoneRegex.test(phoneValue)) {
+        displayErrors({
+            contact_phone: "Please enter a valid Philippine mobile number (e.g., 09123456789 or +639123456789)"
+        });
+        return;
+    }
+
     const saveBtn = document.getElementById("editSaveBtn");
     saveBtn.classList.add("loading");
 
