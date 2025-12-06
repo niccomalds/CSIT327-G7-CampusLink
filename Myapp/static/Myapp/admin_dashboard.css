@@ -49,6 +49,7 @@ body {
     border-radius: 0.75rem;
     margin-bottom: 1.5rem;
     transition: transform 0.2s, box-shadow 0.2s;
+    height: 100%;
 }
 
 .card:hover {
@@ -186,4 +187,60 @@ body {
     padding: 1.5rem;
     margin-bottom: 1.5rem;
     box-shadow: 0 0.25rem 0.5rem rgba(26, 35, 126, 0.2);
+}
+
+/* Ensure consistent card heights for the dashboard stats */
+.row .col-md-6 .card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.row .col-md-6 .card .card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Subtle enhancements to the original dashboard stats */
+.card-title {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.card-text {
+    font-size: 0.9rem;
+}
+
+.mb-0.text-primary {
+    font-weight: 700;
+    font-size: 1.8rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border: none;
+    border-radius: 20px;
+    padding: 0.375rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    opacity: 0.95;
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-sm {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
 }
