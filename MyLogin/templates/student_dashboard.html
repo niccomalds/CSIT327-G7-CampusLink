@@ -7,8 +7,13 @@
   <title>CampusLink – Student Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="{% static 'Myapp/student_dashboard.css' %}?v=3.5">
+  <!-- Include the error message component CSS -->
+  <link rel="stylesheet" href="{% static 'Myapp/error_message.css' %}">
 </head>
 <body>
+  <!-- Alert container for global error messages -->
+  <div class="alert-container"></div>
+  
   <header class="header">
     <div class="logo">
         <i class="fa-solid fa-graduation-cap"></i>
@@ -173,7 +178,7 @@
       <span class="opp-deadline"><i class="fa-solid fa-calendar"></i> Due: {{ posting.deadline|date:"M d, Y" }}</span>
       <span class="type-badge other">Other</span>
     </div>
-    <button class="apply-btn">Apply Now</button>
+    <button class="apply-btn" onclick="applyToOpportunity({{ posting.id }})">Apply Now</button>
   </div>
   {% endwith %}
   {% empty %}
@@ -196,6 +201,8 @@
     </div>
   </main>
   <script src="{% static 'Myapp/student_dashboard.js' %}?v=1.8"></script>
+  <!-- Include the error message component JavaScript -->
+  <script src="{% static 'Myapp/error_message.js' %}"></script>
   <script>
     /* ============================
        NOTIFICATION DROPDOWN
@@ -218,6 +225,28 @@
             });
         }
     });
+    
+    // Example function to demonstrate error message usage
+    function applyToOpportunity(opportunityId) {
+        // Simulate an AJAX request to apply for an opportunity
+        // In a real implementation, this would make an actual request
+        
+        // Show a loading message
+        const loadingMsg = showInfoMessage('Processing', 'Applying to opportunity...', false);
+        
+        // Simulate API call delay
+        setTimeout(function() {
+            // Dismiss the loading message
+            loadingMsg.querySelector('.alert-close').click();
+            
+            // Show success or error based on random chance (simulating real response)
+            if (Math.random() > 0.3) {
+                showSuccessMessage('Application Submitted', 'Your application has been successfully submitted!');
+            } else {
+                showErrorMessage('Application Failed', 'Unable to submit application. Please try again.');
+            }
+        }, 1500);
+    }
   </script>
 </body>
 </html>
