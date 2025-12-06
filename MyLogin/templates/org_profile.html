@@ -32,7 +32,7 @@
         <a href="{% url 'organization_dashboard' %}">Dashboard</a>
         <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
         <a href="{% url 'manage_postings' %}">Applicants</a>
-        <a href="{% url 'org_profile' %}" class="active">Org Profile</a>
+        <a href="{% url 'org_profile' %}" class="active">Profile</a>
     </nav>
 
     <!-- SEARCH + BELL + PROFILE -->
@@ -83,7 +83,6 @@
                 <div class="dropdown-header">Organization</div>
 
                 <a href="{% url 'org_profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
-                <a href="{% url 'org_settings' %}"><i class="fa-solid fa-gear"></i> Settings</a>
                 <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
             </div>
         </div>
