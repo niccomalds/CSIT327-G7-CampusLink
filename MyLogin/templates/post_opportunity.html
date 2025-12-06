@@ -33,7 +33,7 @@
       <a href="{% url 'organization_dashboard' %}">Dashboard</a>
       <a href="{% url 'post_opportunity' %}" class="active">Post Opportunity</a>
       <a href="{% url 'manage_postings' %}">Applicants</a>
-      <a href="{% url 'org_profile' %}">Org Profile</a>
+      <a href="{% url 'org_profile' %}">Profile</a>
 
     </nav>
 
@@ -86,10 +86,6 @@
               <div class="dropdown-header">Organization</div>
               <a href="{% url 'org_profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
               <a href="{% url 'manage_postings' %}"><i class="fa-solid fa-users"></i> Applicants</a>
-              <a href="{% url 'submit_verification' %}">
-                <i class="fa-solid fa-shield-check"></i> Verify Organization
-              </a>
-              <a href="{% url 'org_settings' %}"><i class="fa-solid fa-gear"></i> Settings</a>
               <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
           </div>
       </div>
