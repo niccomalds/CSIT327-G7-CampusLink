@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, login as auth_login
 from django.contrib import messages
 from django.urls import reverse
@@ -12,7 +12,8 @@ from Myapp.models import Posting
 from .models import Profile, Notification
 from Myapp.utils import can_user_apply
 from django.contrib.admin.views.decorators import staff_member_required
-from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.http import require_POST
+
 
 # --- Session timeout (10 minutes AFK limit) ---
 SESSION_TIMEOUT = 600  # seconds
@@ -185,20 +186,43 @@ def student_dashboard(request):
             'posting': posting,
             'tags_list': tags_list,
         })
+
+    # 🔢 DASHBOARD STATS
+    today = timezone.now().date()
+
+    # Active opportunities = approved + verified orgs + Active status + deadline in future
+    active_opportunities_count = postings.filter(
+        status='Active',
+        deadline__gte=today
+    ).count()
+
+    # Students connected = number of student profiles
+    students_connected_count = Profile.objects.filter(role='Student').count()
     
-    # Get unread notification count for the user
-    unread_count = Notification.objects.filter(recipient=request.user, read=False).count()
+    # Get unread notification count for the user (ignore archived)
+    unread_count = Notification.objects.filter(
+        recipient=request.user,
+        read=False,
+        is_archived=False
+    ).count()
     
     # Get recent notifications for the dropdown (limit to 5 most recent)
-    recent_notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')[:5]
+    recent_notifications = Notification.objects.filter(
+        recipient=request.user
+    ).order_by('-timestamp')[:5]
     
     context = {
         'postings_list': postings_list,
         'unread_count': unread_count,
         'notifications': recent_notifications,
+
+        'active_opportunities_count': active_opportunities_count,
+        'students_connected_count': students_connected_count,
     }
     
     return render(request, 'student_dashboard.html', context)
+
+
 
 
 @login_required
@@ -238,8 +262,12 @@ def organization_dashboard(request):
     if profile.is_verified_organization() and not request.session.get('verified_modal_shown', False):
         request.session['verified_modal_shown'] = True
     
-    # Get unread notification count for the user
-    unread_count = Notification.objects.filter(recipient=request.user, read=False).count()
+    # Get unread notification count for the user (ignore archived)
+    unread_count = Notification.objects.filter(
+        recipient=request.user,
+        read=False,
+        is_archived=False
+    ).count()
     
     # Get recent notifications for the dropdown (limit to 5 most recent)
     recent_notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')[:5]
@@ -279,7 +307,6 @@ def admin_dashboard(request):
         verification_status='verified'
     ).select_related('user').order_by('-verified_at')
     
-    # Sample data for the dashboard
     from datetime import date
     context = {
         'total_users': 1248,
@@ -378,8 +405,12 @@ def reject_posting(request, posting_id):
 # --- Profile ---
 @login_required
 def profile(request):
-    # Get unread notification count for the user
-    unread_count = Notification.objects.filter(recipient=request.user, read=False).count()
+    # Get unread notification count for the user (ignore archived)
+    unread_count = Notification.objects.filter(
+        recipient=request.user,
+        read=False,
+        is_archived=False
+    ).count()
     
     # Get recent notifications for the dropdown (limit to 5 most recent)
     recent_notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')[:5]
@@ -403,7 +434,6 @@ def update_profile(request):
             request.user.save()
         
         profile.full_name = request.POST.get('full_name', profile.full_name)
-        # For students, we're using the user's email, not profile.contact_email
         profile.phone = request.POST.get('phone', profile.phone)
         profile.academic_year = request.POST.get('academic_year', profile.academic_year)
         profile.major = request.POST.get('major', profile.major)
@@ -434,8 +464,12 @@ def manage_postings(request):
         messages.error(request, "Access denied.")
         return redirect('home')
 
-    # Get unread notification count for the user
-    unread_count = Notification.objects.filter(recipient=request.user, read=False).count()
+    # Get unread notification count for the user (ignore archived)
+    unread_count = Notification.objects.filter(
+        recipient=request.user,
+        read=False,
+        is_archived=False
+    ).count()
     
     # Get recent notifications for the dropdown (limit to 5 most recent)
     recent_notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')[:5]
@@ -495,11 +529,14 @@ def delete_posting(request, post_id):
 @login_required
 @role_required(allowed_roles=['Student'])
 def my_applications(request):
-    # Currently empty, dynamic data can be loaded later
     applications = []
     
-    # Get unread notification count for the user
-    unread_count = Notification.objects.filter(recipient=request.user, read=False).count()
+    # Get unread notification count for the user (ignore archived)
+    unread_count = Notification.objects.filter(
+        recipient=request.user,
+        read=False,
+        is_archived=False
+    ).count()
     
     # Get recent notifications for the dropdown (limit to 5 most recent)
     recent_notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')[:5]
@@ -518,7 +555,6 @@ def applicants_list(request):
 
 
 # --- Organization Profile & Settings ---
-
 @login_required
 def org_settings(request):
     return render(request, 'org_settings.html')
@@ -528,20 +564,6 @@ def org_settings(request):
 @login_required
 def settings_view(request):
     return render(request, 'settings.html')
-
-
-@login_required
-def notifications(request):
-    # Get all notifications for the user, ordered by timestamp (newest first)
-    user_notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')
-    
-    # Mark all notifications as read when viewing the notifications page
-    user_notifications.filter(read=False).update(read=True)
-    
-    context = {
-        'notifications': user_notifications
-    }
-    return render(request, 'notifications.html', context)
 
 
 # --- Application Status Check (JSON) ---
@@ -564,15 +586,14 @@ def check_application_status(request, posting_id):
         'application_id': application.id if application else None
     })
 
-# === ORGANIZATION VERIFICATION SUBMISSION ===
 
+# === ORGANIZATION VERIFICATION SUBMISSION ===
 @login_required
 @role_required(allowed_roles=['Organization'])
 def submit_verification(request):
     """Handle organization verification submission"""
     profile = request.user.profile
     
-    # Check if already verified or pending
     if profile.verification_status == 'verified':
         messages.info(request, "Your organization is already verified.")
         return redirect('organization_dashboard')
@@ -582,27 +603,22 @@ def submit_verification(request):
         return redirect('organization_dashboard')
     
     if request.method == 'POST':
-        # Handle document upload
         verification_document = None
         if 'verification_document' in request.FILES:
             verification_document = request.FILES['verification_document']
             
-            # Validate file type
             allowed_types = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg']
             if verification_document.content_type not in allowed_types:
                 messages.error(request, "Invalid file type. Please upload PDF, PNG, or JPG files only.")
                 return render(request, 'org_verification_form.html', {'profile': profile})
             
-            # Validate file size (max 5MB)
             if verification_document.size > 5 * 1024 * 1024:
                 messages.error(request, "File too large. Maximum file size is 5MB.")
                 return render(request, 'org_verification_form.html', {'profile': profile})
         
-        # Update profile with verification information
         if verification_document:
             profile.verification_documents = verification_document
         
-        # Set status to pending and save submission time
         profile.verification_status = 'pending'
         profile.verification_submitted_at = timezone.now()
         profile.save()
@@ -610,18 +626,15 @@ def submit_verification(request):
         messages.success(request, "Verification request submitted successfully! Our team will review your request within 1-2 business days.")
         return redirect('organization_dashboard')
     
-    # GET request - show verification form
     return render(request, 'org_verification_form.html', {'profile': profile})
 
 
 @login_required
 @role_required(allowed_roles=['Organization'])
 def post_opportunity(request):
-    # Check if organization is verified
     profile = request.user.profile
     is_verified = profile.is_verified_organization()
     
-    # If not verified, redirect to verification page
     if not is_verified:
         messages.error(request, "Only verified organizations can post opportunities. Please verify your organization first.")
         return redirect('submit_verification')
@@ -631,11 +644,9 @@ def post_opportunity(request):
         description = request.POST.get('description')
         deadline_str = request.POST.get('deadline')
 
-        # ⭐ TAGS
         selected_tags = request.POST.getlist("tags")
         tags_str = ",".join(selected_tags)
 
-        # --- VALIDATION ---
         if not (title and description and deadline_str):
             messages.error(request, "Please fill in all required fields.")
             return redirect('post_opportunity')
@@ -650,8 +661,6 @@ def post_opportunity(request):
             messages.error(request, "Deadline must be in the future.")
             return redirect('post_opportunity')
 
-        # --- CREATE POSTING ---
-        # ALL postings require admin approval, regardless of organization verification status
         approval_status = 'pending'
         
         posting = Posting.objects.create(
@@ -667,10 +676,13 @@ def post_opportunity(request):
         messages.success(request, success_message)
         return redirect('organization_dashboard')
 
-    # Get unread notification count for the user
-    unread_count = Notification.objects.filter(recipient=request.user, read=False).count()
+    # Get unread notification count for the user (ignore archived)
+    unread_count = Notification.objects.filter(
+        recipient=request.user,
+        read=False,
+        is_archived=False
+    ).count()
     
-    # Get recent notifications for the dropdown (limit to 5 most recent)
     recent_notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')[:5]
 
     return render(request, 'post_opportunity.html', {
@@ -682,12 +694,15 @@ def post_opportunity(request):
 @login_required
 def org_profile(request):
     """Load the single-page organization profile UI."""
-    profile = request.user.profile  # always exists
+    profile = request.user.profile  
     
-    # Get unread notification count for the user
-    unread_count = Notification.objects.filter(recipient=request.user, read=False).count()
+    # Get unread notification count for the user (ignore archived)
+    unread_count = Notification.objects.filter(
+        recipient=request.user,
+        read=False,
+        is_archived=False
+    ).count()
     
-    # Get recent notifications for the dropdown (limit to 5 most recent)
     recent_notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')[:5]
 
     context = {
@@ -702,26 +717,19 @@ def org_profile(request):
 @login_required
 def save_org_profile(request):
     """Optimized AJAX endpoint for updating the organization profile securely."""
-
     if request.method != "POST":
         return JsonResponse({"success": False, "error": "Invalid request method"}, status=405)
 
-    print("Received POST data:", request.POST)  # Debug print
-    print("Received FILES:", request.FILES)  # Debug print
+    print("Received POST data:", request.POST)
+    print("Received FILES:", request.FILES)
 
     profile = request.user.profile
     errors = {}
 
-    # Simple helper
     def get_clean(field):
         return request.POST.get(field, "").strip()
 
-    # ---------------------------
-    # VALIDATION HELPERS
-    # ---------------------------
     import re
-    # More flexible URL regex that accepts various formats including social media usernames
-    # Accepts: full URLs, domain names, and social media usernames
     url_regex = re.compile(r'^(https?://)?([a-zA-Z0-9.-]+\.[a-zA-Z]{2,}.*|[a-zA-Z0-9._-]+|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$')
     email_regex = re.compile(r"[^@]+@[^@]+\.[^@]+")
 
@@ -731,9 +739,6 @@ def save_org_profile(request):
     def valid_email(value):
         return value == "" or email_regex.match(value)
 
-    # ---------------------------
-    # CLEAN INPUTS
-    # ---------------------------
     profile.org_name = get_clean("org_name") or profile.org_name
     profile.description = get_clean("description") or profile.description
     profile.mission = get_clean("mission") or profile.mission
@@ -750,10 +755,6 @@ def save_org_profile(request):
 
     profile.is_public = (request.POST.get("is_public") == "True")
 
-    # ---------------------------
-    # VALIDATION CHECKS
-    # ---------------------------
-    # Check submitted values, not final values
     if not request.POST.get("org_name", "").strip():
         errors["org_name"] = "Organization name is required."
 
@@ -761,12 +762,8 @@ def save_org_profile(request):
     if contact_email and not valid_email(contact_email):
         errors["contact_email"] = "Invalid email format. Please enter a valid email address."
 
-    # Validate Philippine phone number format
     contact_phone = request.POST.get("contact_phone", "").strip()
     if contact_phone:
-        # Philippine phone number validation
-        # Accepts formats like: 09123456789, +639123456789, 639123456789
-        import re
         philippine_phone_pattern = r'^(09|\+639|639)\d{9}$'
         if not re.match(philippine_phone_pattern, contact_phone):
             errors["contact_phone"] = "Please enter a valid Philippine mobile number (e.g., 09123456789 or +639123456789)"
@@ -775,7 +772,6 @@ def save_org_profile(request):
     if website and not valid_url(website):
         errors["website"] = "Invalid website URL. Please enter a full URL (e.g., https://www.yourwebsite.com) or just your domain (e.g., yourwebsite.com)."
 
-    # Validate social links - check submitted values
     social_links = {
         "facebook": request.POST.get("social_facebook", "").strip(),
         "instagram": request.POST.get("social_instagram", "").strip(),
@@ -785,34 +781,24 @@ def save_org_profile(request):
         if val and not valid_url(val):
             errors[f"social_{key}"] = f"Invalid {key.capitalize()} URL. Please enter a valid URL (e.g., https://facebook.com/yourpage) or just your username (e.g., yourpage)."
 
-    # ---------------------------
-    # LOGO UPLOAD (optional)
-    # ---------------------------
     if "org_logo" in request.FILES:
         logo = request.FILES["org_logo"]
 
-        # Allow only safe image types
         allowed_types = ["image/png", "image/jpeg", "image/jpg", "image/webp"]
         if logo.content_type not in allowed_types:
             errors["org_logo"] = "Invalid file type. Please upload PNG, JPG, or WebP."
 
-        # Max size 3MB
         if logo.size > 3 * 1024 * 1024:
             errors["org_logo"] = "File too large. Max file size is 3MB."
 
         if "org_logo" not in errors:
             profile.org_logo = logo
 
-    # If validation errors → return safely
     if errors:
-        print("Validation errors:", errors)  # Debug print
+        print("Validation errors:", errors)
         return JsonResponse({"success": False, "errors": errors}, status=400)
 
-    # ---------------------------
-    # SAVE (atomic)
-    # ---------------------------
     try:
-        # If org_logo was uploaded, also update profile_picture for navbar consistency
         if "org_logo" in request.FILES:
             profile.profile_picture = profile.org_logo
         
@@ -832,7 +818,6 @@ def save_org_profile(request):
 
 
 # === ADMIN ORGANIZATION VERIFICATION ===
-
 @login_required
 @role_required(allowed_roles=['Admin'])
 def admin_verification_dashboard(request):
@@ -856,7 +841,6 @@ def approve_organization(request, profile_id):
         try:
             profile = Profile.objects.select_related('user').get(id=profile_id, verification_status='pending')
             
-            # Update verification status
             profile.verification_status = 'verified'
             profile.verified_at = timezone.now()
             profile.save()
@@ -879,7 +863,6 @@ def reject_organization(request, profile_id):
             profile = Profile.objects.select_related('user').get(id=profile_id, verification_status='pending')
             rejection_reason = request.POST.get('rejection_reason', '')
             
-            # Update verification status
             profile.verification_status = 'rejected'
             profile.verification_reason = rejection_reason
             profile.save()
@@ -891,3 +874,222 @@ def reject_organization(request, profile_id):
         return redirect('admin_verification_dashboard')
     
     return redirect('admin_verification_dashboard')
+
+
+# --- Notifications (Tabbed: All / Archive / Favorite) ---
+@login_required
+def notifications(request):
+    tab = request.GET.get('tab', 'all')
+
+    # Mark all non-archived notifications as read when opening the page
+    Notification.objects.filter(
+        recipient=request.user,
+        read=False,
+        is_archived=False
+    ).update(read=True)
+
+    base_qs = Notification.objects.filter(recipient=request.user)
+
+    # Filter which list to show
+    if tab == 'favorite':
+        notifications_qs = base_qs.filter(is_favorite=True, is_archived=False)
+    elif tab == 'archive':
+        notifications_qs = base_qs.filter(is_archived=True)
+    else:  # 'all'
+        notifications_qs = base_qs.filter(is_archived=False)
+
+    notifications_qs = notifications_qs.order_by('-timestamp')
+
+    # ✅ Counts for badges
+    unread_count = base_qs.filter(read=False, is_archived=False).count()
+    favorite_count = base_qs.filter(is_favorite=True, is_archived=False).count()
+    archive_count = base_qs.filter(is_archived=True).count()
+
+    context = {
+        'notifications': notifications_qs,
+        'unread_count': unread_count,
+        'favorite_count': favorite_count,
+        'archive_count': archive_count,
+        'active_tab': tab,
+    }
+    return render(request, 'notifications.html', context)
+
+
+
+
+
+@login_required
+@require_POST
+def notification_toggle_favorite(request, pk):
+    notif = get_object_or_404(Notification, pk=pk, recipient=request.user)
+    notif.is_favorite = not notif.is_favorite  # toggle favorite on/off
+    notif.save()
+    return redirect(request.META.get('HTTP_REFERER', 'notifications'))
+
+
+
+@login_required
+@require_POST
+def notification_archive(request, pk):
+    notif = get_object_or_404(Notification, pk=pk, recipient=request.user)
+    notif.is_archived = True
+    notif.read = True
+    notif.save()
+    return redirect(request.META.get('HTTP_REFERER', 'notifications'))
+
+
+@login_required
+@require_POST
+def notification_delete(request, pk):
+    notif = get_object_or_404(Notification, pk=pk, recipient=request.user)
+    notif.delete()
+    return redirect(request.META.get('HTTP_REFERER', 'notifications'))
+
+
+@login_required
+@require_POST
+def notification_mark_all_read(request):
+    Notification.objects.filter(
+        recipient=request.user,
+        read=False,
+        is_archived=False
+    ).update(read=True)
+    return redirect(request.META.get('HTTP_REFERER', 'notifications'))
+
+@login_required
+def org_profile(request):
+    """Load the single-page organization profile UI."""
+    profile = request.user.profile  # should always exist for logged-in org
+
+    # Unread notification count (ignoring archived)
+    unread_count = Notification.objects.filter(
+        recipient=request.user,
+        read=False,
+        is_archived=False
+    ).count()
+
+    # Recent notifications for dropdown
+    recent_notifications = Notification.objects.filter(
+        recipient=request.user
+    ).order_by('-timestamp')[:5]
+
+    context = {
+        "user": request.user,
+        "profile": profile,
+        "unread_count": unread_count,
+        "notifications": recent_notifications,
+    }
+    return render(request, "org_profile.html", context)
+
+
+@login_required
+def save_org_profile(request):
+    """AJAX endpoint for updating the organization profile."""
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "Invalid request method"}, status=405)
+
+    profile = request.user.profile
+    errors = {}
+
+    def get_clean(field):
+        return request.POST.get(field, "").strip()
+
+    # --- Validation helpers ---
+    import re
+    url_regex = re.compile(r'^(https?://)?([a-zA-Z0-9.-]+\.[a-zA-Z]{2,}.*|[a-zA-Z0-9._-]+|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$')
+    email_regex = re.compile(r"[^@]+@[^@]+\.[^@]+")
+
+    def valid_url(value):
+        return value == "" or url_regex.match(value)
+
+    def valid_email(value):
+        return value == "" or email_regex.match(value)
+
+    # --- Update fields (use existing value if empty) ---
+    profile.org_name = get_clean("org_name") or profile.org_name
+    profile.description = get_clean("description") or profile.description
+    profile.mission = get_clean("mission") or profile.mission
+    profile.department = get_clean("department") or profile.department
+    profile.website = get_clean("website") or profile.website
+    profile.address = get_clean("address") or profile.address
+
+    profile.contact_email = get_clean("contact_email") or profile.contact_email
+    profile.contact_phone = get_clean("contact_phone") or profile.contact_phone
+
+    profile.social_facebook = get_clean("social_facebook") or profile.social_facebook
+    profile.social_instagram = get_clean("social_instagram") or profile.social_instagram
+    profile.social_linkedin = get_clean("social_linkedin") or profile.social_linkedin
+
+    profile.is_public = (request.POST.get("is_public") == "True")
+
+    # --- Validation checks ---
+    if not request.POST.get("org_name", "").strip():
+        errors["org_name"] = "Organization name is required."
+
+    contact_email = request.POST.get("contact_email", "").strip()
+    if contact_email and not valid_email(contact_email):
+        errors["contact_email"] = "Invalid email format. Please enter a valid email address."
+
+    contact_phone = request.POST.get("contact_phone", "").strip()
+    if contact_phone:
+        philippine_phone_pattern = r'^(09|\+639|639)\d{9}$'
+        if not re.match(philippine_phone_pattern, contact_phone):
+            errors["contact_phone"] = (
+                "Please enter a valid Philippine mobile number "
+                "(e.g., 09123456789 or +639123456789)"
+            )
+
+    website = request.POST.get("website", "").strip()
+    if website and not valid_url(website):
+        errors["website"] = (
+            "Invalid website URL. Please enter a full URL "
+            "(e.g., https://www.yourwebsite.com) or just your domain."
+        )
+
+    social_links = {
+        "facebook": request.POST.get("social_facebook", "").strip(),
+        "instagram": request.POST.get("social_instagram", "").strip(),
+        "linkedin": request.POST.get("social_linkedin", "").strip(),
+    }
+    for key, val in social_links.items():
+        if val and not valid_url(val):
+            errors[f"social_{key}"] = (
+                f"Invalid {key.capitalize()} URL. Please enter a valid URL "
+                f"(e.g., https://{key}.com/yourpage) or just your username."
+            )
+
+    # --- Logo upload (optional) ---
+    if "org_logo" in request.FILES:
+        logo = request.FILES["org_logo"]
+
+        allowed_types = ["image/png", "image/jpeg", "image/jpg", "image/webp"]
+        if logo.content_type not in allowed_types:
+            errors["org_logo"] = "Invalid file type. Please upload PNG, JPG, or WebP."
+
+        if logo.size > 3 * 1024 * 1024:
+            errors["org_logo"] = "File too large. Max file size is 3MB."
+
+        if "org_logo" not in errors:
+            profile.org_logo = logo
+
+    if errors:
+        return JsonResponse({"success": False, "errors": errors}, status=400)
+
+    # --- Save ---
+    try:
+        if "org_logo" in request.FILES:
+            profile.profile_picture = profile.org_logo
+
+        profile.save()
+        return JsonResponse({
+            "success": True,
+            "message": "Profile updated successfully!",
+            "updated": {
+                "org_name": profile.org_name,
+                "logo_url": profile.org_logo.url if profile.org_logo else None,
+                "profile_picture_url": profile.profile_picture.url if profile.profile_picture else None,
+                "is_public": profile.is_public,
+            }
+        })
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)

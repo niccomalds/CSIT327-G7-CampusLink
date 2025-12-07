@@ -37,6 +37,28 @@ urlpatterns = [
     path('settings/', views.settings_view, name='settings'),
     path('notifications/', views.notifications, name='notifications'),
 
+    # 🔔 Notification actions
+    path(
+        'notifications/<int:pk>/favorite/',
+        views.notification_toggle_favorite,
+        name='notification_toggle_favorite'
+    ),
+    path(
+        'notifications/<int:pk>/archive/',
+        views.notification_archive,
+        name='notification_archive'
+    ),
+    path(
+        'notifications/<int:pk>/delete/',
+        views.notification_delete,
+        name='notification_delete'
+    ),
+    path(
+        'notifications/mark-all-read/',
+        views.notification_mark_all_read,
+        name='notification_mark_all_read'
+    ),
+
     # === ORGANIZATION VERIFICATION SUBMISSION ===
     path('organization/verify/', views.submit_verification, name='submit_verification'),
 
@@ -54,5 +76,4 @@ urlpatterns = [
     path('admin/verification/<int:profile_id>/reject/', views.reject_organization, name='reject_organization'),
 
     path("organization/settings/", views.org_settings, name="org_settings"),
-
 ]

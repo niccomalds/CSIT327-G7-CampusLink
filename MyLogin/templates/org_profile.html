@@ -7,6 +7,7 @@
 
     <!-- Dashboard Header Styles -->
     <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'Myapp/main.css' %}">
     
     <!-- New Profile Page Styles -->
     <link rel="stylesheet" href="{% static 'Myapp/org_profile.css' %}?v=1.0">
@@ -37,37 +38,18 @@
 
     <!-- SEARCH + BELL + PROFILE -->
     <div class="search-profile">
-        <input type="text" class="top-search" placeholder="Search opportunities...">
+        
 
-        <!-- 🔔 NOTIFICATION BELL -->
-        <div class="notification-wrapper">
-            <div id="notifBell" class="notif-bell">
-                <i class="fa-solid fa-bell"></i>
-                {% if unread_count > 0 %}
-                    <span class="notif-badge">{{ unread_count }}</span>
-                {% endif %}
-            </div>
+        <!-- 🔔 NOTIFICATION BELL — SIMPLE VERSION (Same as Org Dashboard) -->
+<div class="notification-wrapper">
+    <a href="{% url 'notifications' %}" id="notifBell" class="notif-bell">
+        <i class="fa-solid fa-bell"></i>
+        {% if unread_count > 0 %}
+            <span class="notif-badge">{{ unread_count }}</span>
+        {% endif %}
+    </a>
+</div>
 
-            <!-- 🔽 DROP DOWN EXACTLY SAME AS STUDENT DASHBOARD -->
-            <div id="notifDropdown" class="notif-dropdown">
-                
-                <div class="notif-header">Notifications</div>
-
-                {% if notifications %}
-                    {% for n in notifications %}
-                        <div class="notif-item {% if not n.read %}notif-unread{% endif %}">
-                            <div class="notif-title">{{ n.title }}</div>
-                            <div class="notif-time">{{ n.timestamp|timesince }} ago</div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="notif-empty">
-                        <i class="fa-regular fa-bell"></i>
-                        <p>No notifications yet</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
 
         <!-- 👤 PROFILE DROPDOWN -->
         <div class="profile-dropdown">
@@ -512,23 +494,14 @@ function getCookie(name) {
 }
 
 
-/* =====================================================
-   🔔 NOTIFICATION DROPDOWN — FINAL WORKING VERSION
+//* =====================================================
+   🔔 NOTIFICATION — DIRECT REDIRECT (Same as Org Dashboard)
 ===================================================== */
 const notifBell = document.getElementById("notifBell");
-const notifDropdown = document.getElementById("notifDropdown");
 
-notifBell.addEventListener("click", function (event) {
-    event.stopPropagation();
-    notifDropdown.classList.toggle("show");
+notifBell.addEventListener("click", function () {
+    window.location.href = "{% url 'notifications' %}";
 });
-
-document.addEventListener("click", function (event) {
-    if (!notifDropdown.contains(event.target) && !notifBell.contains(event.target)) {
-        notifDropdown.classList.remove("show");
-    }
-});
-
 
 </script>
 

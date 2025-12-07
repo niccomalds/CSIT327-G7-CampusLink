@@ -5,264 +5,249 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CampusLink – Notifications</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="{% static 'Myapp/student_dashboard.css' %}?v=3.5">
-  <style>
-    /* Additional styles for the notifications page */
-    .notifications-container {
-      max-width: 800px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-    }
-    
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid #eee;
-    }
-    
-    .page-header h1 {
-      margin: 0;
-      color: #333;
-    }
-    
-    .notification-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    
-    .notification-item {
-      background: white;
-      border-radius: 8px;
-      padding: 1.5rem;
-      margin-bottom: 1rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      border-left: 4px solid #00c6ff;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    
-    .notification-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    }
-    
-    .notification-item.unread {
-      border-left-color: #ff6b6b;
-      background-color: #f8f9fa;
-    }
-    
-    .notification-title {
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: #333;
-    }
-    
-    .notification-message {
-      color: #666;
-      margin-bottom: 1rem;
-      line-height: 1.5;
-    }
-    
-    .notification-meta {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.9rem;
-      color: #999;
-    }
-    
-    .notification-type {
-      background: #e9ecef;
-      padding: 0.25rem 0.5rem;
-      border-radius: 4px;
-      font-size: 0.8rem;
-    }
-    
-    .notification-type.posting_approved {
-      background: #d4edda;
-      color: #155724;
-    }
-    
-    .notification-type.posting_rejected {
-      background: #f8d7da;
-      color: #721c24;
-    }
-    
-    .notification-type.verification_approved {
-      background: #d1ecf1;
-      color: #0c5460;
-    }
-    
-    .notification-type.verification_rejected {
-      background: #fff3cd;
-      color: #856404;
-    }
-    
-    .empty-state {
-      text-align: center;
-      padding: 3rem;
-      color: #666;
-    }
-    
-    .empty-state i {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-      color: #ccc;
-    }
-    
-    .back-link {
-      display: inline-block;
-      margin-bottom: 1rem;
-      color: #00c6ff;
-      text-decoration: none;
-    }
-    
-    .back-link i {
-      margin-right: 0.5rem;
-    }
-  </style>
+
+  <!-- Same CSS as ORG DASHBOARD for the header -->
+   <link rel="stylesheet" href="{% static 'Myapp/main.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
+
+  <!-- Page–specific styles for the notification list/card -->
+  <link rel="stylesheet" href="{% static 'Myapp/notifications.css' %}?v=2.0">
 </head>
 <body>
-  <!-- Header with navigation -->
+
+  <!-- HEADER: copied from org_dashboard, bell is a direct link -->
   <header class="header">
     <div class="logo">
-        <i class="fa-solid fa-graduation-cap"></i>
-        <span>CampusLink</span>
+      <i class="fa-solid fa-graduation-cap"></i>
+      <span>CampusLink</span>
     </div>
 
     <nav>
-        <a href="{% url 'student_dashboard' %}">Home</a>
-        <a href="/my-applications/">My Applications</a>
-        <a href="{% url 'profile' %}">Profile</a>
+      <a href="{% url 'organization_dashboard' %}">Dashboard</a>
+      <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
+      <a href="{% url 'manage_postings' %}">Applicants</a>
+      <a href="{% url 'org_profile' %}">Profile</a>
     </nav>
 
     <div class="search-profile">
-        <!-- 🔔 NOTIFICATION BELL -->
-        <div class="notification-wrapper">
-            <div id="notifBell" class="notif-bell">
-                <i class="fa-solid fa-bell"></i>
-                {% if unread_count > 0 %}
-                <span class="notif-badge">{{ unread_count }}</span>
-                {% endif %}
-            </div>
-
-            <!-- 🔽 DROPDOWN -->
-            <div id="notifDropdown" class="notif-dropdown">
-                <div class="notif-header">
-                    Notifications
-                </div>
-
-                {% if notifications %}
-                    {% for n in notifications %}
-                        <div class="notif-item {% if not n.read %}notif-unread{% endif %}">
-                            <div class="notif-title">{{ n.title }}</div>
-                            <div class="notif-time">{{ n.timestamp|timesince }} ago</div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="notif-empty">
-                        <i class="fa-regular fa-bell"></i>
-                        <p>No notifications yet</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- PROFILE DROPDOWN -->
-        <div class="profile-dropdown">
-            <img src="{% if user.profile.profile_picture %}
-                        {{ user.profile.profile_picture.url }}
-                    {% else %}
-                        /static/Myapp/default-avatar.png
-                    {% endif %}"
-                alt="Profile"
-                class="avatar"
-                id="profileAvatar">
-
-    <div class="dropdown-menu" id="profileMenu">
-        <div class="dropdown-header">
-            {% if user.profile.role == 'Student' %}Student{% elif user.profile.role == 'Organization' %}Organization{% else %}Admin{% endif %}
-        </div>
-        <a href="{% url 'profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
-        <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
-    </div>
-</div>
-
-  </header>
-
-  <!-- Main Content -->
-  <main>
-    <div class="notifications-container">
-      <a href="{% url 'student_dashboard' %}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
       
-      <div class="page-header">
-        <h1><i class="fas fa-bell me-2"></i>Notifications</h1>
-        <div class="notification-count">
-          {{ notifications.count }} notifications
+
+      <!-- 🔔 Bell goes straight to notifications page -->
+      <div class="notification-wrapper">
+        <a href="{% url 'notifications' %}" id="notifBell" class="notif-bell notif-bell-active">
+          <i class="fa-solid fa-bell"></i>
+          {% if unread_count > 0 %}
+            <span class="notif-badge">{{ unread_count }}</span>
+          {% endif %}
+        </a>
+      </div>
+
+      <!-- Profile dropdown (same as org dashboard) -->
+      <div class="profile-dropdown" id="orgProfileDropdown">
+        <img src="{% if user.profile.profile_picture %}{{ user.profile.profile_picture.url }}{% else %}{% static 'Myapp/default-avatar.png' %}{% endif %}"
+             alt="Profile"
+             class="avatar"
+             id="profileAvatar">
+
+        <div class="dropdown-menu" id="orgDropdownMenu">
+          <div class="dropdown-header">Organization</div>
+          <a href="{% url 'org_profile' %}">
+            <i class="fa-solid fa-user"></i>Profile
+          </a>
+          <a href="{% url 'logout' %}">
+            <i class="fa-solid fa-right-from-bracket"></i> Log out
+          </a>
         </div>
       </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="notif-page">
+    <div class="notifications-container">
       
-      {% if notifications %}
-        <ul class="notification-list">
-          {% for notification in notifications %}
-            <li class="notification-item {% if not notification.read %}unread{% endif %}">
-              <div class="notification-title">{{ notification.title }}</div>
-              <div class="notification-message">{{ notification.message }}</div>
-              <div class="notification-meta">
-                <span class="notification-time">{{ notification.timestamp|date:"M d, Y \a\t H:i" }}</span>
-                <span class="notification-type {{ notification.notification_type }}">{{ notification.get_notification_type_display }}</span>
-              </div>
-            </li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <div class="empty-state">
-          <i class="far fa-bell"></i>
-          <h3>No Notifications Yet</h3>
-          <p>You don't have any notifications at the moment. We'll notify you when there are updates.</p>
+      <!-- Main notification card -->
+      <section class="notif-card">
+        <!-- Card header -->
+        <div class="notif-card-header">
+          <div>
+            <h1 class="notif-title">List Notification</h1>
+            <p class="notif-count-line">
+              {{ notifications.count }} Notification{% if notifications.count != 1 %}s{% endif %}
+            </p>
+          </div>
+          <button class="notif-icon-btn" type="button">
+            <i class="fa-solid fa-ellipsis-vertical"></i>
+          </button>
         </div>
-      {% endif %}
+
+        <!-- Tabs + search -->
+        <div class="notif-toolbar">
+          <div class="notif-tabs">
+            <!-- Tabs now use links with ?tab= -->
+            <a href="{% url 'notifications' %}?tab=all"
+               class="notif-tab {% if active_tab == 'all' %}notif-tab-active{% endif %}">
+              <span>All</span>
+              <span class="notif-tab-pill">{{ notifications.count }}</span>
+            </a>
+
+          
+
+            <a href="{% url 'notifications' %}?tab=favorite"
+     class="notif-tab {% if active_tab == 'favorite' %}notif-tab-active{% endif %}">
+    <span>Favorite</span>
+    <span class="notif-tab-pill">{{ favorite_count }}</span>
+  </a>
+
+          </div>
+
+          <div class="notif-actions">
+            <!-- REAL "Mark all as read" POST form -->
+          
+
+            <div class="notif-search">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" placeholder="Search notifications..." id="notifSearchInput" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Notification list -->
+        {% if notifications %}
+          <ul class="notification-list" id="notificationList">
+            {% for notification in notifications %}
+              <li id="notification-{{ notification.id }}"
+                  class="notification-item {% if not notification.read %}unread{% endif %}">
+                <!-- Left icons -->
+                <div class="notification-left">
+                  <span class="notif-status-dot {% if not notification.read %}unread-dot{% endif %}"></span>
+
+                  <!-- Favorite toggle form -->
+                  <form method="post"
+      action="{% url 'notification_toggle_favorite' notification.id %}">
+  {% csrf_token %}
+  <button
+    class="notif-icon-btn star-btn {% if notification.is_favorite %}star-btn-active{% endif %}"
+    type="submit"
+    title="Toggle favorite"
+  >
+    {% if notification.is_favorite %}
+      <i class="fa-solid fa-star"></i>
+    {% else %}
+      <i class="fa-regular fa-star"></i>
+    {% endif %}
+  </button>
+</form>
+
+                </div>
+
+                <!-- Main content -->
+                <div class="notification-body">
+                  <div class="notification-title-line">
+  <span class="notification-title-text">
+    {{ notification.title }}
+  </span>
+
+  {# Type badge #}
+  {% if notification.notification_type %}
+    {% if notification.notification_type == 'posting_approved' %}
+      <span class="notif-type-badge notif-type-approve">Approved</span>
+    {% elif notification.notification_type == 'posting_rejected' %}
+      <span class="notif-type-badge notif-type-reject">Rejected</span>
+    {% elif notification.notification_type == 'verification_approved' %}
+      <span class="notif-type-badge notif-type-approve">Verified</span>
+    {% elif notification.notification_type == 'verification_rejected' %}
+      <span class="notif-type-badge notif-type-reject">Verification Rejected</span>
+    {% else %}
+      {# default badge, if ever used #}
+      <span class="notif-type-badge notif-type-verify">Update</span>
+    {% endif %}
+  {% endif %}
+</div>
+
+                  <div class="notification-message">
+                    {{ notification.message }}
+                  </div>
+                </div>
+
+                <!-- Right side -->
+                <div class="notification-right">
+                  <span class="notification-time-ago">
+                    {{ notification.timestamp|timesince }} ago
+                  </span>
+
+                  <!-- Archive button -->
+                
+
+                  <!-- Delete button -->
+                  <form method="post"
+                        action="{% url 'notification_delete' notification.id %}"
+                        style="display:inline-block;">
+                    {% csrf_token %}
+                    <button class="notif-icon-btn delete-btn" type="submit" title="Delete">
+                      <i class="fa-regular fa-trash-can"></i>
+                    </button>
+                  </form>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="empty-state">
+            <i class="far fa-bell"></i>
+            <h3>No Notifications Yet</h3>
+            <p>You don't have any notifications at the moment. We'll notify you when there are updates.</p>
+          </div>
+        {% endif %}
+      </section>
     </div>
   </main>
 
   <script>
-    /* ============================
-       NOTIFICATION DROPDOWN
-    ============================ */
+    // Highlight and scroll to a specific notification if opened with #notification-ID
     document.addEventListener("DOMContentLoaded", function() {
-        const notifBell = document.getElementById("notifBell");
-        const notifDropdown = document.getElementById("notifDropdown");
-        
-        if (notifBell && notifDropdown) {
-            notifBell.addEventListener("click", function (event) {
-                event.stopPropagation();
-                notifDropdown.classList.toggle("show");
-            });
-            
-            // Close dropdown when clicking outside
-            document.addEventListener("click", function (event) {
-                if (!notifDropdown.contains(event.target) && !notifBell.contains(event.target)) {
-                    notifDropdown.classList.remove("show");
-                }
-            });
+      const hash = window.location.hash;
+      if (hash && hash.startsWith("#notification-")) {
+        const target = document.querySelector(hash);
+        if (target) {
+          target.classList.add("focused");
+          target.scrollIntoView({ behavior: "smooth", block: "center" });
         }
-    });
-    
-    // Profile dropdown toggle
-    document.getElementById("profileAvatar").addEventListener("click", function () {
-        const menu = document.getElementById("profileMenu");
-        menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+      }
     });
 
-    document.addEventListener("click", function (event) {
-        if (!event.target.closest(".profile-dropdown")) {
-            const menu = document.getElementById("profileMenu");
-            if (menu) menu.style.display = "none";
-        }
+    // Very basic front-end search filter
+    document.addEventListener("DOMContentLoaded", function () {
+      const searchInput = document.getElementById("notifSearchInput");
+      const notifList = document.getElementById("notificationList");
+      if (searchInput && notifList) {
+        searchInput.addEventListener("input", function () {
+          const term = this.value.toLowerCase();
+          document.querySelectorAll("#notificationList .notification-item").forEach(item => {
+            const text = item.textContent.toLowerCase();
+            item.style.display = text.includes(term) ? "" : "none";
+          });
+        });
+      }
+
+      // Profile dropdown toggle (same as org dashboard)
+      const profileAvatar = document.getElementById("profileAvatar");
+      const orgDropdownMenu = document.getElementById("orgDropdownMenu");
+
+      if (profileAvatar && orgDropdownMenu) {
+        profileAvatar.addEventListener("click", function (event) {
+          event.stopPropagation();
+          const isVisible = orgDropdownMenu.style.display === "flex";
+          orgDropdownMenu.style.display = isVisible ? "none" : "flex";
+        });
+
+        document.addEventListener("click", function (event) {
+          if (!event.target.closest(".profile-dropdown")) {
+            orgDropdownMenu.style.display = "none";
+          }
+        });
+      }
     });
   </script>
 </body>

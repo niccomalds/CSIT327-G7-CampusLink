@@ -90,9 +90,14 @@ class Notification(models.Model):
     read = models.BooleanField(default=False)
     timestamp = models.DateTimeField(default=timezone.now)
     related_posting = models.ForeignKey('Myapp.Posting', on_delete=models.SET_NULL, null=True, blank=True)
+
+    # ➕ Add these:
+    is_archived = models.BooleanField(default=False)
+    is_favorite = models.BooleanField(default=False)
     
     def __str__(self):
         return f"{self.title} - {self.recipient.username}"
     
     class Meta:
         ordering = ['-timestamp']
+

@@ -5,8 +5,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CampusLink – Student Dashboard</title>
+  <link rel="stylesheet" href="{% static 'Myapp/main.css' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="{% static 'Myapp/student_dashboard.css' %}?v=3.5">
+  <link rel="stylesheet" href="{% static 'Myapp/main.css' %}">
   <!-- Include the error message component CSS -->
   <link rel="stylesheet" href="{% static 'Myapp/error_message.css' %}">
 </head>
@@ -27,7 +29,6 @@
     </nav>
 
     <div class="search-profile">
-        <input type="text" class="top-search" placeholder="Search opportunities...">
 
         <!-- 🔔 NOTIFICATION BELL -->
         <div class="notification-wrapper">
@@ -65,7 +66,7 @@
             <img src="{% if user.profile.profile_picture %}
                         {{ user.profile.profile_picture.url }}
                     {% else %}
-                        /static/Myapp/default-avatar.png
+                        /static/Myapp/default.png
                     {% endif %}"
                 alt="Profile"
                 class="avatar"
@@ -85,11 +86,22 @@
       <p>Explore internships, research positions, and part-time jobs tailored for your academic journey.</p>
     </div>
     <section class="stats-row">
-      <div class="stat-card"><span class="stat-num">100</span><span class="stat-label">Active Opportunities</span></div>
-      <div class="stat-card"><span class="stat-num">1.5k</span><span class="stat-label">Students Connected</span></div>
-      <div class="stat-card"><span class="stat-num">90%</span><span class="stat-label">Success Rate</span></div>
-      <div class="stat-card"><span class="stat-num">1</span><span class="stat-label">Applications Pending</span></div>
-    </section>
+  <div class="stat-card">
+    <span class="stat-num">{{ active_opportunities_count }}</span>
+    <span class="stat-label">Active Opportunities</span>
+  </div>
+
+  <div class="stat-card">
+    <span class="stat-num">{{ students_connected_count }}</span>
+    <span class="stat-label">Students Connected</span>
+  </div>
+
+  <div class="stat-card">
+    <span class="stat-num">1</span>
+    <span class="stat-label">Applications Pending</span>
+  </div>
+</section>
+
     <section class="search-filter-row">
   <div class="search-controls-group">
     <div class="search-box">
