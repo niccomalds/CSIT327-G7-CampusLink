@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from Myapp.models import Posting
-from .models import Profile
+from .models import Profile, Notification
 from Myapp.utils import can_user_apply
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, redirect, get_object_or_404
@@ -186,8 +186,16 @@ def student_dashboard(request):
             'tags_list': tags_list,
         })
     
+    # Get unread notification count for the user
+    unread_count = Notification.objects.filter(recipient=request.user, read=False).count()
+    
+    # Get recent notifications for the dropdown (limit to 5 most recent)
+    recent_notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')[:5]
+    
     context = {
         'postings_list': postings_list,
+        'unread_count': unread_count,
+        'notifications': recent_notifications,
     }
     
     return render(request, 'student_dashboard.html', context)
@@ -230,6 +238,12 @@ def organization_dashboard(request):
     if profile.is_verified_organization() and not request.session.get('verified_modal_shown', False):
         request.session['verified_modal_shown'] = True
     
+    # Get unread notification count for the user
+    unread_count = Notification.objects.filter(recipient=request.user, read=False).count()
+    
+    # Get recent notifications for the dropdown (limit to 5 most recent)
+    recent_notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')[:5]
+    
     context = {
         'profile': profile,
         'postings': postings,
@@ -239,6 +253,8 @@ def organization_dashboard(request):
         'acceptance_rate': acceptance_rate,
         'recent_postings': postings.order_by('-id')[:3],  # Limit to 3 recent postings
         'today': date.today(),
+        'unread_count': unread_count,
+        'notifications': recent_notifications,
         **verification_context
     }
     return render(request, 'org_dashboard.html', context)
@@ -250,6 +266,18 @@ def admin_dashboard(request):
     """Admin dashboard with platform statistics"""
     # Get pending postings count
     pending_postings_count = Posting.objects.filter(approval_status='pending').count()
+    
+    # Get pending verifications count
+    pending_verifications_count = Profile.objects.filter(
+        role='Organization',
+        verification_status='pending'
+    ).count()
+    
+    # Get verified organizations
+    verified_organizations = Profile.objects.filter(
+        role='Organization',
+        verification_status='verified'
+    ).select_related('user').order_by('-verified_at')
     
     # Sample data for the dashboard
     from datetime import date
@@ -263,6 +291,8 @@ def admin_dashboard(request):
         'error_rate': 'Low (0.2%)',
         'today': date.today(),
         'pending_postings_count': pending_postings_count,
+        'pending_verifications_count': pending_verifications_count,
+        'verified_organizations': verified_organizations,
     }
     return render(request, 'admin_dashboard.html', context)
 
@@ -292,6 +322,16 @@ def approve_posting(request, posting_id):
             posting.approved_by = request.user
             posting.save()
             
+            # Send notification to the organization
+            Notification.objects.create(
+                recipient=posting.organization,
+                sender=request.user,
+                notification_type='posting_approved',
+                title=f'Posting Approved: {posting.title}',
+                message=f'Your posting "{posting.title}" has been approved by the admin and is now live for students to view.',
+                related_posting=posting
+            )
+            
             messages.success(request, f'Posting "{posting.title}" has been approved.')
         except Posting.DoesNotExist:
             messages.error(request, 'Posting not found or already processed.')
@@ -316,6 +356,16 @@ def reject_posting(request, posting_id):
             posting.approved_by = request.user
             posting.save()
             
+            # Send notification to the organization
+            Notification.objects.create(
+                recipient=posting.organization,
+                sender=request.user,
+                notification_type='posting_rejected',
+                title=f'Posting Rejected: {posting.title}',
+                message=f'Your posting "{posting.title}" has been rejected by the admin. Reason: {rejection_reason or "No reason provided."}',
+                related_posting=posting
+            )
+            
             messages.success(request, f'Posting "{posting.title}" has been rejected.')
         except Posting.DoesNotExist:
             messages.error(request, 'Posting not found or already processed.')
@@ -328,8 +378,16 @@ def reject_posting(request, posting_id):
 # --- Profile ---
 @login_required
 def profile(request):
+    # Get unread notification count for the user
+    unread_count = Notification.objects.filter(recipient=request.user, read=False).count()
+    
+    # Get recent notifications for the dropdown (limit to 5 most recent)
+    recent_notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')[:5]
+    
     return render(request, 'profile.html', {
-        "profile": request.user.profile
+        "profile": request.user.profile,
+        'unread_count': unread_count,
+        'notifications': recent_notifications,
     })
 
 
@@ -376,7 +434,17 @@ def manage_postings(request):
         messages.error(request, "Access denied.")
         return redirect('home')
 
-    return render(request, 'manage_posting.html', {'postings': postings})
+    # Get unread notification count for the user
+    unread_count = Notification.objects.filter(recipient=request.user, read=False).count()
+    
+    # Get recent notifications for the dropdown (limit to 5 most recent)
+    recent_notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')[:5]
+
+    return render(request, 'manage_posting.html', {
+        'postings': postings,
+        'unread_count': unread_count,
+        'notifications': recent_notifications,
+    })
 
 
 @login_required
@@ -429,7 +497,18 @@ def delete_posting(request, post_id):
 def my_applications(request):
     # Currently empty, dynamic data can be loaded later
     applications = []
-    return render(request, 'my_applications.html', {'applications': applications})
+    
+    # Get unread notification count for the user
+    unread_count = Notification.objects.filter(recipient=request.user, read=False).count()
+    
+    # Get recent notifications for the dropdown (limit to 5 most recent)
+    recent_notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')[:5]
+    
+    return render(request, 'my_applications.html', {
+        'applications': applications,
+        'unread_count': unread_count,
+        'notifications': recent_notifications,
+    })
 
 
 # --- Organization Applicants ---
@@ -451,8 +530,18 @@ def settings_view(request):
     return render(request, 'settings.html')
 
 
+@login_required
 def notifications(request):
-    return render(request, 'notifications.html')
+    # Get all notifications for the user, ordered by timestamp (newest first)
+    user_notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')
+    
+    # Mark all notifications as read when viewing the notifications page
+    user_notifications.filter(read=False).update(read=True)
+    
+    context = {
+        'notifications': user_notifications
+    }
+    return render(request, 'notifications.html', context)
 
 
 # --- Application Status Check (JSON) ---
@@ -524,6 +613,7 @@ def submit_verification(request):
     # GET request - show verification form
     return render(request, 'org_verification_form.html', {'profile': profile})
 
+
 @login_required
 @role_required(allowed_roles=['Organization'])
 def post_opportunity(request):
@@ -561,10 +651,10 @@ def post_opportunity(request):
             return redirect('post_opportunity')
 
         # --- CREATE POSTING ---
-        # Auto-approve for verified organizations
-        approval_status = 'approved' if is_verified else 'pending'
+        # ALL postings require admin approval, regardless of organization verification status
+        approval_status = 'pending'
         
-        Posting.objects.create(
+        posting = Posting.objects.create(
             organization=request.user,
             title=title,
             description=description,
@@ -573,25 +663,38 @@ def post_opportunity(request):
             approval_status=approval_status
         )
 
-        success_message = "Opportunity created successfully!" 
-        if is_verified:
-            success_message += " Your posting is now live."
-        else:
-            success_message += " Waiting for admin approval."
-            
+        success_message = "Opportunity created successfully! Waiting for admin approval."
         messages.success(request, success_message)
         return redirect('organization_dashboard')
 
-    return render(request, 'post_opportunity.html')
+    # Get unread notification count for the user
+    unread_count = Notification.objects.filter(recipient=request.user, read=False).count()
+    
+    # Get recent notifications for the dropdown (limit to 5 most recent)
+    recent_notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')[:5]
+
+    return render(request, 'post_opportunity.html', {
+        'unread_count': unread_count,
+        'notifications': recent_notifications,
+    })
 
 
 @login_required
 def org_profile(request):
     """Load the single-page organization profile UI."""
     profile = request.user.profile  # always exists
+    
+    # Get unread notification count for the user
+    unread_count = Notification.objects.filter(recipient=request.user, read=False).count()
+    
+    # Get recent notifications for the dropdown (limit to 5 most recent)
+    recent_notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')[:5]
+
     context = {
         "user": request.user,
         "profile": profile,
+        'unread_count': unread_count,
+        'notifications': recent_notifications,
     }
     return render(request, "org_profile.html", context)
 

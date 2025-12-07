@@ -74,6 +74,25 @@ class Profile(models.Model):
         return ''
 
 
+class Notification(models.Model):
+    NOTIFICATION_TYPES = (
+        ('posting_approved', 'Posting Approved'),
+        ('posting_rejected', 'Posting Rejected'),
+        ('verification_approved', 'Verification Approved'),
+        ('verification_rejected', 'Verification Rejected'),
+    )
     
-
-
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    sender = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='sent_notifications')
+    notification_type = models.CharField(max_length=50, choices=NOTIFICATION_TYPES)
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    read = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(default=timezone.now)
+    related_posting = models.ForeignKey('Myapp.Posting', on_delete=models.SET_NULL, null=True, blank=True)
+    
+    def __str__(self):
+        return f"{self.title} - {self.recipient.username}"
+    
+    class Meta:
+        ordering = ['-timestamp']

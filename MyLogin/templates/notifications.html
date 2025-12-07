@@ -1,0 +1,269 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusLink – Notifications</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'Myapp/student_dashboard.css' %}?v=3.5">
+  <style>
+    /* Additional styles for the notifications page */
+    .notifications-container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .page-header h1 {
+      margin: 0;
+      color: #333;
+    }
+    
+    .notification-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .notification-item {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border-left: 4px solid #00c6ff;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .notification-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .notification-item.unread {
+      border-left-color: #ff6b6b;
+      background-color: #f8f9fa;
+    }
+    
+    .notification-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #333;
+    }
+    
+    .notification-message {
+      color: #666;
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+    
+    .notification-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: #999;
+    }
+    
+    .notification-type {
+      background: #e9ecef;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+    
+    .notification-type.posting_approved {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .notification-type.posting_rejected {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    
+    .notification-type.verification_approved {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+    
+    .notification-type.verification_rejected {
+      background: #fff3cd;
+      color: #856404;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+    }
+    
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: #ccc;
+    }
+    
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1rem;
+      color: #00c6ff;
+      text-decoration: none;
+    }
+    
+    .back-link i {
+      margin-right: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header with navigation -->
+  <header class="header">
+    <div class="logo">
+        <i class="fa-solid fa-graduation-cap"></i>
+        <span>CampusLink</span>
+    </div>
+
+    <nav>
+        <a href="{% url 'student_dashboard' %}">Home</a>
+        <a href="/my-applications/">My Applications</a>
+        <a href="{% url 'profile' %}">Profile</a>
+    </nav>
+
+    <div class="search-profile">
+        <!-- 🔔 NOTIFICATION BELL -->
+        <div class="notification-wrapper">
+            <div id="notifBell" class="notif-bell">
+                <i class="fa-solid fa-bell"></i>
+                {% if unread_count > 0 %}
+                <span class="notif-badge">{{ unread_count }}</span>
+                {% endif %}
+            </div>
+
+            <!-- 🔽 DROPDOWN -->
+            <div id="notifDropdown" class="notif-dropdown">
+                <div class="notif-header">
+                    Notifications
+                </div>
+
+                {% if notifications %}
+                    {% for n in notifications %}
+                        <div class="notif-item {% if not n.read %}notif-unread{% endif %}">
+                            <div class="notif-title">{{ n.title }}</div>
+                            <div class="notif-time">{{ n.timestamp|timesince }} ago</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="notif-empty">
+                        <i class="fa-regular fa-bell"></i>
+                        <p>No notifications yet</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- PROFILE DROPDOWN -->
+        <div class="profile-dropdown">
+            <img src="{% if user.profile.profile_picture %}
+                        {{ user.profile.profile_picture.url }}
+                    {% else %}
+                        /static/Myapp/default-avatar.png
+                    {% endif %}"
+                alt="Profile"
+                class="avatar"
+                id="profileAvatar">
+
+    <div class="dropdown-menu" id="profileMenu">
+        <div class="dropdown-header">
+            {% if user.profile.role == 'Student' %}Student{% elif user.profile.role == 'Organization' %}Organization{% else %}Admin{% endif %}
+        </div>
+        <a href="{% url 'profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
+        <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
+    </div>
+</div>
+
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <div class="notifications-container">
+      <a href="{% url 'student_dashboard' %}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+      
+      <div class="page-header">
+        <h1><i class="fas fa-bell me-2"></i>Notifications</h1>
+        <div class="notification-count">
+          {{ notifications.count }} notifications
+        </div>
+      </div>
+      
+      {% if notifications %}
+        <ul class="notification-list">
+          {% for notification in notifications %}
+            <li class="notification-item {% if not notification.read %}unread{% endif %}">
+              <div class="notification-title">{{ notification.title }}</div>
+              <div class="notification-message">{{ notification.message }}</div>
+              <div class="notification-meta">
+                <span class="notification-time">{{ notification.timestamp|date:"M d, Y \a\t H:i" }}</span>
+                <span class="notification-type {{ notification.notification_type }}">{{ notification.get_notification_type_display }}</span>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="empty-state">
+          <i class="far fa-bell"></i>
+          <h3>No Notifications Yet</h3>
+          <p>You don't have any notifications at the moment. We'll notify you when there are updates.</p>
+        </div>
+      {% endif %}
+    </div>
+  </main>
+
+  <script>
+    /* ============================
+       NOTIFICATION DROPDOWN
+    ============================ */
+    document.addEventListener("DOMContentLoaded", function() {
+        const notifBell = document.getElementById("notifBell");
+        const notifDropdown = document.getElementById("notifDropdown");
+        
+        if (notifBell && notifDropdown) {
+            notifBell.addEventListener("click", function (event) {
+                event.stopPropagation();
+                notifDropdown.classList.toggle("show");
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener("click", function (event) {
+                if (!notifDropdown.contains(event.target) && !notifBell.contains(event.target)) {
+                    notifDropdown.classList.remove("show");
+                }
+            });
+        }
+    });
+    
+    // Profile dropdown toggle
+    document.getElementById("profileAvatar").addEventListener("click", function () {
+        const menu = document.getElementById("profileMenu");
+        menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+    });
+
+    document.addEventListener("click", function (event) {
+        if (!event.target.closest(".profile-dropdown")) {
+            const menu = document.getElementById("profileMenu");
+            if (menu) menu.style.display = "none";
+        }
+    });
+  </script>
+</body>
+</html>
