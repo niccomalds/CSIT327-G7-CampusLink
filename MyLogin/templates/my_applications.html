@@ -61,7 +61,7 @@
 
         <!-- Profile Dropdown -->
         <div class="profile-dropdown">
-            <img src="{{ user.profile.profile_picture.url|default:'/static/Myapp/default-avatar.png' }}"
+            <img src="{% if user.profile.profile_picture %}{{ user.profile.profile_picture.url }}{% else %}{% static 'Myapp/default-avatar.png' %}{% endif %}"
                 alt="Profile" class="avatar" id="profileAvatar">
 
             <div class="dropdown-menu" id="profileMenu">
