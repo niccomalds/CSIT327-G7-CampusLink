@@ -177,7 +177,7 @@
               <h3>{{ posting.title }}</h3>
               <span class="opp-org">{{ profile.org_name|default:user.email }}</span>
             </div>
-            <div class="opp-desc">{{ posting.description|truncatewords:20 }}</div>
+            <div class="opp-desc">{{ posting.description|truncatewords:25 }}</div>
             <div class="opp-tags">
               {% if posting.tags %}
                 {% for tag in posting.tags.all %}
@@ -187,7 +187,7 @@
             </div>
             <div class="opp-details">
               <span class="opp-type"><i class="fa-solid fa-briefcase"></i> {{ posting.get_opportunity_type_display }}</span>
-              <span class="opp-applicants">{{ posting.applications.count }} applicants</span>
+              <span class="opp-applicants"><i class="fa-solid fa-users"></i> {{ posting.applications.count }} applicants</span>
               <span class="opp-deadline"><i class="fa-solid fa-calendar"></i> Due: {{ posting.deadline|date:"M d, Y" }}</span>
               <span class="type-badge {{ posting.opportunity_type|default:'other' }}">{{ posting.get_opportunity_type_display|default:'Other' }}</span>
             </div>
