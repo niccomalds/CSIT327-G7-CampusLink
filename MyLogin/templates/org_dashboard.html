@@ -127,33 +127,8 @@
         </div>
     </div>
 </div>
-{% elif show_verified_modal %}
-<div class="verification-overlay" id="verificationOverlay">
-    <div class="verification-modal">
-        <div class="modal-header">
-            <h3>Organization Verified!</h3>
-            <p>Your organization has been successfully verified. You now have full access to all features.</p>
-        </div>
-        
-        {% if profile.verified_at %}
-        <div class="requirements" style="text-align: center; background: #e8f5e8; border-left-color: #198754;">
-            <p><strong>Verified on:</strong> {{ profile.verified_at|date:"F d, Y" }}</p>
-            <p style="font-size: 0.9rem; color: #666; margin-top: 8px;">
-                You can now post opportunities and access all platform features.
-            </p>
-        </div>
-        {% endif %}
-
-        <div class="modal-actions" style="justify-content: center;">
-            <button class="verify-btn" onclick="closeVerificationModal()" style="flex: none; padding: 12px 40px;">
-                Start Posting Opportunities
-            </button>
-        </div>
-    </div>
-</div>
 {% endif %}
 <!-- === END VERIFICATION OVERLAY === -->
-
     <div class="org-header-row">
       <div class="org-header">
     <h2>Organization <span class="accent">Dashboard</span> 
@@ -170,110 +145,66 @@
         <div class="desc">Active Postings</div>
         <span>5</span>
         <div class="change up">+2 from last month</div>
-    </div>
+      </div>
 
         {% if not is_verified %}
-    <div class="stat-card verification-reminder" onclick="openVerificationModal()" style="cursor: pointer;">
+      <div class="stat-card verification-reminder" onclick="openVerificationModal()" style="cursor: pointer;">
         <div class="desc">Account Status</div>
         <span style="color: #ffc107;">⚠️</span>
         <div class="change" style="color: #ffc107;">Verification Required</div>
-    </div>
-    {% endif %}
+      </div>
+      {% endif %}
 
       <div class="stat-card">
         <div class="desc">Total Applicants</div>
         <span>84</span>
         <div class="change up">+12% from last week</div>
       </div>
-
-      <div class="stat-card">
-        <div class="desc">Total Views</div>
-        <span>1247</span>
-        <div class="change up">+8% from last week</div>
-      </div>
-    </div>
-
-    <div class="quick-actions-card">
-      <div class="quick-actions-header">
-        <h3>Quick Actions</h3>
-        <p>Common tasks to manage your opportunities efficiently.</p>
-      </div>
-
-      <div class="quick-actions-list">
-        <button class="quick-action-card-btn" onclick="window.location.href='{% url 'post_opportunity' %}'">
-          <i class="fa-regular fa-clock"></i>
-          Post Opportunity
-        </button>
-
-        <button class="quick-action-card-btn" onclick="window.location.href='{% url 'manage_postings' %}'">
-          <i class="fa-regular fa-user"></i>
-          Review Applicants
-        </button>
-
-        <button class="quick-action-card-btn" onclick="window.location.href='{% url 'org_profile' %}'">
-          <i class="fa-regular fa-star"></i>
-          Update Profile
-        </button>
-      </div>
     </div>
 
     <div class="main-content">
-
       <div class="left-content">
-        <h3><i class="fa-solid fa-briefcase"></i> Recent Postings</h3>
-
-        <div class="posting posting-hover">
-          <div class="posting-details">
-            <h4>Software Engineering Intern <span class="badge active glow">Active</span></h4>
-            <div class="posting-meta">
-              <span><i class="fa-regular fa-user"></i> 24 applicants</span>
-              <span><i class="fa-regular fa-eye"></i> 156 views</span>
-              <span>Ended</span>
-            </div>
-          </div>
+        <div class="section-header">
+          <h3><i class="fa-solid fa-briefcase"></i> Recent Postings</h3>
+          <button class="view-all" onclick="window.location.href='{% url 'manage_postings' %}'"><i class="fa-solid fa-arrow-right"></i> View All Postings</button>
         </div>
 
-        <div class="posting posting-hover">
-          <div class="posting-details">
-            <h4>Marketing Assistant <span class="badge active glow">Active</span></h4>
-            <div class="posting-meta">
-              <span><i class="fa-regular fa-user"></i> 12 applicants</span>
-              <span><i class="fa-regular fa-eye"></i> 89 views</span>
-              <span>Ended</span>
+        <!-- OPPORTUNITY GRID -->
+        <div class="opportunity-grid">
+          {% for posting in recent_postings %}
+          <div class="opp-card">
+            <div class="opp-header">
+              <h3>{{ posting.title }}</h3>
+              <span class="opp-org">{{ profile.org_name|default:user.email }}</span>
+            </div>
+            <div class="opp-desc">{{ posting.description|truncatewords:20 }}</div>
+            <div class="opp-tags">
+              {% if posting.tags %}
+                {% for tag in posting.tags.all %}
+                  <span>{{ tag.name }}</span>
+                {% endfor %}
+              {% endif %}
+            </div>
+            <div class="opp-details">
+              <span class="opp-type"><i class="fa-solid fa-briefcase"></i> Opportunity</span>
+              <span class="opp-applicants">{{ posting.applications.count }} applicants</span>
+              <span class="opp-deadline"><i class="fa-solid fa-calendar"></i> Due: {{ posting.deadline|date:"M d, Y" }}</span>
+              <span class="type-badge {{ posting.opportunity_type|default:'other' }}">{{ posting.get_opportunity_type_display|default:'Other' }}</span>
             </div>
           </div>
-        </div>
-
-        <div class="posting posting-hover">
-          <div class="posting-details">
-            <h4>Research Volunteer <span class="badge closed">Closed</span></h4>
-            <div class="posting-meta">
-              <span><i class="fa-regular fa-user"></i> 18 applicants</span>
-              <span><i class="fa-regular fa-eye"></i> 203 views</span>
-              <span>Ended</span>
+          {% empty %}
+          <div class="no-opportunities-message" style="display: block; grid-column: 1 / -1;">
+            <i class="fa-solid fa-inbox"></i>
+            <h3>No Current Opportunities Posted</h3>
+            <p>You haven't posted any opportunities yet. Click the "Post Opportunity" button to create your first opportunity and start connecting with talented students!</p>
+            <div class="no-results-tip">
+              <i class="fa-solid fa-lightbulb"></i>
+              <span>Tip: Be sure to provide detailed descriptions and clear requirements to attract the right candidates!</span>
             </div>
           </div>
+          {% endfor %}
         </div>
-
-        <button class="view-all"><i class="fa-solid fa-arrow-right"></i> View All Postings</button>
       </div>
-
-      <div class="right-content">
-        <h3><i class="fa-solid fa-clock"></i> Activity Summary</h3>
-
-        <ul class="activity-list">
-          <li><span class="dot blue"></span>New application for Software Engineering Intern <span class="time">2 minutes ago</span></li>
-
-          <li><span class="dot orange"></span>Marketing Assistant position viewed 15 times <span class="time">1 hour ago</span></li>
-
-          <li><span class="dot gray"></span>Research Volunteer application deadline reached <span class="time">3 hours ago</span></li>
-
-          <li><span class="dot green"></span>Profile viewed by 8 students <span class="time">5 hours ago</span></li>
-        </ul>
-
-        <button class="view-all"><i class="fa-solid fa-list"></i> View All Activity</button>
-      </div>
-
     </div>
 
 <!-- Persistent Verification Banner -->

@@ -246,6 +246,7 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
 
 .status.active { background: var(--success); }
 .status.closed { background: var(--muted); }
+.status.pending { background: #f59e0b; } /* amber-500 for pending status */
 
 .description p {
   color: #6b7280;

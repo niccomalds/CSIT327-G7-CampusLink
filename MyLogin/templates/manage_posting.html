@@ -91,8 +91,8 @@
               <div class="posting-card" data-id="{{ post.id }}">
                 <div class="posting-info">
                   <span class="title">{{ post.title }}</span>
-                  <span class="status {% if post.status == 'Active' %}active{% else %}closed{% endif %}">
-                    {{ post.status }}
+                  <span class="status {% if post.approval_status == 'approved' %}active{% elif post.approval_status == 'rejected' %}closed{% else %}pending{% endif %}">
+                    {% if post.approval_status == 'pending' %}Pending{% elif post.approval_status == 'approved' %}Active{% else %}Rejected{% endif %}
                   </span>
                 </div>
 
@@ -101,7 +101,9 @@
                 </div>
 
                 <div class="details">
-                  <small>Deadline: {{ post.deadline|date:"Y-m-d" }} · Status: {{ post.status }}</small>
+                  <small>Deadline: {{ post.deadline|date:"Y-m-d" }} · Status: 
+                    {% if post.approval_status == 'pending' %}Pending{% elif post.approval_status == 'approved' %}Active{% else %}Rejected{% endif %}
+                  </small>
                 </div>
 
                 <div class="actions-grid">
@@ -146,10 +148,11 @@
 
         <label>Status:</label>
         <select id="editStatus">
-          <option value="active">Active</option>
-          <option value="closed">Closed</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Active</option>
+          <option value="rejected">Rejected</option>
         </select>
-        <small class="instruction">Choose whether the posting is currently open or closed.</small>
+        <small class="instruction">Choose the approval status for this posting.</small>
 
         <div class="modal-actions">
           <button type="submit" class="modal-action-btn save">Save</button>

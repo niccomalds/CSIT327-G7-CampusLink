@@ -184,10 +184,205 @@ body {
 ============================ */
 .main-content {
   padding: 24px 50px 60px;
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 32px;
+  display: block;
+  max-width: 1200px;
+  margin: 0 auto;
 }
+
+/* Section header with inline button */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.section-header h3 {
+  margin: 0;
+  flex: 1;
+}
+
+/* ===== OPPORTUNITY CARDS GRID ===== */
+.opportunity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin: 0 0 30px;
+}
+
+.opp-card {
+  background: #fff;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.opp-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+}
+
+.opp-header h3 {
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.opp-org {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.opp-desc {
+  margin: 12px 0;
+  color: #4b5563;
+}
+
+.opp-tags span {
+  display: inline-block;
+  background: #e0f2ff;
+  color: #00c6ff;
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  border-radius: 12px;
+  margin-right: 6px;
+  margin-bottom: 6px;
+}
+
+.opp-details {
+  display: flex;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-bottom: 0;
+  flex-wrap: wrap;
+}
+
+.no-opportunities-message {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #6b7280;
+  display: none;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  max-width: 500px;
+  margin: 50px auto;
+  grid-column: 1 / -1;
+}
+
+.no-opportunities-message i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #d1d5db;
+}
+
+.no-opportunities-message h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #374151;
+}
+
+.no-opportunities-message p {
+  color: #6b7280;
+}
+
+.no-results-tip {
+  margin-top: 20px;
+  padding: 12px 16px;
+  background: #eff6ff;
+  border-radius: 12px;
+  border-left: 4px solid #00c6ff;
+  font-size: 0.9rem;
+  color: #1e40af;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.no-results-tip i {
+  font-size: 1.2rem;
+  color: #00c6ff;
+}
+
+.opp-deadline {
+  color: #dc2626;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.opp-deadline i {
+  margin-right: 4px;
+}
+
+/* ===== OPPORTUNITY TYPE BADGES ===== */
+.type-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.type-badge.assistantship {
+  background: linear-gradient(135deg, #00c6ff, #0072ff);
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 198, 255, 0.3);
+}
+
+.type-badge.volunteer {
+  background: linear-gradient(135deg, #198754, #0f5132);
+  color: white;
+  box-shadow: 0 2px 8px rgba(25, 135, 84, 0.3);
+}
+
+.type-badge.sports {
+  background: linear-gradient(135deg, #dc3545, #a71e2a);
+  color: white;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.type-badge.leadership {
+  background: linear-gradient(135deg, #ffc107, #d39e00);
+  color: #212529;
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+.type-badge.other {
+  background: linear-gradient(135deg, #6c757d, #495057);
+  color: white;
+  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+}
+
+.type-badge.internship {
+  background: linear-gradient(135deg, #6f42c1, #5a32a3);
+  color: white;
+  box-shadow: 0 2px 8px rgba(111, 66, 193, 0.3);
+}
+
+.type-badge.job {
+  background: linear-gradient(135deg, #20c997, #1aa179);
+  color: white;
+  box-shadow: 0 2px 8px rgba(32, 201, 151, 0.3);
+}
+
+.type-badge.scholarship {
+  background: linear-gradient(135deg, #fd7e14, #d76a0a);
+  color: white;
+  box-shadow: 0 2px 8px rgba(253, 126, 20, 0.3);
+}
+
+.type-badge.events {
+  background: linear-gradient(135deg, #e83e8c, #c23373);
+  color: white;
+  box-shadow: 0 2px 8px rgba(232, 62, 140, 0.3);
+}
+
 .posting {
   background: #fff;
   padding: 22px;
@@ -196,15 +391,18 @@ body {
   margin-bottom: 18px;
   transition: all 0.3s ease;
 }
+
 .posting:hover {
   transform: translateY(-4px) scale(1.01);
 }
+
 .posting h4 {
   font-family: 'Poppins', sans-serif;
   font-size: 1.1rem;
   font-weight: 600;
   letter-spacing: 0.3px;
 }
+
 .posting-meta span {
   color: #6b7280;
   font-family: 'Inter', sans-serif;
@@ -216,6 +414,7 @@ body {
   color: #00c6ff;
   font-weight: 600;
 }
+
 .badge.closed {
   background: #ffe5e5;
   color: #ff4e4e;
@@ -232,6 +431,7 @@ body {
   font-family: 'Inter', sans-serif;
   transition: 0.2s;
 }
+
 .view-all:hover {
   transform: translateX(2px);
 }
@@ -253,16 +453,36 @@ body {
    RESPONSIVE
 ============================ */
 @media (max-width: 900px) {
-  .main-content {
-    grid-template-columns: 1fr;
-  }
   .org-header-row {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
+  
+  .main-content {
+    padding: 24px 48px 60px;
+  }
+  
+  .opportunity-grid {
+    grid-template-columns: 1fr;
+    margin: 0 0 30px;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .section-header h3 {
+    width: 100%;
+  }
+  
+  .section-header .view-all {
+    align-self: flex-end;
+    margin-left: auto;
+  }
 }
-
 /* ===== VERIFICATION OVERLAY STYLES ===== */
 
 /* Verification Overlay Container */

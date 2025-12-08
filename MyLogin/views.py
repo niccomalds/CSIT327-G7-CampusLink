@@ -279,7 +279,7 @@ def organization_dashboard(request):
         'total_applicants': total_applicants,
         'total_views': total_views,
         'acceptance_rate': acceptance_rate,
-        'recent_postings': postings.order_by('-id')[:3],  # Limit to 3 recent postings
+        'recent_postings': postings.filter(approval_status='approved').order_by('-id')[:3],  # Only show approved postings in recent postings
         'today': date.today(),
         'unread_count': unread_count,
         'notifications': recent_notifications,
@@ -639,11 +639,12 @@ def post_opportunity(request):
         title = request.POST.get('title')
         description = request.POST.get('description')
         deadline_str = request.POST.get('deadline')
+        opportunity_type = request.POST.get('opportunity_type')
 
         selected_tags = request.POST.getlist("tags")
         tags_str = ",".join(selected_tags)
 
-        if not (title and description and deadline_str):
+        if not (title and description and deadline_str and opportunity_type):
             messages.error(request, "Please fill in all required fields.")
             return redirect('post_opportunity')
 
@@ -665,7 +666,8 @@ def post_opportunity(request):
             description=description,
             deadline=deadline,
             tags=tags_str,
-            approval_status=approval_status
+            approval_status=approval_status,
+            opportunity_type=opportunity_type
         )
 
         success_message = "Opportunity created successfully! Waiting for admin approval."

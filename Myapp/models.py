@@ -13,6 +13,18 @@ class Posting(models.Model):
         ('rejected', 'Rejected'),
     ]
 
+    OPPORTUNITY_TYPE_CHOICES = [
+        ('assistantship', 'Assistantship'),
+        ('volunteer', 'Volunteer'),
+        ('internship', 'Internship'),
+        ('job', 'Job'),
+        ('scholarship', 'Scholarship'),
+        ('events', 'Events'),
+        ('sports', 'Sports'),
+        ('leadership', 'Leadership'),
+        ('other', 'Other'),
+    ]
+
     title = models.CharField(max_length=255)
     description = models.TextField()
     deadline = models.DateField()
@@ -39,6 +51,13 @@ class Posting(models.Model):
         related_name='approved_postings'
     )
     rejection_reason = models.TextField(blank=True, null=True)
+    
+    # Add the opportunity_type field
+    opportunity_type = models.CharField(
+        max_length=20, 
+        choices=OPPORTUNITY_TYPE_CHOICES, 
+        default='other'
+    )
 
     def __str__(self):
         return self.title
