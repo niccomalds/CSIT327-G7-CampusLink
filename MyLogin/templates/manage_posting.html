@@ -14,6 +14,7 @@
 </head>
 
 <body>
+  {% csrf_token %}
 
   <!-- ========================================================= -->
   <!--                     HEADER SECTION                        -->
@@ -88,7 +89,7 @@
         <div class="recent-postings">
           {% if postings %}
             {% for post in postings %}
-              <div class="posting-card" data-id="{{ post.id }}">
+              <div class="posting-card" data-id="{{ post.id }}" data-opportunity-type="{{ post.opportunity_type }}">
                 <div class="posting-info">
                   <span class="title">{{ post.title }}</span>
                   <span class="status {% if post.approval_status == 'approved' %}active{% elif post.approval_status == 'rejected' %}closed{% else %}pending{% endif %}">
@@ -103,6 +104,7 @@
                 <div class="details">
                   <small>Deadline: {{ post.deadline|date:"Y-m-d" }} · Status: 
                     {% if post.approval_status == 'pending' %}Pending{% elif post.approval_status == 'approved' %}Active{% else %}Rejected{% endif %}
+                    · Type: {{ post.get_opportunity_type_display }}
                   </small>
                 </div>
 
@@ -132,22 +134,36 @@
     <div class="modal-content">
       <h3>Edit Posting</h3>
       <form id="editForm">
-        <input type="hidden" id="editPostId">
+        <input type="hidden" id="editPostId" name="post_id">
 
         <label>Title:</label>
-        <input type="text" id="editTitle" required />
+        <input type="text" id="editTitle" name="title" required />
         <small class="instruction">Enter a clear and concise title for your posting.</small>
 
         <label>Description:</label>
-        <textarea id="editDescription" rows="4"></textarea>
+        <textarea id="editDescription" name="description" rows="4"></textarea>
         <small class="instruction">Describe the posting in detail. Include purpose, requirements, etc.</small>
 
+        <label>Opportunity Type:</label>
+        <select id="editOpportunityType" name="opportunity_type" required>
+          <option value="assistantship">Assistantship</option>
+          <option value="volunteer">Volunteer</option>
+          <option value="internship">Internship</option>
+          <option value="job">Job</option>
+          <option value="scholarship">Scholarship</option>
+          <option value="events">Events</option>
+          <option value="sports">Sports</option>
+          <option value="leadership">Leadership</option>
+          <option value="other">Other</option>
+        </select>
+        <small class="instruction">Select the type of opportunity.</small>
+
         <label>Deadline:</label>
-        <input type="date" id="editDeadline" required />
+        <input type="date" id="editDeadline" name="deadline" required />
         <small class="instruction">Select the last day that applicants can submit their application.</small>
 
         <label>Status:</label>
-        <select id="editStatus">
+        <select id="editStatus" name="status">
           <option value="pending">Pending</option>
           <option value="approved">Active</option>
           <option value="rejected">Rejected</option>
@@ -219,6 +235,101 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Add edit functionality
+    const editButtons = document.querySelectorAll('.edit-btn');
+    const editModal = document.getElementById('editModal');
+    const editForm = document.getElementById('editForm');
+    const cancelEdit = document.getElementById('cancelEdit');
+
+    // Add event listeners to edit buttons
+    editButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const card = this.closest('.posting-card');
+            const postId = card.dataset.id;
+            const title = card.querySelector('.title').textContent;
+            const description = card.querySelector('.description p').textContent;
+            const deadline = card.querySelector('.details small').textContent.split(' ')[1]; // Extract deadline
+            const statusText = card.querySelector('.status').textContent.trim();
+            const opportunityType = card.dataset.opportunityType || 'other'; // Default to 'other' if not set
+            
+            // Set form values
+            document.getElementById('editPostId').value = postId;
+            document.getElementById('editTitle').value = title;
+            document.getElementById('editDescription').value = description;
+            document.getElementById('editDeadline').value = deadline;
+          
+            // Set status dropdown based on status text
+            const statusSelect = document.getElementById('editStatus');
+            if (statusText === 'Pending') {
+                statusSelect.value = 'pending';
+            } else if (statusText === 'Active') {
+                statusSelect.value = 'approved';
+            } else if (statusText === 'Rejected') {
+                statusSelect.value = 'rejected';
+            }
+          
+            // Set opportunity type dropdown
+            const opportunityTypeSelect = document.getElementById('editOpportunityType');
+            if (opportunityTypeSelect) {
+                opportunityTypeSelect.value = opportunityType;
+            }
+          
+            // Show modal
+            editModal.classList.add('active');
+        });
+    });
+
+    // Cancel edit
+    if (cancelEdit) {
+        cancelEdit.addEventListener('click', function() {
+            editModal.classList.remove('active');
+        });
+    }
+
+    // Handle form submission
+    if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+          
+            const postId = document.getElementById('editPostId').value;
+          
+            // Create FormData from the form
+            const formData = new FormData(editForm);
+          
+            // Send AJAX request
+            fetch(`/organization/edit-posting/${postId}/`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    alert('Posting updated successfully!');
+                    // Reload page to show updated data
+                    location.reload();
+                } else {
+                    // Show error message
+                    alert('An error occurred while updating the posting: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the posting.');
+            });
+        });
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target === editModal) {
+            editModal.classList.remove('active');
+        }
+    });
 });
 </script>
 

@@ -488,15 +488,36 @@ def edit_posting(request, post_id):
         return redirect('manage_postings')
 
     if request.method == 'POST':
-        posting.title = request.POST.get('title', posting.title)
-        posting.description = request.POST.get('description', posting.description)
-        posting.deadline = request.POST.get('deadline', posting.deadline)
-        posting.status = request.POST.get('status', posting.status)
-        posting.save()
-        messages.success(request, "Posting updated successfully.")
-        return redirect('manage_postings')
+        # Check if this is an AJAX request
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            try:
+                posting.title = request.POST.get('title', posting.title)
+                posting.description = request.POST.get('description', posting.description)
+                posting.deadline = request.POST.get('deadline', posting.deadline)
+                posting.status = request.POST.get('status', posting.status)
+                # Add handling for opportunity_type field
+                if 'opportunity_type' in request.POST:
+                    posting.opportunity_type = request.POST.get('opportunity_type')
+                posting.save()
+                return JsonResponse({'success': True, 'message': 'Posting updated successfully.'})
+            except Exception as e:
+                return JsonResponse({'success': False, 'message': str(e)})
+        else:
+            # Regular form submission
+            posting.title = request.POST.get('title', posting.title)
+            posting.description = request.POST.get('description', posting.description)
+            posting.deadline = request.POST.get('deadline', posting.deadline)
+            posting.status = request.POST.get('status', posting.status)
+            # Add handling for opportunity_type field
+            if 'opportunity_type' in request.POST:
+                posting.opportunity_type = request.POST.get('opportunity_type')
+            posting.save()
+            messages.success(request, "Posting updated successfully.")
+            return redirect('manage_postings')
 
-    return render(request, 'edit_posting.html', {'posting': posting})
+    # This shouldn't be reached as the edit functionality is handled via AJAX
+    # But just in case, redirect to manage_postings
+    return redirect('manage_postings')
 
 
 @login_required
@@ -639,12 +660,12 @@ def post_opportunity(request):
         title = request.POST.get('title')
         description = request.POST.get('description')
         deadline_str = request.POST.get('deadline')
-        opportunity_type = request.POST.get('opportunity_type')
+        opportunity_type = request.POST.get('opportunity_type', 'other')  # Default to 'other'
 
         selected_tags = request.POST.getlist("tags")
         tags_str = ",".join(selected_tags)
 
-        if not (title and description and deadline_str and opportunity_type):
+        if not (title and description and deadline_str):
             messages.error(request, "Please fill in all required fields.")
             return redirect('post_opportunity')
 
@@ -667,7 +688,7 @@ def post_opportunity(request):
             deadline=deadline,
             tags=tags_str,
             approval_status=approval_status,
-            opportunity_type=opportunity_type
+            opportunity_type=opportunity_type  # Add opportunity_type field
         )
 
         success_message = "Opportunity created successfully! Waiting for admin approval."

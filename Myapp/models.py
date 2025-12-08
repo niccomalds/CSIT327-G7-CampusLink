@@ -12,7 +12,7 @@ class Posting(models.Model):
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
     ]
-
+    
     OPPORTUNITY_TYPE_CHOICES = [
         ('assistantship', 'Assistantship'),
         ('volunteer', 'Volunteer'),

@@ -122,26 +122,6 @@
           <span class="type-label-inline">Volunteer</span>
         </label>
         <label class="type-checkbox-inline">
-          <input type="checkbox" name="opportunityType" value="internship">
-          <span class="checkmark-inline"></span>
-          <span class="type-label-inline">Internship</span>
-        </label>
-        <label class="type-checkbox-inline">
-          <input type="checkbox" name="opportunityType" value="job">
-          <span class="checkmark-inline"></span>
-          <span class="type-label-inline">Job</span>
-        </label>
-        <label class="type-checkbox-inline">
-          <input type="checkbox" name="opportunityType" value="scholarship">
-          <span class="checkmark-inline"></span>
-          <span class="type-label-inline">Scholarship</span>
-        </label>
-        <label class="type-checkbox-inline">
-          <input type="checkbox" name="opportunityType" value="events">
-          <span class="checkmark-inline"></span>
-          <span class="type-label-inline">Events</span>
-        </label>
-        <label class="type-checkbox-inline">
           <input type="checkbox" name="opportunityType" value="sports">
           <span class="checkmark-inline"></span>
           <span class="type-label-inline">Sports</span>
@@ -177,7 +157,7 @@
 <section class="opportunity-grid" id="opportunityGrid">
   {% for item in postings_list %}
   {% with posting=item.posting tags_list=item.tags_list %}
-  <div class="opp-card" data-deadline="{{ posting.deadline|date:'Y-m-d' }}" data-type="{{ posting.opportunity_type }}" data-posted="{{ posting.created_at|date:'Y-m-d' }}">
+  <div class="opp-card" data-deadline="{{ posting.deadline|date:'Y-m-d' }}" data-type="{{ posting.opportunity_type|default:'other' }}" data-posted="{{ posting.created_at|date:'Y-m-d' }}">
     <div class="opp-header">
       <h3>{{ posting.title }}</h3>
       <span class="opp-org">{{ posting.organization.profile.org_name|default:posting.organization.email }}</span>
@@ -189,10 +169,10 @@
       {% endfor %}
     </div>
     <div class="opp-details">
-      <span class="opp-type"><i class="fa-solid fa-briefcase"></i> Opportunity</span>
+      <span class="opp-type"><i class="fa-solid fa-briefcase"></i> {{ posting.get_opportunity_type_display }}</span>
       <span class="opp-applicants">0 applicants</span>
       <span class="opp-deadline"><i class="fa-solid fa-calendar"></i> Due: {{ posting.deadline|date:"M d, Y" }}</span>
-      <span class="type-badge {{ posting.opportunity_type }}">{{ posting.get_opportunity_type_display }}</span>
+      <span class="type-badge {{ posting.opportunity_type|default:'other' }}">{{ posting.get_opportunity_type_display|default:'Other' }}</span>
     </div>
     <button class="apply-btn" onclick="applyToOpportunity({{ posting.id }})">Apply Now</button>
   </div>

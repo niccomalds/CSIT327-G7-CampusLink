@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
 
   <!-- Django static CSS -->
-  <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
+  <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}?v=1.0">
 </head>
 
 <body>
@@ -186,7 +186,7 @@
               {% endif %}
             </div>
             <div class="opp-details">
-              <span class="opp-type"><i class="fa-solid fa-briefcase"></i> Opportunity</span>
+              <span class="opp-type"><i class="fa-solid fa-briefcase"></i> {{ posting.get_opportunity_type_display }}</span>
               <span class="opp-applicants">{{ posting.applications.count }} applicants</span>
               <span class="opp-deadline"><i class="fa-solid fa-calendar"></i> Due: {{ posting.deadline|date:"M d, Y" }}</span>
               <span class="type-badge {{ posting.opportunity_type|default:'other' }}">{{ posting.get_opportunity_type_display|default:'Other' }}</span>

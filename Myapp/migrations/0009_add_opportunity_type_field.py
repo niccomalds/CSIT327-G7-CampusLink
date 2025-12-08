@@ -2,6 +2,7 @@
 
 from django.db import migrations
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -9,8 +10,4 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Since the opportunity_type field already exists in the database,
-        # we're just marking it as added in the migration history
-        # without actually modifying the database schema
-        migrations.RunSQL("", ""),  # Empty SQL operations
     ]

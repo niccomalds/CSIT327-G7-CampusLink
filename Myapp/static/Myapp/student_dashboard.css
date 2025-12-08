@@ -635,30 +635,6 @@ main {
   box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
 }
 
-.type-badge.internship {
-  background: linear-gradient(135deg, #6f42c1, #5a32a3);
-  color: white;
-  box-shadow: 0 2px 8px rgba(111, 66, 193, 0.3);
-}
-
-.type-badge.job {
-  background: linear-gradient(135deg, #20c997, #1aa179);
-  color: white;
-  box-shadow: 0 2px 8px rgba(32, 201, 151, 0.3);
-}
-
-.type-badge.scholarship {
-  background: linear-gradient(135deg, #fd7e14, #d76a0a);
-  color: white;
-  box-shadow: 0 2px 8px rgba(253, 126, 20, 0.3);
-}
-
-.type-badge.events {
-  background: linear-gradient(135deg, #e83e8c, #c23373);
-  color: white;
-  box-shadow: 0 2px 8px rgba(232, 62, 140, 0.3);
-}
-
 .type-filter-header {
   display: flex;
   justify-content: space-between;

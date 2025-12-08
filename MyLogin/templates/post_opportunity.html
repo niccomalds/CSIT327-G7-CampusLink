@@ -10,7 +10,7 @@
   <!-- Use the SAME header + global org dashboard styles -->
    
   <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
-  <link rel="stylesheet" href="{% static 'Myapp/post_opportunity.css' %}">
+  <link rel="stylesheet" href="{% static 'Myapp/post_opportunity.css' %}?v=1.0">
 
   <!-- 👉 Select2 styles + jQuery + Select2 JS -->
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -107,11 +107,16 @@
     <input type="text" id="title" name="title" required>
   </div>
 
+  <!-- Description -->
+  <div class="form-group">
+    <label for="description">Description</label>
+    <textarea id="description" name="description" rows="5" required></textarea>
+  </div>
+
   <!-- Opportunity Type -->
   <div class="form-group">
     <label for="opportunity_type">Opportunity Type</label>
     <select id="opportunity_type" name="opportunity_type" required>
-      <option value="">Select Opportunity Type</option>
       <option value="assistantship">Assistantship</option>
       <option value="volunteer">Volunteer</option>
       <option value="internship">Internship</option>
@@ -122,12 +127,6 @@
       <option value="leadership">Leadership</option>
       <option value="other">Other</option>
     </select>
-  </div>
-
-  <!-- Description -->
-  <div class="form-group">
-    <label for="description">Description</label>
-    <textarea id="description" name="description" rows="5" required></textarea>
   </div>
 
   <!-- Deadline -->
