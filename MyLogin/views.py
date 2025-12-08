@@ -525,18 +525,26 @@ def delete_posting(request, post_id):
     try:
         posting = Posting.objects.get(id=post_id)
     except Posting.DoesNotExist:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'message': 'Posting not found.'})
         messages.error(request, "Posting not found.")
         return redirect('manage_postings')
 
     if request.user.profile.role == "Organization" and posting.organization != request.user:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'message': 'Access denied.'})
         messages.error(request, "Access denied.")
         return redirect('manage_postings')
 
     if request.method == 'POST':
         posting.delete()
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'message': 'Posting deleted successfully.'})
         messages.success(request, "Posting deleted successfully.")
         return redirect('manage_postings')
 
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'success': False, 'message': 'Invalid request method.'})
     return redirect('manage_postings')
 
 
