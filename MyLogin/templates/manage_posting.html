@@ -8,80 +8,74 @@
 
   <link rel="stylesheet" href="{% static 'Myapp/manage_posting.css' %}?v=1.0">
   <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
 </head>
 
 <body>
+
+  <!-- ========================================================= -->
+  <!--                     HEADER SECTION                        -->
+  <!-- ========================================================= -->
   <header class="header">
     <div class="logo">
-      <i class="fa-solid fa-graduation-cap"></i>
-      <span>CampusLink</span>
+        <i class="fa-solid fa-graduation-cap"></i>
+        <span>CampusLink</span>
     </div>
 
     <nav>
-      <a href="{% url 'organization_dashboard' %}">Dashboard</a>
-      <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
-      <a href="{% url 'manage_postings' %}" class="active">Applicants</a>
-      <a href="{% url 'org_profile' %}">Org Profile</a>
+        <a href="{% url 'organization_dashboard' %}">Dashboard</a>
+        <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
+        <a href="{% url 'manage_postings' %}" class="active">Applicants</a>
+        <a href="{% url 'org_profile' %}">Profile</a>
     </nav>
-    
 
     <div class="search-profile">
-      <input type="text" class="top-search" placeholder="Search opportunities...">
 
-      <!-- 🔔 NOTIFICATION BELL (CLEAN VERSION) -->
-<!-- 🔔 NOTIFICATION BELL — FULL STUDENT STYLE -->
-<div class="notification-wrapper">
-    <div id="notifBell" class="notif-bell">
-        <i class="fa-solid fa-bell"></i>
-        {% if unread_count > 0 %}
-            <span class="notif-badge">{{ unread_count }}</span>
-        {% endif %}
-    </div>
+        <!-- Notification Bell  -->
+        <div class="notification-wrapper">
+            <a href="{% url 'notifications' %}" id="notifBell" class="notif-bell">
+                <i class="fa-solid fa-bell"></i>
+                {% if unread_count > 0 %}
+                    <span class="notif-badge">{{ unread_count }}</span>
+                {% endif %}
+            </a>
+        </div>
 
-    <div id="notifDropdown" class="notif-dropdown">
-
-        <div class="notif-header">Notifications</div>
-
-        {% if notifications %}
-            {% for n in notifications %}
-                <div class="notif-item {% if not n.read %}notif-unread{% endif %}">
-                    <div class="notif-title">{{ n.title }}</div>
-                    <div class="notif-time">{{ n.timestamp|timesince }} ago</div>
-                </div>
-            {% endfor %}
-        {% else %}
-            <div class="notif-empty">
-                <i class="fa-regular fa-bell"></i>
-                <p>No notifications yet</p>
-            </div>
-        {% endif %}
-    </div>
-</div>
-
-      <!-- PROFILE DROPDOWN -->
-      <div class="profile-dropdown" id="orgProfileDropdown">
-          <img src="{% if user.profile.profile_picture %}
+        <!-- Profile Dropdown -->
+        <div class="profile-dropdown" id="orgProfileDropdown">
+            <img 
+                src="{% if user.profile.profile_picture %}
                         {{ user.profile.profile_picture.url }}
-                   {% else %}
+                     {% else %}
                         /static/Myapp/default-avatar.png
-                   {% endif %}"
-               alt="Profile"
-               class="avatar"
-               id="profileAvatar">
+                     {% endif %}"
+                alt="Profile"
+                class="avatar"
+                id="profileAvatar">
 
-          <div class="dropdown-menu" id="orgDropdownMenu">
-              <div class="dropdown-header">Organization</div>
-              <a href="{% url 'org_profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
-              <a href="{% url 'manage_postings' %}"><i class="fa-solid fa-users"></i> Applicants</a>
-              <a href="{% url 'submit_verification' %}"><i class="fa-solid fa-shield-check"></i> Verify Organization</a>
-              <a href="{% url 'org_settings' %}"><i class="fa-solid fa-gear"></i> Settings</a>
-              <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
-          </div>
-      </div>
+            <div class="dropdown-menu" id="orgDropdownMenu">
+                <div class="dropdown-header">Organization</div>
+
+                <a href="{% url 'org_profile' %}">
+                    <i class="fa-solid fa-user"></i> Profile
+                </a>
+
+                <a href="{% url 'logout' %}">
+                    <i class="fa-solid fa-right-from-bracket"></i> Log out
+                </a>
+            </div>
+        </div>
+
     </div>
-  </header>
+</header>
+
+
+
+  <!-- ========================================================= -->
+  <!--                     MAIN CONTENT                          -->
+  <!-- ========================================================= -->
 
   <main>
     <section class="content">
@@ -125,6 +119,12 @@
     </section>
   </main>
 
+
+
+  <!-- ========================================================= -->
+  <!--                       MODALS                               -->
+  <!-- ========================================================= -->
+
   <!-- Edit Modal -->
   <div id="editModal" class="modal">
     <div class="modal-content">
@@ -159,7 +159,7 @@
     </div>
   </div>
 
-  <!-- Delete Confirmation Modal -->
+  <!-- Delete Modal -->
   <div id="deleteModal" class="modal">
     <div class="modal-content">
       <h3>Delete Posting</h3>
@@ -171,206 +171,58 @@
     </div>
   </div>
 
-  <script>
-    /* ============================
-       DROPDOWN (STUDENT STYLE)
-    ============================ */
-    document.getElementById("profileAvatar").addEventListener("click", function () {
-        const menu = document.getElementById("orgDropdownMenu");
-        menu.style.display = menu.style.display === "flex" ? "none" : "flex";
-    });
 
-    // Close dropdown when clicking outside
-    document.addEventListener("click", function (event) {
-        if (!event.target.closest(".profile-dropdown")) {
-            const menu = document.getElementById("orgDropdownMenu");
-            if (menu) menu.style.display = "none";
-        }
-    });
+  <!-- ========================================================= -->
+  <!--                   JAVASCRIPT SECTION                       -->
+  <!-- ========================================================= -->
 
-    /* ============================
-       VERIFICATION MODAL
-    ============================ */
-    function closeVerificationModal() {
-        // This function would need to be implemented if you want to include verification modals
-        // For now, we'll just have the placeholder
+  
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    /* ======================================
+       PROFILE DROPDOWN (FINAL WORKING VERSION)
+    ====================================== */
+
+    const avatar  = document.getElementById("profileAvatar");
+    const wrapper = document.getElementById("orgProfileDropdown");
+    const menu    = document.getElementById("orgDropdownMenu");
+
+    if (avatar && wrapper && menu) {
+
+        // OPEN / CLOSE DROPDOWN
+        avatar.addEventListener("click", function(event) {
+            event.stopPropagation();
+            menu.classList.toggle("show");
+        });
+
+        // CLOSE DROPDOWN WHEN CLICKING OUTSIDE
+        document.addEventListener("click", function(event) {
+            if (!menu.contains(event.target) && !avatar.contains(event.target)) {
+                menu.classList.remove("show");
+            }
+        });
     }
 
-    function openVerificationModal() {
-        // This function would need to be implemented if you want to include verification modals
-        // For now, we'll just have the placeholder
-        alert('Verification functionality would be implemented here');
+
+    /* ======================================
+       NOTIFICATION BELL REDIRECT
+    ====================================== */
+
+    const bell = document.getElementById("notifBell");
+    if (bell) {
+        bell.addEventListener("click", () => {
+            window.location.href = "{% url 'notifications' %}";
+        });
     }
 
-    // Manage postings functionality
-    document.addEventListener("DOMContentLoaded", () => {
-      const editModal = document.getElementById("editModal");
-      const editForm = document.getElementById("editForm");
-      const editPostId = document.getElementById("editPostId");
-      const editTitle = document.getElementById("editTitle");
-      const editDescription = document.getElementById("editDescription");
-      const editDeadline = document.getElementById("editDeadline");
-      const editStatus = document.getElementById("editStatus");
-      const cancelEdit = document.getElementById("cancelEdit");
-
-      const deleteModal = document.getElementById("deleteModal");
-      const confirmDelete = document.getElementById("confirmDelete");
-      const cancelDelete = document.getElementById("cancelDelete");
-
-      const postingSearch = document.querySelector(".top-search");
-
-      let currentCard = null;
-
-      // Search postings
-      postingSearch.addEventListener("input", () => {
-        const searchTerm = postingSearch.value.toLowerCase();
-        document.querySelectorAll('.posting-card').forEach(card => {
-          const text = card.textContent.toLowerCase();
-          card.style.display = text.includes(searchTerm) ? 'block' : 'none';
-        });
-      });
-
-      // Open Edit Modal
-      document.querySelectorAll(".edit-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-          currentCard = btn.closest(".posting-card");
-          const postId = currentCard.dataset.id;
-          const titleEl = currentCard.querySelector(".title");
-          const descriptionEl = currentCard.querySelector(".description p");
-          const detailsText = currentCard.querySelector(".details small").textContent;
-          const deadlineMatch = detailsText.match(/Deadline: ([^·]+)/);
-          const deadlineText = deadlineMatch ? deadlineMatch[1].trim() : "";
-          const statusEl = currentCard.querySelector(".status");
-
-          editPostId.value = postId;
-          editTitle.value = titleEl.textContent.trim();
-          editDescription.value = descriptionEl.textContent.trim();
-          editDeadline.value = deadlineText;
-          editStatus.value = statusEl.textContent.trim().toLowerCase() === "active" ? "active" : "closed";
-
-          editModal.classList.add("active");
-        });
-      });
-
-      // Save Edit
-      editForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const postId = editPostId.value;
-        const formData = new FormData();
-        formData.append('title', editTitle.value);
-        formData.append('deadline', editDeadline.value);
-        formData.append('description', editDescription.value);
-        formData.append('status', editStatus.value === "active" ? "Active" : "Closed");
-
-        try {
-          const response = await fetch(`/organization/edit-posting/${postId}/`, {
-            method: 'POST',
-            headers: { 'X-CSRFToken': getCookie('csrftoken') },
-            body: formData
-          });
-
-          if (response.ok) {
-            const titleEl = currentCard.querySelector(".title");
-            const descriptionEl = currentCard.querySelector(".description p");
-            const detailsEl = currentCard.querySelector(".details small");
-            const statusEl = currentCard.querySelector(".status");
-
-            titleEl.textContent = editTitle.value;
-            descriptionEl.textContent = editDescription.value;
-            detailsEl.textContent = `Deadline: ${editDeadline.value} · Status: ${editStatus.value === "active" ? "Active" : "Closed"}`;
-            statusEl.textContent = editStatus.value === "active" ? "Active" : "Closed";
-            statusEl.className = `status ${editStatus.value === "active" ? "active" : "closed"}`;
-
-            editModal.classList.remove("active");
-            showToast('Posting updated successfully!', 'success');
-          } else {
-            showToast('Failed to update posting', 'error');
-          }
-        } catch (error) {
-          console.error('Error:', error);
-          showToast('Error updating posting', 'error');
-        }
-      });
-
-      // Cancel Edit
-      cancelEdit.addEventListener("click", () => editModal.classList.remove("active"));
-
-      // Delete Modal
-      document.querySelectorAll(".delete-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-          currentCard = btn.closest(".posting-card");
-          deleteModal.classList.add("active");
-        });
-      });
-
-      confirmDelete.addEventListener("click", async () => {
-        if (!currentCard) return;
-        const postId = currentCard.dataset.id;
-        try {
-          const response = await fetch(`/organization/delete-posting/${postId}/`, {
-            method: 'POST',
-            headers: { 'X-CSRFToken': getCookie('csrftoken') },
-          });
-          if (response.ok) {
-            currentCard.remove();
-            showToast('Posting deleted successfully!', 'success');
-          } else {
-            showToast('Failed to delete posting', 'error');
-          }
-        } catch (error) {
-          console.error(error);
-          showToast('Error deleting posting', 'error');
-        }
-        deleteModal.classList.remove("active");
-        currentCard = null;
-      });
-
-      cancelDelete.addEventListener("click", () => {
-        deleteModal.classList.remove("active");
-        currentCard = null;
-      });
-
-      function getCookie(name) {
-        let cookieValue = null;
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          if (cookie.startsWith(name + '=')) {
-            cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
-            break;
-          }
-        }
-        return cookieValue;
-      }
-
-      function showToast(message, type='success') {
-        const toast = document.createElement('div');
-        toast.textContent = message;
-        toast.className = `toast ${type}`;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-      }
-    });
-
-    
-/* ============================
-   NOTIFICATION DROPDOWN
-============================ */
-const notifBell = document.getElementById("notifBell");
-const notifDropdown = document.getElementById("notifDropdown");
-
-notifBell.addEventListener("click", function (event) {
-    event.stopPropagation();
-    notifDropdown.classList.toggle("show");
 });
+</script>
 
-// Close dropdown when clicking outside
-document.addEventListener("click", function (event) {
-    if (!notifDropdown.contains(event.target) && !notifBell.contains(event.target)) {
-        notifDropdown.classList.remove("show");
-    }
-});
-  </script>
+
+
+
+  
+
 </body>
 </html>

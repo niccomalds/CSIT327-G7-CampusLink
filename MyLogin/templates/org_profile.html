@@ -8,6 +8,7 @@
     <!-- Dashboard Header Styles -->
     <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
     
+    
     <!-- New Profile Page Styles -->
     <link rel="stylesheet" href="{% static 'Myapp/org_profile.css' %}?v=1.0">
     
@@ -37,55 +38,36 @@
 
     <!-- SEARCH + BELL + PROFILE -->
     <div class="search-profile">
-        <input type="text" class="top-search" placeholder="Search opportunities...">
+        
 
-        <!-- 🔔 NOTIFICATION BELL -->
-        <div class="notification-wrapper">
-            <div id="notifBell" class="notif-bell">
-                <i class="fa-solid fa-bell"></i>
-                {% if unread_count > 0 %}
-                    <span class="notif-badge">{{ unread_count }}</span>
-                {% endif %}
-            </div>
+        <!-- 🔔 NOTIFICATION BELL — SIMPLE VERSION (Same as Org Dashboard) -->
+<div class="notification-wrapper">
+    <a href="{% url 'notifications' %}" id="notifBell" class="notif-bell">
+        <i class="fa-solid fa-bell"></i>
+        {% if unread_count > 0 %}
+            <span class="notif-badge">{{ unread_count }}</span>
+        {% endif %}
+    </a>
+</div>
 
-            <!-- 🔽 DROP DOWN EXACTLY SAME AS STUDENT DASHBOARD -->
-            <div id="notifDropdown" class="notif-dropdown">
-                
-                <div class="notif-header">Notifications</div>
-
-                {% if notifications %}
-                    {% for n in notifications %}
-                        <div class="notif-item {% if not n.read %}notif-unread{% endif %}">
-                            <div class="notif-title">{{ n.title }}</div>
-                            <div class="notif-time">{{ n.timestamp|timesince }} ago</div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="notif-empty">
-                        <i class="fa-regular fa-bell"></i>
-                        <p>No notifications yet</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
 
         <!-- 👤 PROFILE DROPDOWN -->
-        <div class="profile-dropdown">
-            <img src="{% if user.profile.profile_picture %}
+        <div class="profile-dropdown" id="orgProfileDropdown">
+          <img src="{% if user.profile.profile_picture %}
                         {{ user.profile.profile_picture.url }}
-                     {% else %}
+                   {% else %}
                         /static/Myapp/default-avatar.png
-                     {% endif %}"
-                class="avatar"
-                id="profileAvatar">
+                   {% endif %}"
+               alt="Profile"
+               class="avatar"
+               id="profileAvatar">
 
-            <div class="dropdown-menu" id="profileMenu">
-                <div class="dropdown-header">Organization</div>
-
-                <a href="{% url 'org_profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
-                <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
-            </div>
-        </div>
+          <div class="dropdown-menu" id="orgDropdownMenu">
+              <div class="dropdown-header">Organization</div>
+              <a href="{% url 'org_profile' %}"><i class="fa-solid fa-user"></i>Profile</a>
+              <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
+          </div>
+      </div>
     </div>
 </header>
 
@@ -264,103 +246,104 @@
      JAVASCRIPT (CLEAN + FINAL VERSION)
 ============================================================ -->
 <script>
+document.addEventListener("DOMContentLoaded", () => {
 
-/* ----------------------- PROFILE MENU DROPDOWN ----------------------- */
-const avatar = document.getElementById('profileAvatar');
-const menu = document.getElementById('profileMenu');
+    /* ----------------------- PROFILE MENU DROPDOWN ----------------------- */
+    const avatar  = document.getElementById('profileAvatar');
+    const menu    = document.getElementById('orgDropdownMenu');     // ✔ FIXED
+    const wrapper = document.getElementById('orgProfileDropdown');  // ✔ FIXED
 
-avatar.onclick = (e) => {
-    e.stopPropagation();
-    menu.classList.toggle("show");
-};
-
-// Close dropdown when clicking outside
-window.addEventListener("click", (e) => {
-    if (!avatar.contains(e.target) && !menu.contains(e.target)) {
-        menu.classList.remove("show");
-    }
-});
-
-
-/* ----------------------- PHOTO PREVIEW ----------------------- */
-document.getElementById("logoInput").addEventListener("change", function () {
-    const file = this.files[0];
-    if (file) {
-        document.getElementById("orgLogoPreview").src = URL.createObjectURL(file);
-    }
-});
-
-
-/* ----------------------- INITIAL VIEW MODE ----------------------- */
-document.querySelectorAll(".form-grid input, .form-grid textarea, .form-grid select")
-    .forEach(el => el.setAttribute("disabled", true));
-
-document.getElementById("logoInput").setAttribute("disabled", true);
-document.getElementById("photoEditIcon").classList.add("hide-upload");
-
-let isEditing = false;
-
-
-/* ----------------------- SAVE PROFILE ----------------------- */
-async function saveProfile() {
-    // Clear previous error messages
-    clearErrors();
-
-    // Frontend validation for Philippine phone number
-    const phoneInput = document.getElementById("contact_phone");
-    const phoneValue = phoneInput.value.trim();
-    
-    // Philippine phone number validation
-    // Accepts formats like: 09123456789, +639123456789, 639123456789
-    const philippinePhoneRegex = /^(09|\+639|639)\d{9}$/;
-    
-    if (phoneValue && !philippinePhoneRegex.test(phoneValue)) {
-        displayErrors({
-            contact_phone: "Please enter a valid Philippine mobile number (e.g., 09123456789 or +639123456789)"
+    if (avatar && menu && wrapper) {
+        avatar.addEventListener("click", (e) => {
+            e.stopPropagation();
+            menu.classList.toggle("show");  // ✔ Same as org dashboard
         });
-        return;
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", (e) => {
+            if (!wrapper.contains(e.target)) {
+                menu.classList.remove("show");
+            }
+        });
     }
 
-    const saveBtn = document.getElementById("editSaveBtn");
-    saveBtn.classList.add("loading");
 
-    let formData = new FormData();
-
-    function getValue(id) {
-        const v = document.getElementById(id).value;
-        return v === "None" ? "" : v;
+    /* ----------------------- PHOTO PREVIEW ----------------------- */
+    const logoInput = document.getElementById("logoInput");
+    if (logoInput) {
+        logoInput.addEventListener("change", function () {
+            const file = this.files[0];
+            if (file) {
+                document.getElementById("orgLogoPreview").src = URL.createObjectURL(file);
+            }
+        });
     }
 
-    formData.append("org_name", getValue("org_name"));
-    formData.append("department", getValue("department"));
-    formData.append("description", getValue("description"));
-    formData.append("mission", getValue("mission"));
-    formData.append("contact_email", getValue("contact_email"));
-    formData.append("contact_phone", getValue("contact_phone"));
-    formData.append("address", getValue("address"));
-    formData.append("website", getValue("website"));
-    formData.append("social_facebook", getValue("social_facebook"));
-    formData.append("social_instagram", getValue("social_instagram"));
-    formData.append("social_linkedin", getValue("social_linkedin"));
 
-    formData.append("is_public", document.getElementById("is_public").value);
+    /* ----------------------- INITIAL VIEW MODE ----------------------- */
+    document.querySelectorAll(".form-grid input, .form-grid textarea, .form-grid select")
+        .forEach(el => el.setAttribute("disabled", true));
 
-    const logoFile = document.getElementById("logoInput").files[0];
-    if (logoFile) formData.append("org_logo", logoFile);
+    document.getElementById("logoInput").setAttribute("disabled", true);
+    document.getElementById("photoEditIcon").classList.add("hide-upload");
 
-    const res = await fetch("/organization/org-profile/save/", {
-        method: "POST",
-        headers: { "X-CSRFToken": getCookie("csrftoken") },
-        body: formData
-    });
+    let isEditing = false;
 
-    saveBtn.classList.remove("loading");
 
-    // Handle response properly
-    const data = await res.json();
-    
-    if (res.ok) {
-        if (data.success) {
+    /* ----------------------- SAVE PROFILE ----------------------- */
+    async function saveProfile() {
+        clearErrors();
+
+        // Validate PH phone number
+        const phoneInput = document.getElementById("contact_phone");
+        const phoneValue = phoneInput.value.trim();
+        const philippinePhoneRegex = /^(09|\+639|639)\d{9}$/;
+
+        if (phoneValue && !philippinePhoneRegex.test(phoneValue)) {
+            displayErrors({
+                contact_phone: "Please enter a valid PH mobile number (e.g., 09123456789 or +639123456789)"
+            });
+            return;
+        }
+
+        const saveBtn = document.getElementById("editSaveBtn");
+        saveBtn.classList.add("loading");
+
+        let formData = new FormData();
+
+        function getValue(id) {
+            const v = document.getElementById(id).value;
+            return v === "None" ? "" : v;
+        }
+
+        formData.append("org_name", getValue("org_name"));
+        formData.append("department", getValue("department"));
+        formData.append("description", getValue("description"));
+        formData.append("mission", getValue("mission"));
+        formData.append("contact_email", getValue("contact_email"));
+        formData.append("contact_phone", getValue("contact_phone"));
+        formData.append("address", getValue("address"));
+        formData.append("website", getValue("website"));
+        formData.append("social_facebook", getValue("social_facebook"));
+        formData.append("social_instagram", getValue("social_instagram"));
+        formData.append("social_linkedin", getValue("social_linkedin"));
+
+        formData.append("is_public", document.getElementById("is_public").value);
+
+        const logoFile = document.getElementById("logoInput").files[0];
+        if (logoFile) formData.append("org_logo", logoFile);
+
+        const res = await fetch("/organization/org-profile/save/", {
+            method: "POST",
+            headers: { "X-CSRFToken": getCookie("csrftoken") },
+            body: formData
+        });
+
+        saveBtn.classList.remove("loading");
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
             showToast();
 
             if (data.updated?.profile_picture_url) {
@@ -368,168 +351,135 @@ async function saveProfile() {
             }
 
             returnToViewMode();
-        }
-    } else {
-        // Handle error responses (400 validation errors, 500 server errors, etc.)
-        if (data.errors) {
-            // Show validation error messages
+
+        } else if (data.errors) {
             displayErrors(data.errors);
         } else {
-            // Show general error message
-            alert(data.error || 'Error saving profile');
+            alert(data.error || "Error saving profile");
         }
     }
-}
 
-/* ========================= ERROR HANDLING ========================= */
-function clearErrors() {
-    // Clear all field-specific error messages
-    document.querySelectorAll('.error-message').forEach(el => {
-        el.textContent = '';
-        el.classList.remove('show');
-    });
-    
-    // Remove error styling from inputs
-    document.querySelectorAll('.form-group input, .form-group textarea').forEach(el => {
-        el.classList.remove('input-error');
-    });
-    
-    // Hide general error container
-    const generalErrors = document.getElementById('general-errors');
-    if (generalErrors) {
-        generalErrors.style.display = 'none';
+
+    /* ----------------------- ERROR HANDLING ----------------------- */
+    function clearErrors() {
+        document.querySelectorAll('.error-message').forEach(el => {
+            el.textContent = '';
+            el.classList.remove('show');
+        });
+
+        document.querySelectorAll('.form-group input, .form-group textarea')
+            .forEach(el => el.classList.remove('input-error'));
+
+        const generalErrors = document.getElementById('general-errors');
+        if (generalErrors) generalErrors.style.display = 'none';
     }
-}
 
-function displayErrors(errors) {
-    // Clear previous errors first
-    clearErrors();
-    
-    // Display each error message
-    let firstErrorField = null;
-    for (const [field, message] of Object.entries(errors)) {
-        const errorElement = document.getElementById(`${field}-error`);
-        if (errorElement) {
-            errorElement.textContent = message;
-            errorElement.classList.add('show');
-            
-            // Add error styling to the input
-            const inputElement = document.getElementById(field);
-            if (inputElement) {
-                inputElement.classList.add('input-error');
-                
-                // Keep track of the first error field for scrolling
-                if (!firstErrorField) {
-                    firstErrorField = inputElement;
+    function displayErrors(errors) {
+        clearErrors();
+
+        let firstErrorField = null;
+
+        for (const [field, message] of Object.entries(errors)) {
+            const errorElement = document.getElementById(`${field}-error`);
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.classList.add('show');
+
+                const inputElement = document.getElementById(field);
+                if (inputElement) {
+                    inputElement.classList.add('input-error');
+                    if (!firstErrorField) firstErrorField = inputElement;
                 }
             }
         }
-    }
-    
-    // Display general error summary
-    const generalErrors = document.getElementById('general-errors');
-    const errorList = document.getElementById('error-list');
-    if (generalErrors && errorList && Object.keys(errors).length > 0) {
-        // Clear previous error list
-        errorList.innerHTML = '';
-        
-        // Add each error to the list
-        for (const [field, message] of Object.entries(errors)) {
-            const listItem = document.createElement('li');
-            listItem.textContent = message;
-            errorList.appendChild(listItem);
+
+        const generalErrors = document.getElementById('general-errors');
+        const errorList = document.getElementById('error-list');
+
+        if (generalErrors && errorList) {
+            errorList.innerHTML = '';
+            for (const msg of Object.values(errors)) {
+                const li = document.createElement('li');
+                li.textContent = msg;
+                errorList.appendChild(li);
+            }
+
+            generalErrors.style.display = 'block';
+            generalErrors.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-        
-        // Show the general error container
-        generalErrors.style.display = 'block';
-        
-        // Scroll to the general error container
-        generalErrors.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-    
-    // Scroll to the first error field
-    if (firstErrorField) {
-        firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        firstErrorField.focus();
-    }
-}
 
-
-/* ----------------------- RETURN TO VIEW MODE ----------------------- */
-function returnToViewMode() {
-    isEditing = false;
-    document.getElementById("editSaveBtn").textContent = "Edit Profile";
-
-    document.querySelectorAll(".form-grid input, .form-grid textarea, .form-grid select")
-        .forEach(el => el.setAttribute("disabled", true));
-
-    document.getElementById("logoInput").setAttribute("disabled", true);
-    document.getElementById("photoEditIcon").classList.add("hide-upload");
-}
-
-
-/* ----------------------- ENTER EDIT MODE ----------------------- */
-function enterEditMode() {
-    isEditing = true;
-    document.getElementById("editSaveBtn").textContent = "Save Changes";
-
-    document.querySelectorAll(".form-grid input, .form-grid textarea, .form-grid select")
-        .forEach(el => el.removeAttribute("disabled"));
-
-    document.getElementById("logoInput").removeAttribute("disabled");
-    document.getElementById("photoEditIcon").classList.remove("hide-upload");
-}
-
-
-/* ----------------------- EDIT BUTTON ----------------------- */
-document.getElementById("editSaveBtn").addEventListener("click", () => {
-    if (!isEditing) {
-        enterEditMode();
-    } else {
-        saveProfile();
-    }
-});
-
-
-/* ----------------------- TOAST ----------------------- */
-function showToast() {
-    const t = document.getElementById("toast");
-    t.classList.add("show");
-    setTimeout(() => t.classList.remove("show"), 2000);
-}
-
-
-/* ----------------------- CSRF ----------------------- */
-function getCookie(name) {
-    const cookies = document.cookie.split(";");
-    for (let c of cookies) {
-        const cookie = c.trim();
-        if (cookie.startsWith(name + "=")) {
-            return cookie.substring(name.length + 1);
+        if (firstErrorField) {
+            firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstErrorField.focus();
         }
     }
-    return null;
-}
 
 
-/* =====================================================
-   🔔 NOTIFICATION DROPDOWN — FINAL WORKING VERSION
-===================================================== */
-const notifBell = document.getElementById("notifBell");
-const notifDropdown = document.getElementById("notifDropdown");
+    /* ----------------------- RETURN TO VIEW MODE ----------------------- */
+    function returnToViewMode() {
+        isEditing = false;
+        document.getElementById("editSaveBtn").textContent = "Edit Profile";
 
-notifBell.addEventListener("click", function (event) {
-    event.stopPropagation();
-    notifDropdown.classList.toggle("show");
-});
+        document.querySelectorAll(".form-grid input, .form-grid textarea, .form-grid select")
+            .forEach(el => el.setAttribute("disabled", true));
 
-document.addEventListener("click", function (event) {
-    if (!notifDropdown.contains(event.target) && !notifBell.contains(event.target)) {
-        notifDropdown.classList.remove("show");
+        document.getElementById("logoInput").setAttribute("disabled", true);
+        document.getElementById("photoEditIcon").classList.add("hide-upload");
     }
+
+
+    /* ----------------------- ENTER EDIT MODE ----------------------- */
+    function enterEditMode() {
+        isEditing = true;
+        document.getElementById("editSaveBtn").textContent = "Save Changes";
+
+        document.querySelectorAll(".form-grid input, .form-grid textarea, .form-grid select")
+            .forEach(el => el.removeAttribute("disabled"));
+
+        document.getElementById("logoInput").removeAttribute("disabled");
+        document.getElementById("photoEditIcon").classList.remove("hide-upload");
+    }
+
+
+    /* ----------------------- EDIT BUTTON ----------------------- */
+    document.getElementById("editSaveBtn").addEventListener("click", () => {
+        if (!isEditing) {
+            enterEditMode();
+        } else {
+            saveProfile();
+        }
+    });
+
+
+    /* ----------------------- TOAST ----------------------- */
+    function showToast() {
+        const t = document.getElementById("toast");
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 2000);
+    }
+
+
+    /* ----------------------- CSRF ----------------------- */
+    function getCookie(name) {
+        const cookies = document.cookie.split(";").map(c => c.trim());
+        for (let cookie of cookies) {
+            if (cookie.startsWith(name + "=")) {
+                return cookie.slice(name.length + 1);
+            }
+        }
+        return null;
+    }
+
+
+    /* ----------------------- NOTIFICATION REDIRECT ----------------------- */
+    const notifBell = document.getElementById("notifBell");
+    if (notifBell) {
+        notifBell.addEventListener("click", () => {
+            window.location.href = "{% url 'notifications' %}";
+        });
+    }
+
 });
-
-
 </script>
 
 </body>

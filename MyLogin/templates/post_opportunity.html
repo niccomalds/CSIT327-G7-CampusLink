@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <!-- Use the SAME header + global org dashboard styles -->
+   
   <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
   <link rel="stylesheet" href="{% static 'Myapp/post_opportunity.css' %}">
 
@@ -41,34 +42,16 @@
       <input type="text" class="top-search" placeholder="Search opportunities...">
 
       <!-- 🔔 NOTIFICATION BELL (CLEAN VERSION) -->
-<!-- 🔔 NOTIFICATION BELL — FULL STUDENT STYLE -->
 <div class="notification-wrapper">
-    <div id="notifBell" class="notif-bell">
+    <a href="{% url 'notifications' %}" id="notifBell" class="notif-bell">
         <i class="fa-solid fa-bell"></i>
         {% if unread_count > 0 %}
             <span class="notif-badge">{{ unread_count }}</span>
         {% endif %}
-    </div>
-
-    <div id="notifDropdown" class="notif-dropdown">
-
-        <div class="notif-header">Notifications</div>
-
-        {% if notifications %}
-            {% for n in notifications %}
-                <div class="notif-item {% if not n.read %}notif-unread{% endif %}">
-                    <div class="notif-title">{{ n.title }}</div>
-                    <div class="notif-time">{{ n.timestamp|timesince }} ago</div>
-                </div>
-            {% endfor %}
-        {% else %}
-            <div class="notif-empty">
-                <i class="fa-regular fa-bell"></i>
-                <p>No notifications yet</p>
-            </div>
-        {% endif %}
-    </div>
+    </a>
 </div>
+
+
 
 
       <!-- PROFILE DROPDOWN -->
@@ -165,7 +148,9 @@
      DROPDOWN + MODAL SCRIPTS
 ============================ -->
 <script>
-
+/* ============================
+   PROFILE DROPDOWN
+============================ */
 document.getElementById("profileAvatar").addEventListener("click", function () {
     const menu = document.getElementById("orgDropdownMenu");
     menu.style.display = menu.style.display === "flex" ? "none" : "flex";
@@ -180,31 +165,28 @@ document.addEventListener("click", function (event) {
 </script>
 
 <script>
-  $(document).ready(function() {
-      $('#tags').select2({
-          placeholder: "Select one or more tags",
-          allowClear: true,
-          width: '100%'
-      });
-  });
 /* ============================
-   NOTIFICATION DROPDOWN
+   SELECT2 TAGS DROPDOWN
+============================ */
+$(document).ready(function() {
+    $('#tags').select2({
+        placeholder: "Select one or more tags",
+        allowClear: true,
+        width: '100%'
+    });
+});
+
+/* ============================
+   NOTIFICATION (NO DROPDOWN)
+   Click bell → go directly to notifications
 ============================ */
 const notifBell = document.getElementById("notifBell");
-const notifDropdown = document.getElementById("notifDropdown");
 
-notifBell.addEventListener("click", function (event) {
-    event.stopPropagation();
-    notifDropdown.classList.toggle("show");
-});
-
-// Close dropdown when clicking outside
-document.addEventListener("click", function (event) {
-    if (!notifDropdown.contains(event.target) && !notifBell.contains(event.target)) {
-        notifDropdown.classList.remove("show");
-    }
+notifBell.addEventListener("click", function () {
+    window.location.href = "{% url 'notifications' %}";
 });
 </script>
+
 
 </body>
 </html>

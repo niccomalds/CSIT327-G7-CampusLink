@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <title>CampusLink Organization Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
 
@@ -27,36 +28,16 @@
     </nav>
 
     <div class="search-profile">
-      <input type="text" class="top-search" placeholder="Search opportunities...">
+      
 
       <!-- 🔔 NOTIFICATION BELL (CLEAN VERSION) -->
 <div class="notification-wrapper">
-    <div id="notifBell" class="notif-bell">
+    <a href="{% url 'notifications' %}" id="notifBell" class="notif-bell">
         <i class="fa-solid fa-bell"></i>
         {% if unread_count > 0 %}
             <span class="notif-badge">{{ unread_count }}</span>
         {% endif %}
-    </div>
-
-    <div id="notifDropdown" class="notif-dropdown">
-
-        <div class="notif-header">Notifications</div>
-
-        {% if notifications %}
-            {% for n in notifications %}
-                <div class="notif-item {% if not n.read %}notif-unread{% endif %}">
-                    <div class="notif-title">{{ n.title }}</div>
-                    <div class="notif-time">{{ n.timestamp|timesince }} ago</div>
-                </div>
-            {% endfor %}
-        {% else %}
-            <div class="notif-empty">
-                <i class="fa-regular fa-bell"></i>
-                <p>No notifications yet</p>
-            </div>
-        {% endif %}
-
-    </div>
+    </a>
 </div>
 
 
@@ -209,12 +190,6 @@
         <div class="desc">Total Views</div>
         <span>1247</span>
         <div class="change up">+8% from last week</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="desc">Acceptance Rate</div>
-        <span>76%</span>
-        <div class="bar"><div class="bar-fill" style="width:76%"></div></div>
       </div>
     </div>
 
@@ -417,6 +392,17 @@ document.addEventListener("click", function (event) {
         notifDropdown.classList.remove("show");
     }
 });
+
+// 🔥 Make each notification clickable → go to full message
+    document.querySelectorAll(".notif-item").forEach(item => {
+        item.addEventListener("click", function () {
+            const notifId = this.getAttribute("data-notif-id");
+            if (notifId) {
+                // Go to notifications page and scroll to that specific notification
+                window.location.href = "{% url 'notifications' %}#notification-" + notifId;
+            }
+        });
+    });
 
 </script>
 

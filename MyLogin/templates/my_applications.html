@@ -15,63 +15,53 @@
   <div class="alert-container"></div>
   
   <header class="header">
-    <div class="logo">
-        <i class="fa-solid fa-graduation-cap"></i>
-        <span>CampusLink</span>
-    </div>
+  <div class="logo">
+      <i class="fa-solid fa-graduation-cap"></i>
+      <span>CampusLink</span>
+  </div>
 
-    <nav>
-        <a href="{% url 'student_dashboard' %}">Home</a>
-        <a href="{% url 'my_applications' %}" class="active">My Applications</a>
-        <a href="{% url 'profile' %}">Profile</a>
-    </nav>
+  <nav>
+      <a href="{% url 'student_dashboard' %}">Home</a>
+      <a href="{% url 'my_applications' %}" class="active">My Applications</a>
+      <a href="{% url 'profile' %}">Profile</a>
+  </nav>
 
-    <div class="search-profile">
-        <input type="text" class="top-search" placeholder="Search applications...">
+  <div class="search-profile">
 
-        <!-- 🔔 Notification Bell -->
-        <div class="notification-wrapper">
-            <div id="notifBell" class="notif-bell">
-                <i class="fa-solid fa-bell"></i>
+      <!-- 🔔 Notification Bell -->
+      <div class="notification-wrapper">
+          <a href="{% url 'student_notification' %}" id="notifBell" class="notif-bell">
+              <i class="fa-solid fa-bell"></i>
+              {% if unread_count > 0 %}
+              <span class="notif-badge">{{ unread_count }}</span>
+              {% endif %}
+          </a>
+      </div>
 
-                {% if unread_count > 0 %}
-                <span class="notif-badge">{{ unread_count }}</span>
-                {% endif %}
-            </div>
+      <!-- Profile Dropdown -->
+      <div class="profile-dropdown">
+          {% if user.profile.profile_picture %}
+              <img src="{{ user.profile.profile_picture.url }}"
+                   alt="Profile" class="avatar" id="profileAvatar">
+          {% else %}
+              <img src="{% static 'Myapp/default-avatar.png' %}"
+                   alt="Profile" class="avatar" id="profileAvatar">
+          {% endif %}
 
-            <!-- 🔽 Notification Dropdown -->
-            <div id="notifDropdown" class="notif-dropdown">
-                <div class="notif-header">Notifications</div>
+          <div class="dropdown-menu" id="profileMenu">
+              <div class="dropdown-header">Student</div>
+              <a href="{% url 'profile' %}">
+                  <i class="fa-solid fa-user"></i> Profile
+              </a>
+              <a href="{% url 'logout' %}">
+                  <i class="fa-solid fa-right-from-bracket"></i> Log out
+              </a>
+          </div>
+      </div>
 
-                {% if notifications %}
-                    {% for n in notifications %}
-                    <div class="notif-item {% if not n.read %}notif-unread{% endif %}">
-                        <div class="notif-title">{{ n.title }}</div>
-                        <div class="notif-time">{{ n.timestamp|timesince }} ago</div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                <div class="notif-empty">
-                    <i class="fa-regular fa-bell"></i>
-                    <p>No notifications yet</p>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Profile Dropdown -->
-        <div class="profile-dropdown">
-            <img src="{% if user.profile.profile_picture %}{{ user.profile.profile_picture.url }}{% else %}{% static 'Myapp/default-avatar.png' %}{% endif %}"
-                alt="Profile" class="avatar" id="profileAvatar">
-
-            <div class="dropdown-menu" id="profileMenu">
-                <div class="dropdown-header">Student</div>
-                <a href="{% url 'profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
-                <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
-            </div>
-        </div>
-    </div>
+  </div>
 </header>
+
 
 
   <main class="applications-main">
