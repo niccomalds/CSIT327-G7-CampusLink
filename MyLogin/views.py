@@ -506,7 +506,8 @@ def edit_posting(request, post_id):
                 posting.title = request.POST.get('title', posting.title)
                 posting.description = request.POST.get('description', posting.description)
                 posting.deadline = request.POST.get('deadline', posting.deadline)
-                posting.status = request.POST.get('status', posting.status)
+                # Fix: Update approval_status instead of status
+                posting.approval_status = request.POST.get('status', posting.approval_status)
                 # Add handling for opportunity_type field
                 if 'opportunity_type' in request.POST:
                     posting.opportunity_type = request.POST.get('opportunity_type')
@@ -519,7 +520,8 @@ def edit_posting(request, post_id):
             posting.title = request.POST.get('title', posting.title)
             posting.description = request.POST.get('description', posting.description)
             posting.deadline = request.POST.get('deadline', posting.deadline)
-            posting.status = request.POST.get('status', posting.status)
+            # Fix: Update approval_status instead of status
+            posting.approval_status = request.POST.get('status', posting.approval_status)
             # Add handling for opportunity_type field
             if 'opportunity_type' in request.POST:
                 posting.opportunity_type = request.POST.get('opportunity_type')
