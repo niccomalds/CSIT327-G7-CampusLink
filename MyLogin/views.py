@@ -243,9 +243,17 @@ def organization_dashboard(request):
     # Get organization's postings
     postings = Posting.objects.filter(organization=request.user).order_by('-created_at')
     
-    # Example stats (expand as needed)
-    active_postings_count = postings.filter(deadline__gte=date.today(), status='Active').count()
-    total_applicants = 0
+    # Calculate active postings count (approved, active status, and not expired)
+    from datetime import date
+    active_postings_count = postings.filter(
+        approval_status='approved',
+        status='Active',
+        deadline__gte=date.today()
+    ).count()
+    
+    # Calculate total applicants across all postings
+    total_applicants = sum(posting.applications.count() for posting in postings)
+    
     total_views = 0
     acceptance_rate = 0
 
@@ -279,7 +287,11 @@ def organization_dashboard(request):
         'total_applicants': total_applicants,
         'total_views': total_views,
         'acceptance_rate': acceptance_rate,
-        'recent_postings': postings.filter(approval_status='approved').order_by('-id')[:3],  # Only show approved postings in recent postings
+        'recent_postings': postings.filter(
+            approval_status='approved',
+            status='Active',
+            deadline__gte=date.today()
+        ).order_by('-id')[:4],  # Show 4 recent postings instead of 3
         'today': date.today(),
         'unread_count': unread_count,
         'notifications': recent_notifications,
