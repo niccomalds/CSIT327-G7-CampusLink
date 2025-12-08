@@ -10,26 +10,24 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
 
   <!-- Django static CSS -->
-  <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}?v=1.0">
+  <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}?v=1.2">
 </head>
 
 <body>
   <header class="header">
     <div class="logo">
-      <i class="fa-solid fa-graduation-cap"></i>
-      <span>CampusLink</span>
+        <i class="fa-solid fa-graduation-cap"></i>
+        <span>CampusLink</span>
     </div>
 
     <nav>
-      <a href="{% url 'organization_dashboard' %}" class="active">Dashboard</a>
-      <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
-      <a href="{% url 'manage_postings' %}">Applicants</a>
-      <a href="{% url 'org_profile' %}">Profile</a>
+        <a href="{% url 'organization_dashboard' %}" class="active">Dashboard</a>
+        <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
+        <a href="{% url 'manage_postings' %}">Applicants</a>
+        <a href="{% url 'org_profile' %}">Profile</a>
     </nav>
 
     <div class="search-profile">
-      
-
       <!-- 🔔 NOTIFICATION BELL (CLEAN VERSION) -->
 <div class="notification-wrapper">
     <a href="{% url 'notifications' %}" id="notifBell" class="notif-bell">
@@ -39,8 +37,6 @@
         {% endif %}
     </a>
 </div>
-
-
 
       <!-- PROFILE DROPDOWN -->
       <div class="profile-dropdown" id="orgProfileDropdown">

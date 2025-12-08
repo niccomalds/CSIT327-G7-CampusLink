@@ -9,6 +9,43 @@ body {
   line-height: 1.6;
 }
 
+/* SEARCH BAR */
+/*
+.search-bar {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.search-bar input {
+  padding: 8px 16px;
+  border-radius: 24px 0 0 24px;
+  border: 1px solid #ddd;
+  outline: none;
+  transition: 0.3s;
+  width: 200px;
+}
+
+.search-bar input:focus {
+  border-color: #0072FF;
+  box-shadow: 0 0 0 2px rgba(0,114,255,0.2);
+}
+
+.search-bar button {
+  background: #0072FF;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 0 24px 24px 0;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.search-bar button:hover {
+  background: #0056b3;
+}
+*/
+
 
 
 
@@ -41,80 +78,75 @@ body {
    ORG HEADER SECTION
 ============================ */
 .org-header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 36px 50px 24px;
-  gap: 12px;
-  flex-wrap: wrap;
+  padding: 0 50px;
+  margin-bottom: 24px;
 }
+
+.org-header {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
 .org-header h2 {
   font-family: 'Poppins', sans-serif;
   font-size: 2.25rem;
   font-weight: 700;
   letter-spacing: 0.5px;
+  margin-bottom: 8px;
 }
+
 .org-header .accent {
   color: #00c6ff;
 }
+
 .org-header p {
-  margin-top: 4px;
+  margin: 0 auto;
   color: #6b7280;
   font-size: 1rem;
   font-weight: 500;
   line-height: 1.5;
-}
-
-/* POST BUTTON */
-.post-opportunity-header-btn {
-  background: linear-gradient(135deg, #00c6ff, #ff7e5f);
-  border: none;
-  color: #fff;
-  padding: 12px 22px;
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 1rem;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.25s;
-}
-.post-opportunity-header-btn:hover {
-  opacity: .95;
-  transform: translateY(-2px) scale(1.02);
+  max-width: 600px;
 }
 
 /* ============================
    STAT CARDS
 ============================ */
 .stats-section {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 24px;
   padding: 0 50px;
   margin-bottom: 24px;
-  flex-wrap: wrap;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
 }
+
 .stat-card {
   background: #fff !important;
   padding: 24px;
   border-radius: 16px;
-  flex: 1;
-  min-width: 200px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.05) !important;
   transition: all 0.3s ease;
 }
+
 .stat-card:hover {
   transform: translateY(-4px) scale(1.02);
 }
+
 .stat-card span {
   font-family: 'Poppins', sans-serif;
   font-size: 2.25rem;
   font-weight: 700;
 }
+
 .stat-card .desc {
   color: #6b7280;
   font-size: 1rem;
   font-weight: 500;
 }
+
 .stat-card .change {
   margin-top: 6px;
   color: #00c6ff;
@@ -129,6 +161,7 @@ body {
   border-radius: 8px;
   margin-top: 10px;
 }
+
 .stat-card .bar-fill {
   height: 100%;
   background: linear-gradient(135deg, #00c6ff, #ff7e5f);
