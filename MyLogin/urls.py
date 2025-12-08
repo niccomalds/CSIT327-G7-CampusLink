@@ -36,6 +36,8 @@ urlpatterns = [
     # --- Settings & Notifications ---
     path('settings/', views.settings_view, name='settings'),
     path('notifications/', views.notifications, name='notifications'),
+    path('student/notifications/', views.student_notification, name='student_notification'),
+
 
     # 🔔 Notification actions
     path(

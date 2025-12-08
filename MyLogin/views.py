@@ -343,12 +343,15 @@ def approve_posting(request, posting_id):
     """Approve a pending posting"""
     if request.method == 'POST':
         try:
-            posting = Posting.objects.select_related('organization').get(id=posting_id, approval_status='pending')
+            posting = Posting.objects.select_related('organization').get(
+                id=posting_id,
+                approval_status='pending'
+            )
             posting.approval_status = 'approved'
             posting.approved_at = timezone.now()
             posting.approved_by = request.user
             posting.save()
-            
+
             # Send notification to the organization
             Notification.objects.create(
                 recipient=posting.organization,
@@ -356,9 +359,9 @@ def approve_posting(request, posting_id):
                 notification_type='posting_approved',
                 title=f'Posting Approved: {posting.title}',
                 message=f'Your posting "{posting.title}" has been approved by the admin and is now live for students to view.',
-                related_posting=posting
+                related_posting=posting,
             )
-            
+
             messages.success(request, f'Posting "{posting.title}" has been approved.')
         except Posting.DoesNotExist:
             messages.error(request, 'Posting not found or already processed.')
@@ -366,6 +369,7 @@ def approve_posting(request, posting_id):
         return redirect('admin_posting_approval')
     
     return redirect('admin_posting_approval')
+
 
 
 @login_required
@@ -382,16 +386,6 @@ def reject_posting(request, posting_id):
             posting.approved_at = timezone.now()
             posting.approved_by = request.user
             posting.save()
-            
-            # Send notification to the organization
-            Notification.objects.create(
-                recipient=posting.organization,
-                sender=request.user,
-                notification_type='posting_rejected',
-                title=f'Posting Rejected: {posting.title}',
-                message=f'Your posting "{posting.title}" has been rejected by the admin. Reason: {rejection_reason or "No reason provided."}',
-                related_posting=posting
-            )
             
             messages.success(request, f'Posting "{posting.title}" has been rejected.')
         except Posting.DoesNotExist:
@@ -552,6 +546,8 @@ def my_applications(request):
 @login_required
 def applicants_list(request):
     return render(request, 'applicants_list.html')
+
+
 
 
 # --- Organization Profile & Settings ---
@@ -839,19 +835,42 @@ def approve_organization(request, profile_id):
     """Approve an organization verification request"""
     if request.method == 'POST':
         try:
-            profile = Profile.objects.select_related('user').get(id=profile_id, verification_status='pending')
-            
+            profile = Profile.objects.select_related('user').get(
+                id=profile_id,
+                verification_status='pending'
+            )
+
+            # ✅ Update verification status
             profile.verification_status = 'verified'
             profile.verified_at = timezone.now()
             profile.save()
-            
-            messages.success(request, f'Organization "{profile.org_name or profile.user.get_full_name()}" has been verified.')
+
+            # ✅ Create notification for the organization
+            org_name = profile.org_name or profile.user.get_full_name() or profile.user.username
+
+            Notification.objects.create(
+                recipient=profile.user,
+                sender=request.user,
+                notification_type='verification_approved',
+                title='Organization Verification Approved',
+                message=(
+                    f'Your organization "{org_name}" has been verified. '
+                    f'You can now post opportunities and access all organization features.'
+                ),
+            )
+
+            messages.success(
+                request,
+                f'Organization "{org_name}" has been verified.'
+            )
+
         except Profile.DoesNotExist:
             messages.error(request, 'Organization not found or already processed.')
-        
+
         return redirect('admin_verification_dashboard')
-    
+
     return redirect('admin_verification_dashboard')
+
 
 
 @login_required
@@ -860,19 +879,39 @@ def reject_organization(request, profile_id):
     """Reject an organization verification request"""
     if request.method == 'POST':
         try:
-            profile = Profile.objects.select_related('user').get(id=profile_id, verification_status='pending')
+            profile = Profile.objects.select_related('user').get(
+                id=profile_id,
+                verification_status='pending',
+            )
+
             rejection_reason = request.POST.get('rejection_reason', '')
-            
+
+            # Update profile status
             profile.verification_status = 'rejected'
             profile.verification_reason = rejection_reason
             profile.save()
-            
-            messages.success(request, f'Organization "{profile.org_name or profile.user.get_full_name()}" has been rejected.')
+
+            # ✅ Send notification to the organization
+            Notification.objects.create(
+                recipient=profile.user,
+                notification_type='verification_rejected',
+                title='Organization Verification Rejected',
+                message=(
+                    f'Your verification request was rejected. '
+                    f'Reason: {rejection_reason or "No reason provided."}'
+                ),
+            )
+
+            messages.success(
+                request,
+                f'Organization "{profile.org_name or profile.user.get_full_name()}" has been rejected.',
+            )
+
         except Profile.DoesNotExist:
             messages.error(request, 'Organization not found or already processed.')
-        
+
         return redirect('admin_verification_dashboard')
-    
+
     return redirect('admin_verification_dashboard')
 
 
@@ -1093,3 +1132,42 @@ def save_org_profile(request):
         })
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)}, status=500)
+    
+@login_required
+def student_notification(request):
+    tab = request.GET.get('tab', 'all')
+
+    # Mark all non-archived notifications as read when opening the page
+    Notification.objects.filter(
+        recipient=request.user,
+        read=False,
+        is_archived=False
+    ).update(read=True)
+
+    base_qs = Notification.objects.filter(recipient=request.user)
+
+    # Filter which list to show
+    if tab == 'favorite':
+        notifications_qs = base_qs.filter(is_favorite=True, is_archived=False)
+    elif tab == 'archive':
+        notifications_qs = base_qs.filter(is_archived=True)
+    else:  # 'all'
+        notifications_qs = base_qs.filter(is_archived=False)
+
+    notifications_qs = notifications_qs.order_by('-timestamp')
+
+    # Counts for badges
+    unread_count = base_qs.filter(read=False, is_archived=False).count()
+    favorite_count = base_qs.filter(is_favorite=True, is_archived=False).count()
+    archive_count = base_qs.filter(is_archived=True).count()
+
+    context = {
+        'notifications': notifications_qs,
+        'unread_count': unread_count,
+        'favorite_count': favorite_count,
+        'archive_count': archive_count,
+        'active_tab': tab,
+    }
+    # 👇 IMPORTANT: include the subfolder in the template path
+    return render(request, 'student_notification.html', context)
+

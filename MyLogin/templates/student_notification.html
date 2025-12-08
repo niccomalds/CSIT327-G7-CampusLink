@@ -6,62 +6,71 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CampusLink – Notifications</title>
 
-  <!-- Same CSS as ORG DASHBOARD for the header -->
-   
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
-  <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
+  <!-- Same CSS stack as the student dashboard -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'Myapp/student_dashboard.css' %}?v=3.5">
+  <link rel="stylesheet" href="{% static 'Myapp/main.css' %}">
+  <link rel="stylesheet" href="{% static 'Myapp/error_message.css' %}">
 
   <!-- Page–specific styles for the notification list/card -->
-  <link rel="stylesheet" href="{% static 'Myapp/notifications.css' %}?v=2.0">
+  <link rel="stylesheet" href="{% static 'Myapp/student_notification.css' %}?v=1.0">
 </head>
 <body>
 
   <!-- HEADER: copied from org_dashboard, bell is a direct link -->
+    <!-- HEADER: same as student dashboard -->
   <header class="header">
     <div class="logo">
-      <i class="fa-solid fa-graduation-cap"></i>
-      <span>CampusLink</span>
+        <i class="fa-solid fa-graduation-cap"></i>
+        <span>CampusLink</span>
     </div>
 
     <nav>
-      <a href="{% url 'organization_dashboard' %}">Dashboard</a>
-      <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
-      <a href="{% url 'manage_postings' %}">Applicants</a>
-      <a href="{% url 'org_profile' %}">Profile</a>
+        <a href="#" class="active">Home</a>
+        <a href="/my-applications/">My Applications</a>
+        <a href="{% url 'profile' %}">Profile</a>
     </nav>
 
     <div class="search-profile">
-      
 
-      <!-- 🔔 Bell goes straight to notifications page -->
-      <div class="notification-wrapper">
-        <a href="{% url 'notifications' %}" id="notifBell" class="notif-bell notif-bell-active">
-          <i class="fa-solid fa-bell"></i>
-          {% if unread_count > 0 %}
-            <span class="notif-badge">{{ unread_count }}</span>
-          {% endif %}
-        </a>
-      </div>
+        <!-- 🔔 NOTIFICATION BELL -->
+        <div class="notification-wrapper">
+            <a href="{% url 'student_notification' %}" id="notifBell" class="notif-bell notif-bell-active">
+                <i class="fa-solid fa-bell"></i>
+                {% if unread_count > 0 %}
+                <span class="notif-badge">{{ unread_count }}</span>
+                {% endif %}
+            </a>
 
-      <!-- Profile dropdown (same as org dashboard) -->
-      <div class="profile-dropdown" id="orgProfileDropdown">
-        <img src="{% if user.profile.profile_picture %}{{ user.profile.profile_picture.url }}{% else %}{% static 'Myapp/default-avatar.png' %}{% endif %}"
-             alt="Profile"
-             class="avatar"
-             id="profileAvatar">
-
-        <div class="dropdown-menu" id="orgDropdownMenu">
-          <div class="dropdown-header">Organization</div>
-          <a href="{% url 'org_profile' %}">
-            <i class="fa-solid fa-user"></i>Profile
-          </a>
-          <a href="{% url 'logout' %}">
-            <i class="fa-solid fa-right-from-bracket"></i> Log out
-          </a>
+            <!-- Optional: you can add a dropdown here if you want,
+                 but for now the bell just links to this page -->
         </div>
-      </div>
+
+        <!-- PROFILE DROPDOWN -->
+        <div class="profile-dropdown">
+            <img src="{% if user.profile.profile_picture %}
+                        {{ user.profile.profile_picture.url }}
+                    {% else %}
+                        /static/Myapp/default.png
+                    {% endif %}"
+                alt="Profile"
+                class="avatar"
+                id="profileAvatar">
+
+            <div class="dropdown-menu" id="profileMenu">
+                <div class="dropdown-header">Student</div>
+                <a href="{% url 'profile' %}">
+                    <i class="fa-solid fa-user"></i> Profile
+                </a>
+                <a href="{% url 'logout' %}">
+                    <i class="fa-solid fa-right-from-bracket"></i> Log out
+                </a>
+            </div>
+        </div>
+
     </div>
   </header>
+
 
   <!-- MAIN CONTENT -->
   <main class="notif-page">

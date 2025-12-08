@@ -476,6 +476,13 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
     font-weight: 700;
     border-bottom: 1px solid #e5e7eb;
 }
+.search-profile {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
 
 /* Notification Item */
 .notif-item {
@@ -511,4 +518,60 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
 .notif-empty i {
     font-size: 2rem;
     margin-bottom: 5px;
+}
+
+
+/* Dropdown item styling */
+.dropdown-menu a {
+    display: block;
+    padding: 10px 15px;
+    color: #333;
+    text-decoration: none;
+}
+
+.dropdown-menu a:hover {
+    background: #f0f0f0;
+}
+
+.dropdown-header {
+    font-weight: bold;
+    padding: 10px 15px;
+    color: #666;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+/* Needed so dropdown positions against bell + avatar correctly */
+.search-profile {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+/* FINAL OVERRIDE TO FIX DROPDOWN */
+.profile-dropdown {
+    position: relative;
+    display: inline-block;
+    z-index: 3000;
+}
+
+.profile-dropdown .dropdown-menu {
+    display: none !important;
+    position: absolute;
+    right: 0;
+    top: 120%;
+    background: #ffffff;
+    width: 180px;
+    padding: 10px 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    z-index: 4000;
+    opacity: 0;
+    transform: translateY(5px);
+    transition: all 0.2s ease-out;
+}
+
+.profile-dropdown.show .dropdown-menu {
+    display: block !important;
+    opacity: 1 !important;
+    transform: translateY(0);
 }

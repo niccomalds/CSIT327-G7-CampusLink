@@ -8,61 +8,74 @@
 
   <link rel="stylesheet" href="{% static 'Myapp/manage_posting.css' %}?v=1.0">
   <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
-  
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
 </head>
 
 <body>
+
+  <!-- ========================================================= -->
+  <!--                     HEADER SECTION                        -->
+  <!-- ========================================================= -->
   <header class="header">
     <div class="logo">
-      <i class="fa-solid fa-graduation-cap"></i>
-      <span>CampusLink</span>
+        <i class="fa-solid fa-graduation-cap"></i>
+        <span>CampusLink</span>
     </div>
 
     <nav>
-      <a href="{% url 'organization_dashboard' %}">Dashboard</a>
-      <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
-      <a href="{% url 'manage_postings' %}" class="active">Applicants</a>
-      <a href="{% url 'org_profile' %}">Org Profile</a>
+        <a href="{% url 'organization_dashboard' %}">Dashboard</a>
+        <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
+        <a href="{% url 'manage_postings' %}" class="active">Applicants</a>
+        <a href="{% url 'org_profile' %}">Profile</a>
     </nav>
-    
 
     <div class="search-profile">
 
-      <!-- 🔔 NOTIFICATION BELL — SIMPLE VERSION (Same as Org Dashboard) -->
-<div class="notification-wrapper">
-    <a href="{% url 'notifications' %}" id="notifBell" class="notif-bell">
-        <i class="fa-solid fa-bell"></i>
-        {% if unread_count > 0 %}
-            <span class="notif-badge">{{ unread_count }}</span>
-        {% endif %}
-    </a>
-</div>
+        <!-- Notification Bell  -->
+        <div class="notification-wrapper">
+            <a href="{% url 'notifications' %}" id="notifBell" class="notif-bell">
+                <i class="fa-solid fa-bell"></i>
+                {% if unread_count > 0 %}
+                    <span class="notif-badge">{{ unread_count }}</span>
+                {% endif %}
+            </a>
+        </div>
 
-
-      <!-- PROFILE DROPDOWN -->
-      <div class="profile-dropdown" id="orgProfileDropdown">
-          <img src="{% if user.profile.profile_picture %}
+        <!-- Profile Dropdown -->
+        <div class="profile-dropdown" id="orgProfileDropdown">
+            <img 
+                src="{% if user.profile.profile_picture %}
                         {{ user.profile.profile_picture.url }}
-                   {% else %}
+                     {% else %}
                         /static/Myapp/default-avatar.png
-                   {% endif %}"
-               alt="Profile"
-               class="avatar"
-               id="profileAvatar">
+                     {% endif %}"
+                alt="Profile"
+                class="avatar"
+                id="profileAvatar">
 
-          <div class="dropdown-menu" id="orgDropdownMenu">
-              <div class="dropdown-header">Organization</div>
-              <a href="{% url 'org_profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
-              <a href="{% url 'manage_postings' %}"><i class="fa-solid fa-users"></i> Applicants</a>
-              <a href="{% url 'submit_verification' %}"><i class="fa-solid fa-shield-check"></i> Verify Organization</a>
-              <a href="{% url 'org_settings' %}"><i class="fa-solid fa-gear"></i> Settings</a>
-              <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
-          </div>
-      </div>
+            <div class="dropdown-menu" id="orgDropdownMenu">
+                <div class="dropdown-header">Organization</div>
+
+                <a href="{% url 'org_profile' %}">
+                    <i class="fa-solid fa-user"></i> Profile
+                </a>
+
+                <a href="{% url 'logout' %}">
+                    <i class="fa-solid fa-right-from-bracket"></i> Log out
+                </a>
+            </div>
+        </div>
+
     </div>
-  </header>
+</header>
+
+
+
+  <!-- ========================================================= -->
+  <!--                     MAIN CONTENT                          -->
+  <!-- ========================================================= -->
 
   <main>
     <section class="content">
@@ -106,6 +119,12 @@
     </section>
   </main>
 
+
+
+  <!-- ========================================================= -->
+  <!--                       MODALS                               -->
+  <!-- ========================================================= -->
+
   <!-- Edit Modal -->
   <div id="editModal" class="modal">
     <div class="modal-content">
@@ -140,7 +159,7 @@
     </div>
   </div>
 
-  <!-- Delete Confirmation Modal -->
+  <!-- Delete Modal -->
   <div id="deleteModal" class="modal">
     <div class="modal-content">
       <h3>Delete Posting</h3>
@@ -152,168 +171,58 @@
     </div>
   </div>
 
-  <script>
-    /* ===== Profile Dropdown ===== */
-    const avatar = document.getElementById('profileAvatar');
-    const menu = document.getElementById('profileMenu');
-    
-    if (avatar && menu) {
-      avatar.addEventListener('click', () => {
-        menu.parentElement.classList.toggle('show');
-      });
-      window.addEventListener('click', (e) => {
-        if (!avatar.contains(e.target) && !menu.contains(e.target)) {
-          menu.parentElement.classList.remove('show');
-        }
-      });
+
+  <!-- ========================================================= -->
+  <!--                   JAVASCRIPT SECTION                       -->
+  <!-- ========================================================= -->
+
+  
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    /* ======================================
+       PROFILE DROPDOWN (FINAL WORKING VERSION)
+    ====================================== */
+
+    const avatar  = document.getElementById("profileAvatar");
+    const wrapper = document.getElementById("orgProfileDropdown");
+    const menu    = document.getElementById("orgDropdownMenu");
+
+    if (avatar && wrapper && menu) {
+
+        // OPEN / CLOSE DROPDOWN
+        avatar.addEventListener("click", function(event) {
+            event.stopPropagation();
+            menu.classList.toggle("show");
+        });
+
+        // CLOSE DROPDOWN WHEN CLICKING OUTSIDE
+        document.addEventListener("click", function(event) {
+            if (!menu.contains(event.target) && !avatar.contains(event.target)) {
+                menu.classList.remove("show");
+            }
+        });
     }
 
-    /* ===== Search & Filter ===== */
-    const searchInput = document.getElementById('applicationSearch');
-    searchInput?.addEventListener('input', function() {
-      const term = this.value.toLowerCase();
-      document.querySelectorAll('.application-card').forEach(card => {
-        card.style.display = card.textContent.toLowerCase().includes(term) ? 'block' : 'none';
-      });
-    });
 
-    const statusFilter = document.getElementById('statusFilter');
-    statusFilter?.addEventListener('change', function() {
-      const selected = this.value.toLowerCase().replace(' ', '_');
-      document.querySelectorAll('.application-card').forEach(card => {
-        const status = card.dataset.status;
-        card.style.display = selected === 'all_status' ? 'block' :
-                             (status === selected ? 'block' : 'none');
-      });
-    });
+    /* ======================================
+       NOTIFICATION BELL REDIRECT
+    ====================================== */
 
-    /* ===== Withdrawal ===== */
-    let currentWithdrawId = null;
-    function showWithdrawConfirmation(id) {
-      currentWithdrawId = id;
-      const card = document.querySelector(`[data-application-id="${id}"]`);
-      document.getElementById('withdrawJobTitle').textContent = card.querySelector('h3').textContent;
-      document.getElementById('withdrawOrganization').textContent = card.querySelector('.app-org').textContent;
-      document.getElementById('withdrawModal').style.display = 'block';
-      document.body.style.overflow = 'hidden';
-    }
-    function closeWithdrawModal() {
-      document.getElementById('withdrawModal').style.display = 'none';
-      document.body.style.overflow = 'auto';
-      currentWithdrawId = null;
-    }
-    function confirmWithdrawal() {
-      if (!currentWithdrawId) return;
-      
-      const processingMsg = showInfoMessage('Processing', 'Withdrawing application...', false);
-      
-      setTimeout(function() {
-        processingMsg.querySelector('.alert-close').click();
-        
-        if (Math.random() > 0.2) {
-          simulateWithdrawal(currentWithdrawId);
-          closeWithdrawModal();
-          showSuccessMessage('Success', 'Application withdrawn successfully!');
-          showToast('Application withdrawn successfully!');
-        } else {
-          showErrorMessage('Error', 'Failed to withdraw application. Please try again.');
-        }
-      }, 1500);
-    }
-    function simulateWithdrawal(id) {
-      const card = document.querySelector(`[data-application-id="${id}"]`);
-      const statusBadge = card.querySelector('.status-badge');
-      const withdrawBtn = card.querySelector('.withdraw-btn');
-      card.dataset.status = 'withdrawn';
-      statusBadge.className = 'status-badge status-withdrawn';
-      statusBadge.innerHTML = '<i class="fa-solid fa-ban"></i> Withdrawn';
-      withdrawBtn?.remove();
-      updateStatistics();
-    }
-
-    /* ===== Update Statistics ===== */
-    function updateStatistics() {
-      const counts = { submitted: 0, under_review: 0, accepted: 0, rejected: 0, withdrawn: 0 };
-      document.querySelectorAll('.application-card').forEach(card => counts[card.dataset.status]++);
-      const total = Object.values(counts).reduce((a,b)=>a+b,0);
-      document.getElementById('totalApplications').textContent = total;
-      document.getElementById('submittedApplications').textContent = counts.submitted;
-      document.getElementById('reviewApplications').textContent = counts.under_review;
-      document.getElementById('acceptedApplications').textContent = counts.accepted;
-      document.getElementById('rejectedApplications').textContent = counts.rejected;
-      document.getElementById('withdrawnApplications').textContent = counts.withdrawn;
-    }
-
-    /* ===== Application Details Modal ===== */
-    const modal = document.getElementById('applicationModal');
-    function openApplicationModal(id) {
-      const data = getSampleApplicationData(id);
-      populateModalData(data);
-      modal.style.display = 'block';
-      document.body.style.overflow = 'hidden';
-    }
-    function closeApplicationModal() {
-      modal.style.display = 'none';
-      document.body.style.overflow = 'auto';
-    }
-
-    function populateModalData(data) {
-      document.getElementById('modalJobTitle').textContent = data.jobTitle;
-      document.getElementById('modalOrganization').textContent = data.organization;
-      document.getElementById('modalAppliedDate').textContent = data.appliedDate;
-      document.getElementById('modalDeadline').textContent = data.deadline;
-      document.getElementById('modalWorkMode').textContent = data.workMode;
-      document.getElementById('modalPositionType').textContent = data.positionType;
-      document.getElementById('modalDescription').textContent = data.description;
-      document.getElementById('resumeFileName').textContent = data.resumeFile;
-      document.getElementById('modalNotes').textContent = data.notes;
-
-      const badge = document.getElementById('modalStatus');
-      badge.className = `status-badge status-${data.status}`;
-
-      let icon = '', text = '';
-      switch(data.status){
-        case 'submitted': icon='fa-regular fa-clock'; text='Submitted'; break;
-        case 'under_review': icon='fa-regular fa-eye'; text='Under Review'; break;
-        case 'accepted': icon='fa-solid fa-check'; text='Accepted'; break;
-        case 'rejected': icon='fa-solid fa-xmark'; text='Rejected'; break;
-        case 'withdrawn': icon='fa-solid fa-ban'; text='Withdrawn'; break;
-      }
-      badge.innerHTML = `<i class="${icon}"></i> ${text}`;
-    }
-
-    function downloadResume() {
-      const fileName = document.getElementById('resumeFileName').textContent;
-      showToast(`Downloading resume: ${fileName}`);
-      showInfoMessage('Download Started', `Downloading ${fileName}...`);
-      setTimeout(() => {
-        showSuccessMessage('Download Complete', `${fileName} downloaded successfully!`);
-      }, 2000);
-    }
-
-    function getSampleApplicationData(id) {
-      const sampleData = {
-        1:{jobTitle:"Software Engineering Intern",organization:"Tech Innovations Lab",status:"submitted",appliedDate:"Jan 15",deadline:"Feb 15",workMode:"Remote",positionType:"Internship",description:"Full-stack internship.",resumeFile:"john_doe_resume.pdf",notes:"Excited to join."},
-      };
-      return sampleData[id] || sampleData[1];
-    }
-
-    /* ===== Toast Notification ===== */
-    function showToast(message) {
-      const toast = document.getElementById('toast');
-      toast.textContent = message;
-      toast.className = 'toast show';
-      setTimeout(()=>{ toast.className='toast'; },3000);
-    }
-
-    /* ===== NOTIFICATION (Updated to Direct Link) ===== */
     const bell = document.getElementById("notifBell");
+    if (bell) {
+        bell.addEventListener("click", () => {
+            window.location.href = "{% url 'notifications' %}";
+        });
+    }
 
-    bell.addEventListener("click", () => {
-        // Redirect directly to notifications page
-        window.location.href = "{% url 'notifications' %}";
-    });
+});
 </script>
+
+
+
+
+  
 
 </body>
 </html>
