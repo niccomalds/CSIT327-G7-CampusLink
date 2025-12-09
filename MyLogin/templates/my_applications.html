@@ -81,27 +81,19 @@
     <!-- Statistics Cards -->
     <section class="stats-row">
       <div class="stat-card">
-        <span class="stat-num" id="totalApplications">5</span>
-        <span class="stat-label">Total</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-num" id="submittedApplications">2</span>
+        <span class="stat-num" id="submittedApplications">{{ submitted_count }}</span>
         <span class="stat-label">Submitted</span>
       </div>
       <div class="stat-card">
-        <span class="stat-num" id="reviewApplications">1</span>
-        <span class="stat-label">Review</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-num" id="acceptedApplications">1</span>
+        <span class="stat-num" id="acceptedApplications">{{ accepted_count }}</span>
         <span class="stat-label">Accepted</span>
       </div>
       <div class="stat-card">
-        <span class="stat-num" id="rejectedApplications">1</span>
+        <span class="stat-num" id="rejectedApplications">{{ rejected_count }}</span>
         <span class="stat-label">Rejected</span>
       </div>
       <div class="stat-card">
-        <span class="stat-num" id="withdrawnApplications">0</span>
+        <span class="stat-num" id="withdrawnApplications">{{ withdrawn_count }}</span>
         <span class="stat-label">Withdrawn</span>
       </div>
     </section>
@@ -115,7 +107,6 @@
       <select class="filter-dropdown" id="statusFilter">
         <option>All Status</option>
         <option>Submitted</option>
-        <option>Under Review</option>
         <option>Accepted</option>
         <option>Rejected</option>
         <option>Withdrawn</option>
@@ -126,11 +117,15 @@
     <section class="applications-container">
       {% if applications %}
         {% for application in applications %}
-        <div class="application-card" data-application-id="{{ application.id }}" data-status="{{ application.status }}">
+        <div class="application-card" data-application-id="{{ application.id }}" 
+             data-status="{{ application.status }}" 
+             data-note="{{ application.note|escape }}"
+             data-opportunity-type="{{ application.posting.get_opportunity_type_display|escape }}"
+             data-tags="{% for tag in application.posting.tags_list %}{{ tag|escape }}{% if not forloop.last %},{% endif %}{% endfor %}">
           <div class="app-header">
             <div class="app-title-section">
               <h3>{{ application.posting.title }}</h3>
-              <span class="app-org">{{ application.posting.organization.username }}</span>
+              <span class="app-org">{{ application.posting.organization.profile.org_name|default:application.posting.organization.username }}</span>
             </div>
             <div class="app-actions">
               <span class="status-badge status-{{ application.status }}">
@@ -161,7 +156,7 @@
               </div>
             </div>
           </div>
-          <div class="app-desc">{{ application.posting.description }}</div>
+          <div class="app-desc">{{ application.posting.description|truncatewords:30 }}</div>
           <div class="app-meta">
             <span class="app-date">
               <i class="fa-solid fa-calendar-check"></i>
@@ -169,100 +164,16 @@
             </span>
             <span class="app-deadline">
               <i class="fa-solid fa-clock"></i>
-              Deadline: {{ application.posting.deadline }}
+              Deadline: {{ application.posting.deadline|date:"M d, Y" }}
             </span>
           </div>
         </div>
         {% endfor %}
       {% else %}
-        <div class="application-card" data-application-id="1" data-status="submitted">
-          <div class="app-header">
-            <div class="app-title-section">
-              <h3>Software Engineering Intern</h3>
-              <span class="app-org">Tech Innovations Lab</span>
-            </div>
-            <div class="app-actions">
-              <span class="status-badge status-submitted">
-                <i class="fa-regular fa-clock"></i> Submitted
-              </span>
-              <div class="action-buttons">
-                <button class="view-details-btn" onclick="openApplicationModal(1)">
-                  <i class="fa-regular fa-file-lines"></i> View Details
-                </button>
-                <button class="withdraw-btn" onclick="showWithdrawConfirmation(1)">
-                  <i class="fa-solid fa-xmark"></i> Withdraw
-                </button>
-              </div>
-            </div>
-          </div>
-          <div class="app-desc">Join our dynamic team as a Software Engineering Intern. Work on cutting-edge projects and gain real-world experience in full-stack development.</div>
-          <div class="app-meta">
-            <span class="app-date">
-              <i class="fa-solid fa-calendar-check"></i> Applied: Jan 15, 2024
-            </span>
-            <span class="app-deadline">
-              <i class="fa-solid fa-clock"></i> Deadline: Feb 15, 2024
-            </span>
-          </div>
-        </div>
-
-        <div class="application-card" data-application-id="2" data-status="under_review">
-          <div class="app-header">
-            <div class="app-title-section">
-              <h3>Research Assistant - AI</h3>
-              <span class="app-org">Computer Science Department</span>
-            </div>
-            <div class="app-actions">
-              <span class="status-badge status-under_review">
-                <i class="fa-regular fa-eye"></i> Under Review
-              </span>
-              <div class="action-buttons">
-                <button class="view-details-btn" onclick="openApplicationModal(2)">
-                  <i class="fa-regular fa-file-lines"></i> View Details
-                </button>
-                <button class="withdraw-btn" onclick="showWithdrawConfirmation(2)">
-                  <i class="fa-solid fa-xmark"></i> Withdraw
-                </button>
-              </div>
-            </div>
-          </div>
-          <div class="app-desc">Assist faculty members in cutting-edge AI research projects. Perfect for students interested in machine learning and data science.</div>
-          <div class="app-meta">
-            <span class="app-date">
-              <i class="fa-solid fa-calendar-check"></i> Applied: Jan 10, 2024
-            </span>
-            <span class="app-deadline">
-              <i class="fa-solid fa-clock"></i> Deadline: Feb 20, 2024
-            </span>
-          </div>
-        </div>
-
-        <div class="application-card" data-application-id="3" data-status="accepted">
-          <div class="app-header">
-            <div class="app-title-section">
-              <h3>Marketing Coordinator</h3>
-              <span class="app-org">Student Union</span>
-            </div>
-            <div class="app-actions">
-              <span class="status-badge status-accepted">
-                <i class="fa-solid fa-check"></i> Accepted
-              </span>
-              <div class="action-buttons">
-                <button class="view-details-btn" onclick="openApplicationModal(3)">
-                  <i class="fa-regular fa-file-lines"></i> View Details
-                </button>
-              </div>
-            </div>
-          </div>
-          <div class="app-desc">Coordinate marketing campaigns and social media strategies for campus events. Great opportunity for communications and business majors.</div>
-          <div class="app-meta">
-            <span class="app-date">
-              <i class="fa-solid fa-calendar-check"></i> Applied: Jan 8, 2024
-            </span>
-            <span class="app-deadline">
-              <i class="fa-solid fa-clock"></i> Deadline: Feb 10, 2024
-            </span>
-          </div>
+        <div class="no-applications-message">
+          <i class="fa-solid fa-inbox"></i>
+          <h3>No Applications Yet</h3>
+          <p>You haven't applied to any opportunities yet. Visit the <a href="{% url 'student_dashboard' %}">Student Dashboard</a> to explore and apply for opportunities.</p>
         </div>
       {% endif %}
     </section>
@@ -319,10 +230,6 @@
               <span id="modalDeadline"></span>
             </div>
             <div class="detail-item">
-              <label><i class="fa-solid fa-map-marker-alt"></i> Work Mode</label>
-              <span id="modalWorkMode"></span>
-            </div>
-            <div class="detail-item">
               <label><i class="fa-solid fa-briefcase"></i> Position Type</label>
               <span id="modalPositionType"></span>
             </div>
@@ -330,6 +237,12 @@
           <div class="description-section">
             <h4>Job Description</h4>
             <p id="modalDescription"></p>
+          </div>
+          <div class="tags-section">
+            <h4>Tags</h4>
+            <div class="tags-container" id="modalTags">
+              <!-- Tags will be populated here -->
+            </div>
           </div>
           <div class="submitted-materials">
             <h4>Submitted Materials</h4>
@@ -462,10 +375,7 @@
     function updateStatistics() {
       const counts = { submitted: 0, under_review: 0, accepted: 0, rejected: 0, withdrawn: 0 };
       document.querySelectorAll('.application-card').forEach(card => counts[card.dataset.status]++);
-      const total = Object.values(counts).reduce((a,b)=>a+b,0);
-      document.getElementById('totalApplications').textContent = total;
       document.getElementById('submittedApplications').textContent = counts.submitted;
-      document.getElementById('reviewApplications').textContent = counts.under_review;
       document.getElementById('acceptedApplications').textContent = counts.accepted;
       document.getElementById('rejectedApplications').textContent = counts.rejected;
       document.getElementById('withdrawnApplications').textContent = counts.withdrawn;
@@ -474,37 +384,57 @@
     /* ===== Application Details Modal ===== */
     const modal = document.getElementById('applicationModal');
     function openApplicationModal(id) {
-      const data = getSampleApplicationData(id);
-      populateModalData(data);
+      const card = document.querySelector(`[data-application-id="${id}"]`);
+      if (card) {
+        // Extract data from the card
+        const jobTitle = card.querySelector('h3').textContent;
+        const organization = card.querySelector('.app-org').textContent;
+        const statusElement = card.querySelector('.status-badge');
+        const statusClass = statusElement.className;
+        const statusText = statusElement.textContent.trim();
+        const appliedDate = card.querySelector('.app-date').textContent.replace('Applied: ', '');
+        const deadline = card.querySelector('.app-deadline').textContent.replace('Deadline: ', '');
+        const description = card.querySelector('.app-desc').textContent;
+        const note = card.dataset.note || ''; // Get the note from data attribute
+        const opportunityType = card.dataset.opportunityType || 'Not specified';
+        const tagsString = card.dataset.tags || '';
+        const tags = tagsString ? tagsString.split(',') : [];
+        
+        // Populate modal
+        document.getElementById('modalJobTitle').textContent = jobTitle;
+        document.getElementById('modalOrganization').textContent = organization;
+        document.getElementById('modalAppliedDate').textContent = appliedDate;
+        document.getElementById('modalDeadline').textContent = deadline;
+        document.getElementById('modalDescription').textContent = description;
+        document.getElementById('modalPositionType').textContent = opportunityType;
+        document.getElementById('resumeFileName').textContent = 'resume.pdf';
+        document.getElementById('modalNotes').textContent = note || 'No additional notes provided.'; // Use the note or default text
+        
+        // Populate tags
+        const tagsContainer = document.getElementById('modalTags');
+        tagsContainer.innerHTML = ''; // Clear existing tags
+        if (tags.length > 0) {
+          tags.forEach(tag => {
+            const tagElement = document.createElement('span');
+            tagElement.className = 'tag';
+            tagElement.textContent = tag.trim();
+            tagsContainer.appendChild(tagElement);
+          });
+        } else {
+          tagsContainer.innerHTML = '<span class="no-tags">No tags specified</span>';
+        }
+        
+        const badge = document.getElementById('modalStatus');
+        badge.className = statusClass;
+        badge.textContent = statusText;
+      }
+      
       modal.style.display = 'block';
       document.body.style.overflow = 'hidden';
     }
     function closeApplicationModal() {
       modal.style.display = 'none';
       document.body.style.overflow = 'auto';
-    }
-    function populateModalData(data) {
-      document.getElementById('modalJobTitle').textContent = data.jobTitle;
-      document.getElementById('modalOrganization').textContent = data.organization;
-      document.getElementById('modalAppliedDate').textContent = data.appliedDate;
-      document.getElementById('modalDeadline').textContent = data.deadline;
-      document.getElementById('modalWorkMode').textContent = data.workMode;
-      document.getElementById('modalPositionType').textContent = data.positionType;
-      document.getElementById('modalDescription').textContent = data.description;
-      document.getElementById('resumeFileName').textContent = data.resumeFile;
-      document.getElementById('modalNotes').textContent = data.notes;
-
-      const badge = document.getElementById('modalStatus');
-      badge.className = `status-badge status-${data.status}`;
-      let icon = '', text = '';
-      switch(data.status){
-        case 'submitted': icon='fa-regular fa-clock'; text='Submitted'; break;
-        case 'under_review': icon='fa-regular fa-eye'; text='Under Review'; break;
-        case 'accepted': icon='fa-solid fa-check'; text='Accepted'; break;
-        case 'rejected': icon='fa-solid fa-xmark'; text='Rejected'; break;
-        case 'withdrawn': icon='fa-solid fa-ban'; text='Withdrawn'; break;
-      }
-      badge.innerHTML = `<i class="${icon}"></i> ${text}`;
     }
     function downloadResume() {
       const fileName = document.getElementById('resumeFileName').textContent;
@@ -517,16 +447,6 @@
       setTimeout(function() {
         showSuccessMessage('Download Complete', `${fileName} downloaded successfully!`);
       }, 2000);
-    }
-    function getSampleApplicationData(id) {
-      const sampleData = {
-        1:{jobTitle:"Software Engineering Intern",organization:"Tech Innovations Lab",status:"submitted",appliedDate:"Jan 15, 2024",deadline:"Feb 15, 2024",workMode:"Remote",positionType:"Internship",description:"Full-stack internship.",resumeFile:"john_doe_resume.pdf",notes:"Excited to join the team."},
-        2:{jobTitle:"Research Assistant - AI",organization:"Computer Science Department",status:"under_review",appliedDate:"Jan 10, 2024",deadline:"Feb 20, 2024",workMode:"On Campus",positionType:"Research",description:"Assist faculty in AI research.",resumeFile:"research_assistant_resume.pdf",notes:"Interested in ML research."},
-        3:{jobTitle:"Marketing Coordinator",organization:"Student Union",status:"accepted",appliedDate:"Jan 8, 2024",deadline:"Feb 10, 2024",workMode:"On Campus",positionType:"Part-time",description:"Coordinate marketing activities.",resumeFile:"marketing_coordinator_resume.pdf",notes:"Experience in social media."},
-        4:{jobTitle:"Web Developer",organization:"Campus Startups Inc.",status:"rejected",appliedDate:"Jan 5, 2024",deadline:"Jan 30, 2024",workMode:"Hybrid",positionType:"Freelance",description:"Develop web apps.",resumeFile:"web_developer_resume.pdf",notes:"Portfolio includes React/Node.js."},
-        5:{jobTitle:"Data Analyst Intern",organization:"Business Analytics Club",status:"submitted",appliedDate:"Jan 12, 2024",deadline:"Feb 25, 2024",workMode:"Remote",positionType:"Internship",description:"Analyze business data.",resumeFile:"data_analyst_resume.pdf",notes:"Strong SQL skills."}
-      };
-      return sampleData[id] || sampleData[1];
     }
 
     /* ===== Toast Notification ===== */

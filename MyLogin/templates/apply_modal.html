@@ -1,0 +1,41 @@
+<!-- Apply Modal -->
+<div id="applyModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Apply for Opportunity</h2>
+    <form id="applicationForm" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" id="postingId" name="posting_id" value="">
+      
+      <label for="resume">Resume/CV <span class="required">*</span></label>
+      <div class="file-upload-area" id="resumeDropArea">
+        <p>Drag & drop your resume here or click to browse</p>
+        <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required>
+        <p class="file-info">Required. Accepted formats: PDF, DOC, DOCX. Maximum file size: 5MB.</p>
+      </div>
+      <div class="file-selected" id="resumeSelected" style="display: none;">
+        <span id="resumeFileName"></span>
+        <button type="button" class="remove-file" data-target="resume">Remove</button>
+      </div>
+
+      <label for="note">Personal Note</label>
+      <textarea id="note" name="note" placeholder="Share why you're interested in this opportunity and what makes you a good fit."></textarea>
+
+      <label for="additional_docs">Additional Documents</label>
+      <div class="file-upload-area" id="docsDropArea">
+        <p>Drag & drop additional documents here or click to browse</p>
+        <input type="file" id="additional_docs" name="additional_docs" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple>
+        <p class="file-info">Accepted formats: PDF, DOC, DOCX, JPG, PNG.</p>
+      </div>
+      <div class="file-selected" id="docsSelected" style="display: none;">
+        <span id="docsFileNames"></span>
+        <button type="button" class="remove-file" data-target="additional_docs">Remove All</button>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="cancel-btn">Cancel</button>
+        <button type="submit" class="submit-btn">Submit Application</button>
+      </div>
+    </form>
+  </div>
+</div>

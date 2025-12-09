@@ -27,29 +27,7 @@ def my_applications(request):
         'applications': applications
     })
 
-def create_application(request, posting_id):
-    if not request.user.is_authenticated:
-        return redirect("login")
-    
-    posting = get_object_or_404(Posting, id=posting_id)
-    
-    if request.method == "POST":
-        resume = request.FILES.get('resume')
-        note = request.POST.get('note', '')
-        
-        if Application.objects.filter(student=request.user, posting=posting).exists():
-            messages.error(request, "You have already applied to this posting.")
-        else:
-            application = Application.objects.create(
-                student=request.user,
-                posting=posting,
-                resume=resume,
-                note=note
-            )
-            messages.success(request, "Application submitted successfully!")
-            return redirect('my_applications')
-    
-    return render(request, "Myapp/create_application.html", {'posting': posting})
+
 
 def withdraw_application(request, application_id):
     if not request.user.is_authenticated:

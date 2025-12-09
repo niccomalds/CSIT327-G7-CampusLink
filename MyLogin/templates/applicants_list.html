@@ -1,0 +1,383 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Applicants - CampusLink</title>
+
+  <link rel="stylesheet" href="{% static 'Myapp/applicants_list.css' %}?v=1.1">
+  <!-- Include the error message component CSS -->
+  <link rel="stylesheet" href="{% static 'Myapp/error_message.css' %}">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  {% csrf_token %}
+</head>
+
+<body>
+
+<!-- Alert container for global error messages -->
+<div class="alert-container"></div>
+
+  <!-- ========================================================= -->
+  <!--                     HEADER SECTION                        -->
+  <!-- ========================================================= -->
+  <header class="header">
+    <div class="logo">
+        <i class="fa-solid fa-graduation-cap"></i>
+        <span>CampusLink</span>
+    </div>
+
+    <nav>
+        <a href="{% url 'organization_dashboard' %}">Dashboard</a>
+        <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
+        <a href="{% url 'manage_postings' %}" class="active">Applicants</a>
+        <a href="{% url 'org_profile' %}">Profile</a>
+    </nav>
+
+    <div class="search-profile">
+
+        <!-- Notification Bell  -->
+        <div class="notification-wrapper">
+            <a href="{% url 'notifications' %}" id="notifBell" class="notif-bell">
+                <i class="fa-solid fa-bell"></i>
+                {% if unread_count > 0 %}
+                    <span class="notif-badge">{{ unread_count }}</span>
+                {% endif %}
+            </a>
+        </div>
+
+        <!-- Profile Dropdown -->
+        <div class="profile-dropdown" id="orgProfileDropdown">
+            <img 
+                src="{% if user.profile.profile_picture %}
+                        {{ user.profile.profile_picture.url }}
+                     {% else %}
+                        /static/Myapp/default-avatar.png
+                     {% endif %}"
+                alt="Profile"
+                class="avatar"
+                id="profileAvatar">
+
+            <div class="dropdown-menu" id="orgDropdownMenu">
+                <div class="dropdown-header">Organization</div>
+
+                <a href="{% url 'org_profile' %}">
+                    <i class="fa-solid fa-user"></i> Profile
+                </a>
+
+                <a href="{% url 'logout' %}">
+                    <i class="fa-solid fa-right-from-bracket"></i> Log out
+                </a>
+            </div>
+        </div>
+
+    </div>
+</header>
+
+  <!-- ========================================================= -->
+  <!--                     MAIN CONTENT                          -->
+  <!-- ========================================================= -->
+
+  <main>
+    <div class="main-content">
+      <div class="back-button-container">
+        <a href="{% url 'manage_postings' %}" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back to Manage Postings
+        </a>
+      </div>
+      <section class="content">
+        <div class="dashboard-title">
+          <h1>Applicants for <span>{{ posting.title }}</span></h1>
+          <p>Review applications for this opportunity ({{ applications|length }} total)</p>
+        </div>
+
+        <div class="recent-section">
+          <div class="recent-postings">
+            {% if applications %}
+              <div class="table-responsive">
+                <table class="applicants-table">
+                  <thead>
+                    <tr>
+                      <th>Applicant</th>
+                      <th>Email</th>
+                      <th>Applied Date</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for application in applications %}
+                      <tr class="applicant-row" data-application-id="{{ application.id }}">
+                        <td>
+                          <div class="applicant-info">
+                            {% if application.student.profile.profile_picture %}
+                              <img src="{{ application.student.profile.profile_picture.url }}" alt="{{ application.student.first_name }}" class="applicant-avatar-small">
+                            {% else %}
+                              <i class="fas fa-user-circle applicant-avatar-placeholder"></i>
+                            {% endif %}
+                            <span class="applicant-name">{{ application.student.first_name }} {{ application.student.last_name }}</span>
+                          </div>
+                        </td>
+                        <td>{{ application.student.email }}</td>
+                        <td>{{ application.created_at|date:"M d, Y" }}</td>
+                        <td>
+                          <span class="status-badge {% if application.status == 'submitted' %}pending{% elif application.status == 'under_review' %}pending{% elif application.status == 'accepted' %}active{% elif application.status == 'rejected' %}closed{% else %}pending{% endif %}">
+                            {{ application.get_status_display }}
+                          </span>
+                        </td>
+                        <td>
+                          <button class="btn-view-details" data-application-id="{{ application.id }}">
+                            <i class="fas fa-eye"></i> View Details
+                          </button>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <div class="no-applicants">
+                <i class="fas fa-users"></i>
+                <h3>No Applicants Yet</h3>
+                <p>No applications received for this opportunity yet.</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Applicant Details Modal -->
+  <div id="applicantDetailsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Applicant Details</h2>
+        <button class="close-modal">&times;</button>
+      </div>
+      <div class="modal-body" id="applicantDetailsContent">
+        <!-- Content will be loaded via JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!--                   JAVASCRIPT SECTION                       -->
+  <!-- ========================================================= -->
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    /* ======================================
+       PROFILE DROPDOWN (FINAL WORKING VERSION)
+    ====================================== */
+
+    const avatar  = document.getElementById("profileAvatar");
+    const wrapper = document.getElementById("orgProfileDropdown");
+    const menu    = document.getElementById("orgDropdownMenu");
+
+    if (avatar && wrapper && menu) {
+
+        // OPEN / CLOSE DROPDOWN
+        avatar.addEventListener("click", function(event) {
+            event.stopPropagation();
+            menu.classList.toggle("show");
+        });
+
+        // CLOSE DROPDOWN WHEN CLICKING OUTSIDE
+        document.addEventListener("click", function(event) {
+            if (!menu.contains(event.target) && !avatar.contains(event.target)) {
+                menu.classList.remove("show");
+            }
+        });
+    }
+
+
+    /* ======================================
+       NOTIFICATION BELL REDIRECT
+    ====================================== */
+
+    const bell = document.getElementById("notifBell");
+    if (bell) {
+        bell.addEventListener("click", () => {
+            window.location.href = "{% url 'notifications' %}";
+        });
+    }
+
+    // View applicant details
+    const viewButtons = document.querySelectorAll('.btn-view-details');
+    const modal = document.getElementById('applicantDetailsModal');
+    const closeModalBtn = document.querySelector('.close-modal');
+    
+    viewButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const applicationId = this.getAttribute('data-application-id');
+            
+            // Fetch applicant details via AJAX
+            fetch(`/get-application-details/${applicationId}/`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Populate modal with applicant details
+                    document.getElementById('applicantDetailsContent').innerHTML = `
+                        <div class="applicant-detail-card">
+                          <div class="applicant-header">
+                            <div class="applicant-avatar-large">
+                              ${data.profile_picture ? 
+                                `<img src="${data.profile_picture}" alt="${data.first_name} ${data.last_name}" class="avatar-img">` :
+                                `<i class="fas fa-user-circle fa-3x" style="color: #0072ff;"></i>`}
+                            </div>
+                            <div class="applicant-basic-info">
+                              <h3>${data.first_name} ${data.last_name}</h3>
+                              <p class="applicant-email">${data.email}</p>
+                              <p class="application-date"><i class="fas fa-calendar-alt"></i> Applied on ${data.applied_date}</p>
+                            </div>
+                          </div>
+                          
+                          <div class="application-details-section">
+                            <div class="detail-section">
+                              <h4><i class="fas fa-file-alt"></i> Application Note</h4>
+                              <p>${data.note || 'No note provided.'}</p>
+                            </div>
+                            
+                            <div class="detail-section">
+                              <h4><i class="fas fa-file-pdf"></i> Resume/CV</h4>
+                              ${data.resume ? 
+                                `<a href="${data.resume}" target="_blank" class="resume-link">
+                                  <i class="fas fa-download"></i> Download Resume
+                                </a>` :
+                                `<p>No resume uploaded</p>`}
+                            </div>
+                            
+                            <div class="detail-section">
+                              <h4><i class="fas fa-tasks"></i> Application Status</h4>
+                              <span class="status ${data.status_class}">${data.status_display}</span>
+                            </div>
+                          </div>
+                          
+                          <div class="applicant-actions-modal">
+                            <select class="status-select-modal" id="statusSelect-${applicationId}" data-application-id="${applicationId}">
+                              <option value="submitted" ${data.status === 'submitted' ? 'selected' : ''}>Submitted</option>
+                              <option value="under_review" ${data.status === 'under_review' ? 'selected' : ''}>Under Review</option>
+                              <option value="accepted" ${data.status === 'accepted' ? 'selected' : ''}>Accept</option>
+                              <option value="rejected" ${data.status === 'rejected' ? 'selected' : ''}>Reject</option>
+                            </select>
+                            <button class="action update-status-btn-modal" data-application-id="${applicationId}">Update Status</button>
+                          </div>
+                        </div>
+                    `;
+                    
+                    // Show modal
+                    modal.classList.add('active');
+                    
+                    // Add event listener for status update button
+                    document.querySelector('.update-status-btn-modal').addEventListener('click', function() {
+                        const appId = this.getAttribute('data-application-id');
+                        const statusSelect = document.getElementById(`statusSelect-${appId}`);
+                        const newStatus = statusSelect.value;
+                        
+                        updateApplicationStatus(appId, newStatus);
+                    });
+                } else {
+                    showToast('Error loading applicant details: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error loading applicant details.', 'error');
+            });
+        });
+    });
+    
+    // Close modal
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', function() {
+            modal.classList.remove('active');
+        });
+    }
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            modal.classList.remove('active');
+        }
+    });
+
+    // Update application status
+    function updateApplicationStatus(applicationId, newStatus) {
+        fetch(`/update-application-status/${applicationId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: JSON.stringify({status: newStatus})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Status updated successfully!', 'success');
+                // Update the status badge in the table
+                const statusBadge = document.querySelector(`tr[data-application-id="${applicationId}"] .status-badge`);
+                if (statusBadge) {
+                    // Remove existing classes
+                    statusBadge.className = 'status-badge';
+                    // Add new class based on status
+                    if (newStatus === 'accepted') {
+                        statusBadge.classList.add('active');
+                    } else if (newStatus === 'rejected') {
+                        statusBadge.classList.add('closed');
+                    } else {
+                        statusBadge.classList.add('pending');
+                    }
+                    // Update text
+                    statusBadge.textContent = document.querySelector(`#statusSelect-${applicationId} option[value="${newStatus}"]`).text;
+                }
+                // Close modal
+                modal.classList.remove('active');
+            } else {
+                showToast('Error updating status: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error updating status.', 'error');
+        });
+    }
+
+    // Toast notification function
+    function showToast(message, type) {
+        // Remove any existing toast
+        const existingToast = document.querySelector('.toast');
+        if (existingToast) {
+            existingToast.remove();
+        }
+
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+
+        // Add to document
+        document.body.appendChild(toast);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+});
+</script>
+
+  <!-- Include the error message component JavaScript -->
+  <script src="{% static 'Myapp/error_message.js' %}"></script>
+
+</body>
+</html>

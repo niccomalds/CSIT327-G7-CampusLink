@@ -2,16 +2,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CampusLink – Notifications</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Same CSS stack as the student dashboard -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="{% static 'Myapp/student_dashboard.css' %}?v=3.5">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notifications - CampusLink</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
   <link rel="stylesheet" href="{% static 'Myapp/main.css' %}">
-  <link rel="stylesheet" href="{% static 'Myapp/error_message.css' %}">
-
   <!-- Page–specific styles for the notification list/card -->
   <link rel="stylesheet" href="{% static 'Myapp/student_notification.css' %}?v=1.0">
 </head>
@@ -39,7 +34,7 @@
 
                 <!-- 🔔 NOTIFICATION BELL -->
                 <div class="notification-wrapper relative">
-                    <a href="{% url 'student_notification' %}" id="notifBell" class="notif-bell text-gray-600 hover:text-[#00c6ff] relative">
+                    <a href="{% url 'student_notification' %}" id="notifBell" class="notif-bell text-gray-600 hover:text-[#00c6ff] relative notif-bell-active">
                         <i class="fa-solid fa-bell"></i>
                         {% if unread_count > 0 %}
                         <span class="notif-badge">{{ unread_count }}</span>
@@ -169,35 +164,43 @@
     {% elif notification.notification_type == 'verification_approved' %}
       <span class="notif-type-badge notif-type-approve">Verified</span>
     {% elif notification.notification_type == 'verification_rejected' %}
-      <span class="notif-type-badge notif-type-reject">Verification Rejected</span>
-    {% else %}
-      {# default badge, if ever used #}
-      <span class="notif-type-badge notif-type-verify">Update</span>
+      <span class="notif-type-badge notif-type-reject">Rejected</span>
+    {% elif notification.notification_type == 'new_application' %}
+      <span class="notif-type-badge notif-type-new">New Application</span>
     {% endif %}
   {% endif %}
 </div>
 
-                  <div class="notification-message">
+                  <p class="notification-message">
                     {{ notification.message }}
+                  </p>
+                  <div class="notification-meta">
+                    <span class="notification-time">
+                      {{ notification.timestamp|date:"M d, Y \a\t g:i A" }}
+                    </span>
+                    {% if notification.related_posting %}
+                      <a href="#" class="notification-link">View Posting</a>
+                    {% endif %}
                   </div>
                 </div>
 
-                <!-- Right side -->
+                <!-- Right icons -->
                 <div class="notification-right">
-                  <span class="notification-time-ago">
-                    {{ notification.timestamp|timesince }} ago
-                  </span>
-
-                  <!-- Archive button -->
-                
-
-                  <!-- Delete button -->
-                  <form method="post"
-                        action="{% url 'notification_delete' notification.id %}"
-                        style="display:inline-block;">
+                  <!-- Archive form -->
+                  <form method="post" action="{% url 'archive_notification' notification.id %}" class="inline-form">
                     {% csrf_token %}
-                    <button class="notif-icon-btn delete-btn" type="submit" title="Delete">
-                      <i class="fa-regular fa-trash-can"></i>
+                    <button class="notif-icon-btn archive-btn" type="submit" title="Archive">
+                      <i class="fa-solid fa-archive"></i>
+                    </button>
+                  </form>
+
+                  <!-- Mark as read/unread form -->
+                  <form method="post" action="{% url 'toggle_read_status' notification.id %}" class="inline-form">
+                    {% csrf_token %}
+                    <button class="notif-icon-btn {% if notification.read %}mark-unread-btn{% else %}mark-read-btn{% endif %}" 
+                            type="submit" 
+                            title="{% if notification.read %}Mark as unread{% else %}Mark as read{% endif %}">
+                      <i class="fa-solid {% if notification.read %}fa-envelope{% else %}fa-envelope-open{% endif %}"></i>
                     </button>
                   </form>
                 </div>
@@ -205,60 +208,18 @@
             {% endfor %}
           </ul>
         {% else %}
-          <div class="empty-state">
-            <i class="far fa-bell"></i>
-            <h3>No Notifications Yet</h3>
-            <p>You don't have any notifications at the moment. We'll notify you when there are updates.</p>
+          <div class="no-notifications">
+            <i class="fa-solid fa-bell-slash"></i>
+            <h3>No notifications yet</h3>
+            <p>When you receive notifications, they'll appear here.</p>
           </div>
         {% endif %}
       </section>
     </div>
   </main>
 
-  <script>
-    // Highlight and scroll to a specific notification if opened with #notification-ID
-    document.addEventListener("DOMContentLoaded", function() {
-      const hash = window.location.hash;
-      if (hash && hash.startsWith("#notification-")) {
-        const target = document.querySelector(hash);
-        if (target) {
-          target.classList.add("focused");
-          target.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-      }
-    });
-
-    // Very basic front-end search filter
-    document.addEventListener("DOMContentLoaded", function () {
-      const searchInput = document.getElementById("notifSearchInput");
-      const notifList = document.getElementById("notificationList");
-      if (searchInput && notifList) {
-        searchInput.addEventListener("input", function () {
-          const term = this.value.toLowerCase();
-          document.querySelectorAll("#notificationList .notification-item").forEach(item => {
-            const text = item.textContent.toLowerCase();
-            item.style.display = text.includes(term) ? "" : "none";
-          });
-        });
-      }
-
-      // Profile dropdown toggle (same behavior as student dashboard)
-      const profileAvatar = document.getElementById("profileAvatar");
-      const profileMenu = document.getElementById("profileMenu");
-
-      if (profileAvatar && profileMenu) {
-        profileAvatar.addEventListener("click", function (event) {
-          event.stopPropagation();
-          profileMenu.parentElement.classList.toggle('show');
-        });
-
-        document.addEventListener("click", function (event) {
-          if (!profileMenu.contains(event.target) && !profileAvatar.contains(event.target)) {
-            profileMenu.parentElement.classList.remove('show');
-          }
-        });
-      }
-    });
-  </script>
+  <script src="{% static 'Myapp/student_notification.js' %}"></script>
+  <!-- Include the error message component JavaScript -->
+  <script src="{% static 'Myapp/error_message.js' %}"></script>
 </body>
 </html>

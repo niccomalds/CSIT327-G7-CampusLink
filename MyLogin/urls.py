@@ -19,6 +19,7 @@ urlpatterns = [
     path('student/dashboard/profile/update/', views.update_profile, name='update_profile'),
     path('student/dashboard/profile/save-skills/', views.save_skills, name='save_skills'),
     path('my-applications/', views.my_applications, name='my_applications'),
+    path('create-application/<int:posting_id>/', views.create_application, name='create_application'),
 
     # --- Organization Pages ---
     path('organization/dashboard/', views.organization_dashboard, name='organization_dashboard'),
@@ -26,6 +27,8 @@ urlpatterns = [
     path('organization/edit-posting/<int:post_id>/', views.edit_posting, name='edit_posting'),
     path('organization/delete-posting/<int:post_id>/', views.delete_posting, name='delete_posting'),
     path('organization/applicants/', views.applicants_list, name='applicants_list'),
+    path('get-application-details/<int:application_id>/', views.get_application_details, name='get_application_details'),
+    path('update-application-status/<int:application_id>/', views.update_application_status, name='update_application_status'),
 
     # --- ORG PROFILE WIZARD ---
     path('organization/org-profile/', views.org_profile, name='org_profile'),
