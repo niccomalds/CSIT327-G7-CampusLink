@@ -4,245 +4,834 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CampusLink Student Dashboard - Discover internships, research positions, and campus opportunities">
   <title>CampusLink – Student Dashboard</title>
   
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="{% static 'Myapp/student_dashboard.css' %}?v=3.5">
-  <link rel="stylesheet" href="{% static 'Myapp/main.css' %}">
-  <!-- Include the error message component CSS -->
-  <link rel="stylesheet" href="{% static 'Myapp/error_message.css' %}">
+  <!-- External Dependencies -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+  
+  <!-- Application Stylesheets -->
+  <link rel="stylesheet" href="{% static 'Myapp/student_dashboard.css' %}?v=4.0">
+  <link rel="stylesheet" href="{% static 'Myapp/components/filter_panel.css' %}?v=1.0">
+  <link rel="stylesheet" href="{% static 'Myapp/components/opportunity_card.css' %}?v=1.0">
+  <link rel="stylesheet" href="{% static 'Myapp/error_message.css' %}?v=1.2">
 </head>
 <body>
-  <!-- Alert container for global error messages -->
-  <div class="alert-container"></div>
+  <!-- Global Notification Area -->
+  <div class="alert-container" role="alert" aria-live="polite"></div>
   
-  <header class="header">
-  <div class="logo">
-      <i class="fa-solid fa-graduation-cap"></i>
+  <!-- Main Navigation -->
+  <header class="header" role="banner">
+    <div class="logo">
+      <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
       <span>CampusLink</span>
-  </div>
+    </div>
 
-  <nav>
-      <a href="{% url 'student_dashboard' %}" class="active">Home</a>
-      <a href="{% url 'my_applications' %}">My Applications</a>
-      <a href="{% url 'profile' %}">Profile</a>
-  </nav>
+    <nav class="main-nav" role="navigation" aria-label="Main navigation">
+      <a href="{% url 'student_dashboard' %}" class="active" aria-current="page">
+        <i class="fa-solid fa-house" aria-hidden="true"></i>
+        Home
+      </a>
+      <a href="{% url 'my_applications' %}">
+        <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+        My Applications
+      </a>
+      <a href="{% url 'profile' %}">
+        <i class="fa-solid fa-user" aria-hidden="true"></i>
+        Profile
+      </a>
+    </nav>
 
-  <div class="search-profile">
-
-      <!-- 🔔 NOTIFICATION BELL -->
+    <!-- User Controls -->
+    <div class="user-controls">
+      <!-- Notifications -->
       <div class="notification-wrapper">
-          <a href="{% url 'student_notification' %}" id="notifBell" class="notif-bell">
-              <i class="fa-solid fa-bell"></i>
-              {% if unread_count > 0 %}
-              <span class="notif-badge">{{ unread_count }}</span>
-              {% endif %}
-          </a>
+        <a href="{% url 'student_notification' %}" 
+           id="notifBell" 
+           class="notif-bell"
+           aria-label="Notifications"
+           {% if unread_count > 0 %}aria-describedby="unread-notifications"{% endif %}>
+          <i class="fa-solid fa-bell" aria-hidden="true"></i>
+          {% if unread_count > 0 %}
+            <span class="notif-badge" id="unread-notifications">{{ unread_count }}</span>
+          {% endif %}
+        </a>
       </div>
 
-      <!-- PROFILE DROPDOWN -->
+      <!-- Profile Dropdown -->
       <div class="profile-dropdown">
+        <button class="avatar-button" id="profileAvatar" aria-label="Profile menu" aria-expanded="false">
           <img src="{% if user.profile.profile_picture %}
                       {{ user.profile.profile_picture.url }}
                   {% else %}
                       {% static 'Myapp/default-avatar.png' %}
                   {% endif %}"
-               alt="Profile"
-               class="avatar"
-               id="profileAvatar">
+               alt="{{ user.get_full_name|default:user.email }}"
+               class="avatar">
+        </button>
 
-          <div class="dropdown-menu" id="profileMenu">
-              <div class="dropdown-header">Student</div>
-              <a href="{% url 'profile' %}">
-                  <i class="fa-solid fa-user"></i> Profile
-              </a>
-              <a href="{% url 'logout' %}">
-                  <i class="fa-solid fa-right-from-bracket"></i> Log out
-              </a>
+        <div class="dropdown-menu" id="profileMenu" role="menu" aria-labelledby="profileAvatar">
+          <div class="dropdown-header">
+            <i class="fa-solid fa-user-graduate" aria-hidden="true"></i>
+            Student Account
           </div>
-      </div>
-
-  </div>
-</header>
-  <main>
-    <div class="dashboard-title">
-      <h1>Discover Your Next <span style="color: #00c6ff;">Opportunity</span></h1>
-      <p>Explore internships, research positions, and part-time jobs tailored for your academic journey.</p>
-    </div>
-    <section class="stats-row">
-  <div class="stat-card">
-    <span class="stat-num">{{ active_opportunities_count }}</span>
-    <span class="stat-label">Active Opportunities</span>
-  </div>
-
-  <div class="stat-card">
-    <span class="stat-num">{{ students_connected_count }}</span>
-    <span class="stat-label">Students Connected</span>
-  </div>
-
-  <div class="stat-card">
-    <span class="stat-num">1</span>
-    <span class="stat-label">Applications Pending</span>
-  </div>
-</section>
-
-    <section class="search-filter-row">
-  <div class="search-controls-group">
-    <div class="search-box">
-      <i class="fa-solid fa-magnifying-glass"></i>
-      <input type="text" placeholder="Search by title, organization, or skills..." />
-    </div>
-    
-    <select class="filter-dropdown" id="sortDropdown">
-      <option value="recent">Most Recent</option>
-      <option value="deadline">Deadline Soonest</option>
-      <option value="organization">Organization A-Z</option>
-      <option value="title">Title A-Z</option>
-    </select>
-
-    <select class="filter-dropdown" id="deadlineFilter">
-      <option value="">All Deadlines</option>
-      <option value="today">Due Today</option>
-      <option value="week">Due This Week</option>
-      <option value="month">Due This Month</option>
-      <option value="custom">Custom Range</option>
-    </select>
-    
-    <div class="type-filter-inline">
-      <span class="filter-label">Type:</span>
-      <div class="type-filter-options-inline">
-        <label class="type-checkbox-inline">
-          <input type="checkbox" name="opportunityType" value="assistantship">
-          <span class="checkmark-inline"></span>
-          <span class="type-label-inline">Assistantship</span>
-        </label>
-        <label class="type-checkbox-inline">
-          <input type="checkbox" name="opportunityType" value="volunteer">
-          <span class="checkmark-inline"></span>
-          <span class="type-label-inline">Volunteer</span>
-        </label>
-        <label class="type-checkbox-inline">
-          <input type="checkbox" name="opportunityType" value="sports">
-          <span class="checkmark-inline"></span>
-          <span class="type-label-inline">Sports</span>
-        </label>
-        <label class="type-checkbox-inline">
-          <input type="checkbox" name="opportunityType" value="leadership">
-          <span class="checkmark-inline"></span>
-          <span class="type-label-inline">Leadership</span>
-        </label>
-        <label class="type-checkbox-inline">
-          <input type="checkbox" name="opportunityType" value="other">
-          <span class="checkmark-inline"></span>
-          <span class="type-label-inline">Other</span>
-        </label>
+          <a href="{% url 'profile' %}" role="menuitem">
+            <i class="fa-solid fa-user-pen" aria-hidden="true"></i>
+            Profile & Settings
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="{% url 'logout' %}" role="menuitem" class="logout-item">
+            <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+            Log out
+          </a>
+        </div>
       </div>
     </div>
-  </div>
+  </header>
 
-  <div class="filter-controls-group">
-    <div class="custom-date-range" id="customDateRange" style="display: none;">
-      <input type="date" id="startDate" class="date-input">
-      <span>to</span>
-      <input type="date" id="endDate" class="date-input">
-      <button class="apply-custom-range">Apply</button>
-    </div>
-    <div class="search-results-info" id="searchResultsInfo">
-      Showing <span id="resultsCount">0</span> results
-    </div>
-  </div>
-</section>
+  <!-- Main Content -->
+  <main class="dashboard-main" role="main">
+    <!-- Hero Section -->
+    <section class="dashboard-hero" aria-label="Welcome section">
+      <div class="hero-content">
+        <h1 class="hero-title">
+          Discover Your Next 
+          <span class="hero-highlight">Opportunity</span>
+        </h1>
+        <p class="hero-subtitle">
+          Explore internships, research positions, and part-time jobs tailored for your academic journey.
+        </p>
+        <div class="hero-stats">
+          <div class="stat-badge">
+            <i class="fa-solid fa-briefcase" aria-hidden="true"></i>
+            <span>{{ active_opportunities_count }} Active Opportunities</span>
+          </div>
+          <div class="stat-badge">
+            <i class="fa-solid fa-users" aria-hidden="true"></i>
+            <span>{{ students_connected_count }} Students Connected</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-illustration" aria-hidden="true">
+        <i class="fa-solid fa-rocket"></i>
+      </div>
+    </section>
 
-    <!-- OPPORTUNITY GRID -->
-<section class="opportunity-grid" id="opportunityGrid">
-  {% for item in postings_list %}
-  {% with posting=item.posting tags_list=item.tags_list %}
-  <div class="opp-card" data-deadline="{{ posting.deadline|date:'Y-m-d' }}" data-type="{{ posting.opportunity_type|default:'other' }}" data-posted="{{ posting.created_at|date:'Y-m-d' }}">
-    <div class="opp-header">
-      <h3>{{ posting.title }}</h3>
-      <span class="opp-org">{{ posting.organization.profile.org_name|default:posting.organization.email }}</span>
-    </div>
-    <div class="opp-desc">{{ posting.description|truncatewords:20 }}</div>
-    <div class="opp-tags">
-      {% for tag in tags_list %}
-        <span>{{ tag }}</span>
-      {% endfor %}
-    </div>
-    <div class="opp-details">
-      <span class="opp-type"><i class="fa-solid fa-briefcase"></i> {{ posting.get_opportunity_type_display }}</span>
-      <span class="opp-applicants">0 applicants</span>
-      <span class="opp-deadline"><i class="fa-solid fa-calendar"></i> Due: {{ posting.deadline|date:"M d, Y" }}</span>
-      <span class="type-badge {{ posting.opportunity_type|default:'other' }}">{{ posting.get_opportunity_type_display|default:'Other' }}</span>
-    </div>
-    <button class="apply-btn" onclick="applyToOpportunity({{ posting.id }})">Apply Now</button>
-  </div>
-  {% endwith %}
-  {% empty %}
-  <div class="no-opportunities-message" style="display: block; grid-column: 1 / -1;">
-    <i class="fa-solid fa-inbox"></i>
-    <h3>No Current Opportunities Available</h3>
-    <p>We don't have any active opportunities posted by organizations at the moment. Please check back later as new opportunities are regularly added. Organizations must be verified to post opportunities, ensuring quality and legitimacy of all listings.</p>
-    <div class="no-results-tip">
-      <i class="fa-solid fa-lightbulb"></i>
-      <span>Tip: Check back weekly for new opportunities tailored to your interests!</span>
-    </div>
-  </div>
-  {% endfor %}
-</section>
+    <!-- Statistics Overview -->
+    <section class="stats-section" aria-label="Application statistics">
+      <div class="stat-card">
+        <div class="stat-icon" aria-hidden="true">
+          <i class="fa-solid fa-bullhorn"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ active_opportunities_count }}</div>
+          <div class="stat-label">Active Opportunities</div>
+        </div>
+      </div>
 
-    <div class="no-results" id="noResults">
-      <i class="fa-solid fa-search"></i>
-      <h3>No opportunities found</h3>
-      <p>Try adjusting your search terms or filters</p>
+      <div class="stat-card">
+        <div class="stat-icon" aria-hidden="true">
+          <i class="fa-solid fa-user-graduate"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ students_connected_count }}</div>
+          <div class="stat-label">Students Connected</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" aria-hidden="true">
+          <i class="fa-solid fa-clock"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">1</div>
+          <div class="stat-label">Applications Pending</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Search and Filter Controls -->
+    <section class="search-section" aria-label="Search and filter opportunities">
+      <div class="search-header">
+        <h2>Find Opportunities</h2>
+        <button class="filter-toggle" id="filterToggle" aria-expanded="false" aria-controls="filterPanel">
+          <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+          Filters
+        </button>
+      </div>
+
+      <!-- Main Search -->
+      <div class="search-controls">
+        <div class="search-box" role="search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input type="text" 
+                 id="searchInput" 
+                 placeholder="Search by title, organization, skills, or keywords..." 
+                 aria-label="Search opportunities">
+          <button class="search-clear" id="searchClear" aria-label="Clear search">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
+        
+        <div class="quick-filters">
+          <button class="filter-chip active" data-filter="all">
+            All Opportunities
+          </button>
+          <button class="filter-chip" data-filter="internship">
+            <i class="fa-solid fa-building" aria-hidden="true"></i>
+            Internships
+          </button>
+          <button class="filter-chip" data-filter="research">
+            <i class="fa-solid fa-flask" aria-hidden="true"></i>
+            Research
+          </button>
+          <button class="filter-chip" data-filter="part-time">
+            <i class="fa-solid fa-clock" aria-hidden="true"></i>
+            Part-time
+          </button>
+        </div>
+      </div>
+
+      <!-- Advanced Filter Panel -->
+      <div class="filter-panel" id="filterPanel" role="region" aria-label="Advanced filters">
+        <div class="filter-group">
+          <label class="filter-label">
+            <i class="fa-solid fa-sort" aria-hidden="true"></i>
+            Sort By
+          </label>
+          <select class="filter-select" id="sortDropdown" aria-label="Sort opportunities by">
+            <option value="recent">Most Recent</option>
+            <option value="deadline">Deadline Soonest</option>
+            <option value="applicants">Most Applicants</option>
+            <option value="organization">Organization A-Z</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">
+            <i class="fa-solid fa-calendar" aria-hidden="true"></i>
+            Deadline
+          </label>
+          <select class="filter-select" id="deadlineFilter" aria-label="Filter by deadline">
+            <option value="">All Deadlines</option>
+            <option value="today">Due Today</option>
+            <option value="week">Due This Week</option>
+            <option value="month">Due This Month</option>
+            <option value="custom">Custom Range</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">
+            <i class="fa-solid fa-tags" aria-hidden="true"></i>
+            Opportunity Type
+          </label>
+          <div class="checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" name="opportunityType" value="internship" checked>
+              <span class="checkmark"></span>
+              <span>Internship</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="opportunityType" value="research">
+              <span class="checkmark"></span>
+              <span>Research</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="opportunityType" value="volunteer">
+              <span class="checkmark"></span>
+              <span>Volunteer</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="opportunityType" value="leadership">
+              <span class="checkmark"></span>
+              <span>Leadership</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="filter-group" id="customDateGroup" style="display: none;">
+          <label class="filter-label">Custom Date Range</label>
+          <div class="date-range-inputs">
+            <input type="date" id="startDate" class="date-input" aria-label="Start date">
+            <span class="date-range-separator">to</span>
+            <input type="date" id="endDate" class="date-input" aria-label="End date">
+            <button class="date-range-apply" id="applyCustomRange">Apply</button>
+          </div>
+        </div>
+
+        <div class="filter-actions">
+          <button class="filter-reset" id="resetFilters">
+            <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+            Reset Filters
+          </button>
+          <button class="filter-apply" id="applyFilters">
+            <i class="fa-solid fa-check" aria-hidden="true"></i>
+            Apply Filters
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results Information -->
+    <div class="results-info" id="resultsInfo" role="status" aria-live="polite">
+      <div class="results-count">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <span id="resultsCount">{{ postings_list|length }}</span> opportunities found
+      </div>
+      <div class="results-sort">
+        <label for="mobileSortDropdown">Sort:</label>
+        <select id="mobileSortDropdown" class="mobile-sort-select">
+          <option value="recent">Most Recent</option>
+          <option value="deadline">Deadline Soonest</option>
+        </select>
+      </div>
     </div>
+
+    <!-- Opportunities Grid -->
+    <section class="opportunities-section" aria-label="Opportunities list">
+      <div class="opportunity-grid" id="opportunityGrid">
+        {% for item in postings_list %}
+          {% with posting=item.posting tags_list=item.tags_list %}
+          <article class="opportunity-card" 
+                   data-deadline="{{ posting.deadline|date:'Y-m-d' }}" 
+                   data-type="{{ posting.opportunity_type|default:'other' }}" 
+                   data-posted="{{ posting.created_at|date:'Y-m-d' }}"
+                   role="article"
+                   aria-label="{{ posting.title }} at {{ posting.organization.profile.org_name|default:posting.organization.email }}">
+            
+            <div class="card-header">
+              <div class="card-badge {{ posting.opportunity_type|default:'other' }}">
+                {{ posting.get_opportunity_type_display|default:'Opportunity' }}
+              </div>
+              <button class="card-bookmark" aria-label="Bookmark this opportunity">
+                <i class="fa-regular fa-bookmark" aria-hidden="true"></i>
+              </button>
+            </div>
+            
+            <div class="card-body">
+              <h3 class="card-title">{{ posting.title }}</h3>
+              <div class="card-organization">
+                <i class="fa-solid fa-building" aria-hidden="true"></i>
+                <span>{{ posting.organization.profile.org_name|default:posting.organization.email }}</span>
+              </div>
+              
+              <p class="card-description">{{ posting.description|truncatewords:25 }}</p>
+              
+              {% if tags_list %}
+              <div class="card-tags" aria-label="Required skills">
+                {% for tag in tags_list|slice:":4" %}
+                <span class="tag">{{ tag }}</span>
+                {% endfor %}
+                {% if tags_list|length > 4 %}
+                <span class="tag-more">+{{ tags_list|length|add:"-4" }}</span>
+                {% endif %}
+              </div>
+              {% endif %}
+            </div>
+            
+            <div class="card-footer">
+              <div class="card-details">
+                <div class="detail-item">
+                  <i class="fa-solid fa-calendar-day" aria-hidden="true"></i>
+                  <span class="deadline-text">Due {{ posting.deadline|date:"M d, Y" }}</span>
+                  {% if posting.is_deadline_soon %}
+                  <span class="deadline-badge urgent">Soon</span>
+                  {% endif %}
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-users" aria-hidden="true"></i>
+                  <span>{{ posting.application_count|default:0 }} applicants</span>
+                </div>
+              </div>
+              
+              <div class="card-actions">
+                <button class="action-button view-details" onclick="viewOpportunityDetails({{ posting.id }})">
+                  View Details
+                  <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                </button>
+                <button class="action-button primary apply-now" onclick="applyToOpportunity({{ posting.id }})">
+                  Apply Now
+                </button>
+              </div>
+            </div>
+          </article>
+          {% endwith %}
+        {% empty %}
+        <!-- Empty State -->
+        <div class="empty-state" role="status">
+          <div class="empty-state-icon" aria-hidden="true">
+            <i class="fa-solid fa-inbox"></i>
+          </div>
+          <h3>No Opportunities Available</h3>
+          <p>There are currently no active opportunities. New opportunities are posted regularly by verified organizations.</p>
+          <div class="empty-state-actions">
+            <button class="primary-btn" onclick="checkForNewOpportunities()">
+              <i class="fa-solid fa-rotate" aria-hidden="true"></i>
+              Check for New Opportunities
+            </button>
+          </div>
+          <div class="empty-state-tip">
+            <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
+            <span>Tip: Complete your profile to get personalized opportunity recommendations.</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- No Results State -->
+      <div class="no-results-state" id="noResults" role="alert" aria-live="assertive" style="display: none;">
+        <div class="no-results-icon" aria-hidden="true">
+          <i class="fa-solid fa-search"></i>
+        </div>
+        <h3>No matching opportunities found</h3>
+        <p>Try adjusting your search terms or filters</p>
+        <button class="secondary-btn" onclick="resetAllFilters()">
+          <i class="fa-solid fa-filter-circle-xmark" aria-hidden="true"></i>
+          Clear All Filters
+        </button>
+      </div>
+    </section>
+
+    <!-- Loading State -->
+    <div class="loading-state" id="loadingState" style="display: none;">
+      <div class="loading-spinner" aria-hidden="true"></div>
+      <p>Loading opportunities...</p>
+    </div>
+
+    <!-- Pagination -->
+    {% if postings_list.has_other_pages %}
+    <nav class="pagination" role="navigation" aria-label="Opportunities pagination">
+      {% if postings_list.has_previous %}
+      <a href="?page={{ postings_list.previous_page_number }}" class="pagination-link" aria-label="Previous page">
+        <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+        Previous
+      </a>
+      {% endif %}
+
+      <div class="pagination-numbers">
+        {% for num in postings_list.paginator.page_range %}
+          {% if postings_list.number == num %}
+          <span class="pagination-current" aria-current="page">{{ num }}</span>
+          {% else %}
+          <a href="?page={{ num }}" class="pagination-number">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      {% if postings_list.has_next %}
+      <a href="?page={{ postings_list.next_page_number }}" class="pagination-link" aria-label="Next page">
+        Next
+        <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      {% endif %}
+    </nav>
+    {% endif %}
   </main>
-  <script src="{% static 'Myapp/student_dashboard.js' %}?v=1.8"></script>
-  <!-- Include the error message component JavaScript -->
-  <script src="{% static 'Myapp/error_message.js' %}"></script>
+
+  <!-- JavaScript Modules -->
   <script>
-    /* ============================
-       NOTIFICATION DROPDOWN
-    ============================ */
-    document.addEventListener("DOMContentLoaded", function() {
-        const notifBell = document.getElementById("notifBell");
-        const notifDropdown = document.getElementById("notifDropdown");
+    'use strict';
+
+    // ===================== MODULE: Dashboard Core =====================
+    const StudentDashboard = (function() {
+      let currentFilters = {
+        search: '',
+        sort: 'recent',
+        deadline: '',
+        types: ['internship', 'research', 'volunteer', 'leadership']
+      };
+
+      function init() {
+        setupSearch();
+        setupFilters();
+        setupProfileDropdown();
+        initializeOpportunityCards();
+        updateResultsCount();
+      }
+
+      function setupSearch() {
+        const searchInput = document.getElementById('searchInput');
+        const searchClear = document.getElementById('searchClear');
         
-        if (notifBell && notifDropdown) {
-            notifBell.addEventListener("click", function (event) {
-                event.stopPropagation();
-                notifDropdown.classList.toggle("show");
+        if (searchInput) {
+          // Debounced search
+          let searchTimeout;
+          searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+              currentFilters.search = this.value.trim();
+              filterOpportunities();
+            }, 300);
+          });
+
+          // Clear search
+          if (searchClear) {
+            searchClear.addEventListener('click', function() {
+              searchInput.value = '';
+              currentFilters.search = '';
+              filterOpportunities();
+              searchInput.focus();
             });
-            
-            // Close dropdown when clicking outside
-            document.addEventListener("click", function (event) {
-                if (!notifDropdown.contains(event.target) && !notifBell.contains(event.target)) {
-                    notifDropdown.classList.remove("show");
-                }
-            });
+          }
         }
-    });
-    
-    // Example function to demonstrate error message usage
-    function applyToOpportunity(opportunityId) {
-        // Simulate an AJAX request to apply for an opportunity
-        // In a real implementation, this would make an actual request
+      }
+
+      function setupFilters() {
+        const filterToggle = document.getElementById('filterToggle');
+        const filterPanel = document.getElementById('filterPanel');
         
-        // Show a loading message
-        const loadingMsg = showInfoMessage('Processing', 'Applying to opportunity...', false);
+        if (filterToggle && filterPanel) {
+          // Toggle filter panel
+          filterToggle.addEventListener('click', function() {
+            const isExpanded = this.getAttribute('aria-expanded') === 'true';
+            this.setAttribute('aria-expanded', !isExpanded);
+            filterPanel.style.display = isExpanded ? 'none' : 'block';
+          });
+
+          // Quick filter chips
+          document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+              const filter = this.dataset.filter;
+              if (filter === 'all') {
+                document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                currentFilters.types = ['internship', 'research', 'volunteer', 'leadership'];
+              } else {
+                document.querySelector('.filter-chip[data-filter="all"]').classList.remove('active');
+                this.classList.toggle('active');
+                
+                if (this.classList.contains('active')) {
+                  if (!currentFilters.types.includes(filter)) {
+                    currentFilters.types.push(filter);
+                  }
+                } else {
+                  currentFilters.types = currentFilters.types.filter(type => type !== filter);
+                }
+              }
+              filterOpportunities();
+            });
+          });
+
+          // Sort dropdown
+          const sortDropdown = document.getElementById('sortDropdown');
+          if (sortDropdown) {
+            sortDropdown.addEventListener('change', function() {
+              currentFilters.sort = this.value;
+              sortOpportunities();
+            });
+          }
+
+          // Reset filters
+          const resetBtn = document.getElementById('resetFilters');
+          if (resetBtn) {
+            resetBtn.addEventListener('click', resetAllFilters);
+          }
+        }
+      }
+
+      function setupProfileDropdown() {
+        const profileAvatar = document.getElementById('profileAvatar');
+        const profileMenu = document.getElementById('profileMenu');
         
-        // Simulate API call delay
-        setTimeout(function() {
-            // Dismiss the loading message
-            loadingMsg.querySelector('.alert-close').click();
-            
-            // Show success or error based on random chance (simulating real response)
-            if (Math.random() > 0.3) {
-                showSuccessMessage('Application Submitted', 'Your application has been successfully submitted!');
-            } else {
-                showErrorMessage('Application Failed', 'Unable to submit application. Please try again.');
+        if (profileAvatar && profileMenu) {
+          profileAvatar.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isExpanded = this.getAttribute('aria-expanded') === 'true';
+            this.setAttribute('aria-expanded', !isExpanded);
+            profileMenu.style.display = isExpanded ? 'none' : 'block';
+          });
+
+          // Close dropdown when clicking outside
+          document.addEventListener('click', function(e) {
+            if (!e.target.closest('.profile-dropdown')) {
+              profileAvatar.setAttribute('aria-expanded', 'false');
+              profileMenu.style.display = 'none';
             }
-        }, 1500);
+          });
+        }
+      }
+
+      function initializeOpportunityCards() {
+        // Add hover effects and bookmark functionality
+        document.querySelectorAll('.card-bookmark').forEach(bookmark => {
+          bookmark.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const icon = this.querySelector('i');
+            const isBookmarked = icon.classList.contains('fa-solid');
+            
+            if (isBookmarked) {
+              icon.classList.remove('fa-solid');
+              icon.classList.add('fa-regular');
+              showSuccessMessage('Bookmark Removed', 'Opportunity removed from bookmarks');
+            } else {
+              icon.classList.remove('fa-regular');
+              icon.classList.add('fa-solid');
+              showSuccessMessage('Bookmark Added', 'Opportunity added to bookmarks');
+            }
+          });
+        });
+      }
+
+      function filterOpportunities() {
+        const cards = document.querySelectorAll('.opportunity-card');
+        const noResultsEl = document.getElementById('noResults');
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+          const type = card.dataset.type;
+          const deadline = new Date(card.dataset.deadline);
+          const title = card.querySelector('.card-title').textContent.toLowerCase();
+          const org = card.querySelector('.card-organization span').textContent.toLowerCase();
+          const description = card.querySelector('.card-description').textContent.toLowerCase();
+          const tags = Array.from(card.querySelectorAll('.tag')).map(tag => tag.textContent.toLowerCase());
+          
+          let shouldShow = true;
+
+          // Search filter
+          if (currentFilters.search) {
+            const searchTerm = currentFilters.search.toLowerCase();
+            shouldShow = shouldShow && (
+              title.includes(searchTerm) ||
+              org.includes(searchTerm) ||
+              description.includes(searchTerm) ||
+              tags.some(tag => tag.includes(searchTerm))
+            );
+          }
+
+          // Type filter
+          if (currentFilters.types.length > 0) {
+            shouldShow = shouldShow && currentFilters.types.includes(type);
+          }
+
+          // Deadline filter (simplified for example)
+          if (currentFilters.deadline) {
+            const today = new Date();
+            let cutoff = new Date();
+            
+            switch(currentFilters.deadline) {
+              case 'today':
+                cutoff.setDate(today.getDate() + 1);
+                break;
+              case 'week':
+                cutoff.setDate(today.getDate() + 7);
+                break;
+              case 'month':
+                cutoff.setMonth(today.getMonth() + 1);
+                break;
+            }
+            
+            shouldShow = shouldShow && deadline <= cutoff;
+          }
+
+          // Show/hide card
+          card.style.display = shouldShow ? 'block' : 'none';
+          if (shouldShow) visibleCount++;
+        });
+
+        // Show/hide no results message
+        if (noResultsEl) {
+          noResultsEl.style.display = visibleCount === 0 ? 'flex' : 'none';
+        }
+
+        updateResultsCount(visibleCount);
+        sortOpportunities();
+      }
+
+      function sortOpportunities() {
+        const container = document.getElementById('opportunityGrid');
+        const cards = Array.from(document.querySelectorAll('.opportunity-card[style*="block"], .opportunity-card:not([style*="none"])'));
+        
+        cards.sort((a, b) => {
+          switch(currentFilters.sort) {
+            case 'deadline':
+              return new Date(a.dataset.deadline) - new Date(b.dataset.deadline);
+            case 'applicants':
+              const aCount = parseInt(a.querySelector('.detail-item:nth-child(2) span').textContent) || 0;
+              const bCount = parseInt(b.querySelector('.detail-item:nth-child(2) span').textContent) || 0;
+              return bCount - aCount;
+            case 'organization':
+              const aOrg = a.querySelector('.card-organization span').textContent;
+              const bOrg = b.querySelector('.card-organization span').textContent;
+              return aOrg.localeCompare(bOrg);
+            case 'recent':
+            default:
+              return new Date(b.dataset.posted) - new Date(a.dataset.posted);
+          }
+        });
+
+        // Reorder cards in DOM
+        cards.forEach(card => container.appendChild(card));
+      }
+
+      function updateResultsCount(count) {
+        const countElement = document.getElementById('resultsCount');
+        if (countElement) {
+          countElement.textContent = count || document.querySelectorAll('.opportunity-card[style*="block"], .opportunity-card:not([style*="none"])').length;
+        }
+      }
+
+      function resetAllFilters() {
+        currentFilters = {
+          search: '',
+          sort: 'recent',
+          deadline: '',
+          types: ['internship', 'research', 'volunteer', 'leadership']
+        };
+
+        // Reset UI elements
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) searchInput.value = '';
+        
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+          chip.classList.toggle('active', chip.dataset.filter === 'all');
+        });
+
+        document.getElementById('sortDropdown').value = 'recent';
+        document.getElementById('deadlineFilter').value = '';
+
+        filterOpportunities();
+        showSuccessMessage('Filters Reset', 'All filters have been reset');
+      }
+
+      return {
+        init,
+        reset: resetAllFilters
+      };
+    })();
+
+    // ===================== MODULE: Application Handling =====================
+    const ApplicationManager = (function() {
+      async function applyToOpportunity(opportunityId) {
+        const applyBtn = event?.target || document.querySelector(`.apply-now[onclick*="${opportunityId}"]`);
+        
+        if (applyBtn) {
+          // Store original state
+          const originalText = applyBtn.innerHTML;
+          const originalDisabled = applyBtn.disabled;
+          
+          // Show loading state
+          applyBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Applying...';
+          applyBtn.disabled = true;
+          
+          try {
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // Show success
+            showSuccessMessage(
+              'Application Submitted',
+              'Your application has been successfully submitted!',
+              {
+                autoClose: 3000,
+                onClose: () => {
+                  // Update button state
+                  applyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Applied';
+                  applyBtn.classList.remove('primary');
+                  applyBtn.classList.add('applied');
+                  applyBtn.disabled = true;
+                }
+              }
+            );
+            
+          } catch (error) {
+            // Restore button state on error
+            applyBtn.innerHTML = originalText;
+            applyBtn.disabled = originalDisabled;
+            
+            showErrorMessage(
+              'Application Failed',
+              'Unable to submit application. Please try again.'
+            );
+          }
+        }
+      }
+
+      function viewOpportunityDetails(opportunityId) {
+        // In a real application, this would navigate to a details page
+        console.log(`Viewing details for opportunity ${opportunityId}`);
+        showInfoMessage('Feature Coming Soon', 'Opportunity details page is under development');
+      }
+
+      function checkForNewOpportunities() {
+        const checkBtn = event?.target;
+        if (checkBtn) {
+          const originalText = checkBtn.innerHTML;
+          checkBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking...';
+          checkBtn.disabled = true;
+          
+          setTimeout(() => {
+            checkBtn.innerHTML = originalText;
+            checkBtn.disabled = false;
+            showInfoMessage('No New Opportunities', 'There are no new opportunities at this time. Please check back later.');
+          }, 1000);
+        }
+      }
+
+      return {
+        apply: applyToOpportunity,
+        viewDetails: viewOpportunityDetails,
+        checkNew: checkForNewOpportunities
+      };
+    })();
+
+    // ===================== INITIALIZATION =====================
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize dashboard
+      StudentDashboard.init();
+      
+      // Set up mobile view adjustments
+      setupMobileView();
+      
+      // Add performance monitoring
+      monitorPerformance();
+    });
+
+    // ===================== UTILITY FUNCTIONS =====================
+    function setupMobileView() {
+      // Adjust layout for mobile
+      const adjustForMobile = () => {
+        const isMobile = window.innerWidth < 768;
+        document.body.classList.toggle('mobile-view', isMobile);
+      };
+      
+      window.addEventListener('resize', adjustForMobile);
+      adjustForMobile(); // Initial check
     }
+
+    function monitorPerformance() {
+      // Log page load time
+      window.addEventListener('load', () => {
+        const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+        if (loadTime > 2000) {
+          console.warn(`Page load took ${loadTime}ms - consider optimizing assets`);
+        }
+      });
+    }
+
+    // ===================== GLOBAL EXPORTS =====================
+    // Export functions to global scope for inline handlers
+    window.applyToOpportunity = ApplicationManager.apply;
+    window.viewOpportunityDetails = ApplicationManager.viewDetails;
+    window.checkForNewOpportunities = ApplicationManager.checkNew;
+    window.resetAllFilters = StudentDashboard.reset;
+
+    // Error message functions (assuming these are in error_message.js)
+    window.showSuccessMessage = window.showSuccessMessage || function(title, message, options) {
+      console.log(`Success: ${title} - ${message}`);
+    };
+    
+    window.showErrorMessage = window.showErrorMessage || function(title, message) {
+      console.error(`Error: ${title} - ${message}`);
+    };
+    
+    window.showInfoMessage = window.showInfoMessage || function(title, message) {
+      console.log(`Info: ${title} - ${message}`);
+    };
   </script>
+
+  <!-- External Scripts -->
+  <script src="{% static 'Myapp/student_dashboard.js' %}?v=2.0" defer></script>
+  <script src="{% static 'Myapp/error_message.js' %}?v=1.3" defer></script>
 </body>
 </html>
