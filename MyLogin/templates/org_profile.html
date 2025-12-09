@@ -11,11 +11,16 @@
     
     <!-- New Profile Page Styles -->
     <link rel="stylesheet" href="{% static 'Myapp/org_profile.css' %}?v=1.0">
+    <!-- Include the error message component CSS -->
+    <link rel="stylesheet" href="{% static 'Myapp/error_message.css' %}">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
+
+<!-- Alert container for global error messages -->
+<div class="alert-container"></div>
 
 <!-- ============================================================
      HEADER
@@ -481,6 +486,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 </script>
+
+  <!-- Include the error message component JavaScript -->
+  <script src="{% static 'Myapp/error_message.js' %}"></script>
 
 </body>
 </html>

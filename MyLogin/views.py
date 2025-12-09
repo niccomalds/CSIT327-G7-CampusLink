@@ -78,6 +78,12 @@ def login_view(request):
 
 
 def logout_view(request):
+    # Clear any existing messages to prevent accumulation
+    from django.contrib.messages import get_messages
+    storage = get_messages(request)
+    for message in storage:
+        pass  # Consume all messages to clear them
+    
     logout(request)
     messages.info(request, "You have been logged out.")
     return redirect('login')
@@ -165,6 +171,12 @@ def student_dashboard(request):
         last_activity = datetime.fromisoformat(last_activity)
         elapsed = (now - last_activity).total_seconds()
         if elapsed > SESSION_TIMEOUT:
+            # Clear any existing messages to prevent accumulation
+            from django.contrib.messages import get_messages
+            storage = get_messages(request)
+            for message in storage:
+                pass  # Consume all messages to clear them
+            
             logout(request)
             messages.warning(request, "You were logged out due to inactivity.")
             return redirect(f"{reverse('login')}?session_expired=1")
@@ -229,6 +241,26 @@ def student_dashboard(request):
 @role_required(allowed_roles=['Organization'])
 def organization_dashboard(request):
     """Organization dashboard with verification status"""
+    # Check for auto-logout due to inactivity
+    last_activity = request.session.get('last_activity')
+    now = timezone.now()
+
+    if last_activity:
+        last_activity = datetime.fromisoformat(last_activity)
+        elapsed = (now - last_activity).total_seconds()
+        if elapsed > SESSION_TIMEOUT:
+            # Clear any existing messages to prevent accumulation
+            from django.contrib.messages import get_messages
+            storage = get_messages(request)
+            for message in storage:
+                pass  # Consume all messages to clear them
+            
+            logout(request)
+            messages.warning(request, "You were logged out due to inactivity.")
+            return redirect(f"{reverse('login')}?session_expired=1")
+
+    request.session['last_activity'] = now.isoformat()
+    
     try:
         profile = Profile.objects.get(user=request.user)
     except Profile.DoesNotExist:
