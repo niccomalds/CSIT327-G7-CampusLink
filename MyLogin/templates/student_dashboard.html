@@ -11,11 +11,104 @@
   <link rel="stylesheet" href="{% static 'Myapp/main.css' %}">
   <!-- Include the error message component CSS -->
   <link rel="stylesheet" href="{% static 'Myapp/error_message.css' %}">
+  
 </head>
 <body>
   <!-- Alert container for global error messages -->
   <div class="alert-container"></div>
   
+  <!-- Application Modal -->
+  <div id="applicationModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fa-solid fa-file-arrow-up"></i> Apply for Opportunity</h2>
+        <button class="close-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="posting-preview">
+          <h3 id="modalPostingTitle">Opportunity Title</h3>
+          <p id="modalPostingDescription">Opportunity description will appear here...</p>
+          <div class="posting-details">
+            <span class="detail-item"><i class="fa-solid fa-calendar"></i> Deadline: <span id="modalPostingDeadline">Dec 31, 2023</span></span>
+            <span class="detail-item"><i class="fa-solid fa-tag"></i> <span id="modalPostingType">Type</span></span>
+            <span class="detail-item"><i class="fa-solid fa-building"></i> <span id="modalPostingOrg">Organization</span></span>
+          </div>
+        </div>
+        
+        <form id="applicationForm" method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" id="postingId" name="posting_id" value="">
+          
+          <!-- Resume Upload Section -->
+          <div class="form-section">
+            <h3><i class="fa-solid fa-file-pdf"></i> Resume/CV * <span class="help-text-inline">Required. Accepted formats: PDF, DOC, DOCX. Maximum file size: 5MB.</span></h3>
+            <div class="form-group">
+              <div class="file-upload" id="resumeDropArea">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <p>Drag & drop your resume here or click to browse</p>
+                <input type="file" id="resume" name="resume" class="file-input" accept=".pdf,.doc,.docx" required>
+                <label for="resume" class="file-label">Choose File</label>
+                <div class="file-name" id="resumeFileName">No file chosen</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Personal Note Section -->
+          <div class="form-section">
+            <h3><i class="fa-solid fa-comment"></i> Personal Note</h3>
+            <div class="form-group">
+              <textarea id="note" name="note" placeholder="Tell us about your interest, relevant experience, and what you hope to gain from this opportunity..."></textarea>
+            </div>
+          </div>
+
+          <!-- Additional Attachments Section -->
+          <div class="form-section">
+            <h3><i class="fa-solid fa-paperclip"></i> Additional Attachments (Optional)</h3>
+            <div class="form-group">
+              <div class="file-upload" id="attachmentsDropArea">
+                <i class="fa-solid fa-folder-open"></i>
+                <p>Drag & drop additional files here or click to browse</p>
+                <input type="file" id="attachments" name="attachments" class="file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple>
+                <label for="attachments" class="file-label">Choose Files</label>
+                <div class="file-name" id="attachmentsFileName">No files chosen</div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancelApplication">Cancel</button>
+        <button class="btn btn-primary" id="submitApplication">
+          <i class="fa-solid fa-paper-plane"></i> Submit Application
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Application Success Modal -->
+  <div class="application-success-overlay" id="applicationSuccessOverlay">
+    <div class="application-success-modal">
+      <div class="modal-header">
+        <div class="modal-icon">✅</div>
+        <h3>Application Submitted!</h3>
+        <p>Your application has been successfully sent</p>
+      </div>
+      
+      <div class="success-message">
+        <p>Thank you for submitting your application. The organization will review your application and you'll be notified of any updates. You can view all your applications in the "My Applications" section.</p>
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn-success" onclick="closeApplicationSuccessModal()">
+          Continue Browsing
+        </button>
+        <a href="{% url 'my_applications' %}" class="btn-success">
+          View Applications
+        </a>
+      </div>
+    </div>
+  </div>
+
   <header class="header">
   <div class="logo">
       <i class="fa-solid fa-graduation-cap"></i>
@@ -23,9 +116,9 @@
   </div>
 
   <nav>
-      <a href="{% url 'student_dashboard' %}" class="active">Home</a>
-      <a href="{% url 'my_applications' %}">My Applications</a>
-      <a href="{% url 'profile' %}">Profile</a>
+    <a href="{% url 'student_dashboard' %}" class="active">Home</a>
+    <a href="{% url 'my_applications' %}">My Applications</a>
+    <a href="{% url 'profile' %}">Profile</a>
   </nav>
 
   <div class="search-profile">
@@ -66,7 +159,7 @@
 </header>
   <main>
     <div class="dashboard-title">
-      <h1>Discover Your Next <span style="color: #00c6ff;">Opportunity</span></h1>
+      <h1>Discover Your Next <span class="highlight">Opportunity</span></h1>
       <p>Explore internships, research positions, and part-time jobs tailored for your academic journey.</p>
     </div>
     <section class="stats-row">
@@ -156,7 +249,7 @@
     <!-- OPPORTUNITY GRID -->
 <section class="opportunity-grid" id="opportunityGrid">
   {% for item in postings_list %}
-  {% with posting=item.posting tags_list=item.tags_list %}
+  {% with posting=item.posting tags_list=item.tags_list has_applied=item.has_applied %}
   <div class="opp-card" data-deadline="{{ posting.deadline|date:'Y-m-d' }}" data-type="{{ posting.opportunity_type|default:'other' }}" data-posted="{{ posting.created_at|date:'Y-m-d' }}">
     <div class="opp-header">
       <h3>{{ posting.title }}</h3>
@@ -174,7 +267,15 @@
       <span class="opp-deadline"><i class="fa-solid fa-calendar"></i> Due: {{ posting.deadline|date:"M d, Y" }}</span>
       <span class="type-badge {{ posting.opportunity_type|default:'other' }}">{{ posting.get_opportunity_type_display|default:'Other' }}</span>
     </div>
-    <button class="apply-btn" onclick="applyToOpportunity({{ posting.id }})">Apply Now</button>
+    {% if has_applied %}
+      <button class="apply-btn applied" disabled>
+        <i class="fa-solid fa-check"></i> Applied
+      </button>
+    {% else %}
+      <button class="apply-btn" onclick="openApplicationModal({{ posting.id }}, '{{ posting.title|escapejs }}', '{{ posting.description|escapejs }}', '{{ posting.deadline|date:"M d, Y"|escapejs }}', '{{ posting.get_opportunity_type_display|escapejs }}', '{{ posting.organization.profile.org_name|default:posting.organization.email|escapejs }}')">
+        Apply Now
+      </button>
+    {% endif %}
   </div>
   {% endwith %}
   {% empty %}
@@ -200,6 +301,188 @@
   <!-- Include the error message component JavaScript -->
   <script src="{% static 'Myapp/error_message.js' %}"></script>
   <script>
+    // Display Django messages when the page loads
+    document.addEventListener("DOMContentLoaded", function() {
+      {% if messages %}
+        {% for message in messages %}
+          {% if message.tags == 'success' %}
+            showSuccessMessage('Success', '{{ message }}');
+          {% elif message.tags == 'error' %}
+            showErrorMessage('Error', '{{ message }}');
+          {% elif message.tags == 'warning' %}
+            showWarningMessage('Warning', '{{ message }}');
+          {% elif message.tags == 'info' %}
+            showInfoMessage('Info', '{{ message }}');
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    });
+    
+    document.addEventListener("DOMContentLoaded", function() {
+      /* ============================
+         MODAL FUNCTIONALITY
+      ============================ */
+      const modal = document.getElementById('applicationModal');
+      const closeModalBtn = document.querySelector('.close-modal');
+      const cancelApplicationBtn = document.getElementById('cancelApplication');
+      const submitApplicationBtn = document.getElementById('submitApplication');
+      const applicationForm = document.getElementById('applicationForm');
+      
+      // Open modal with posting details
+      function openApplicationModal(postingId, title, description, deadline, type, organization) {
+        document.getElementById('postingId').value = postingId;
+        document.getElementById('modalPostingTitle').textContent = title;
+        document.getElementById('modalPostingDescription').textContent = description;
+        document.getElementById('modalPostingDeadline').textContent = deadline;
+        document.getElementById('modalPostingType').textContent = type;
+        document.getElementById('modalPostingOrg').textContent = organization;
+        
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+      }
+      
+      // Close modal
+      function closeApplicationModal() {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // Re-enable scrolling
+        // Reset form
+        applicationForm.reset();
+        document.getElementById('resumeFileName').textContent = 'No file chosen';
+        document.getElementById('attachmentsFileName').textContent = 'No files chosen';
+      }
+      
+      // Event listeners for closing modal
+      if (closeModalBtn) closeModalBtn.addEventListener('click', closeApplicationModal);
+      if (cancelApplicationBtn) cancelApplicationBtn.addEventListener('click', closeApplicationModal);
+      
+      // Close modal when clicking outside
+      window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+          closeApplicationModal();
+        }
+      });
+      
+      // Handle form submission
+      if (submitApplicationBtn) {
+        submitApplicationBtn.addEventListener('click', function() {
+          // Validate required fields
+          const resumeInput = document.getElementById('resume');
+          if (!resumeInput.files.length) {
+            alert('Please upload your resume.');
+            return;
+          }
+          
+          // Submit form
+          applicationForm.submit();
+        });
+      }
+      
+      // File upload handling
+      const resumeElement = document.getElementById('resume');
+      if (resumeElement) {
+        resumeElement.addEventListener('change', function(e) {
+          const fileName = e.target.files[0] ? e.target.files[0].name : 'No file chosen';
+          document.getElementById('resumeFileName').textContent = fileName;
+        });
+      }
+      
+      const attachmentsElement = document.getElementById('attachments');
+      if (attachmentsElement) {
+        attachmentsElement.addEventListener('change', function(e) {
+          if (e.target.files.length > 0) {
+            const fileNames = Array.from(e.target.files).map(file => file.name).join(', ');
+            document.getElementById('attachmentsFileName').textContent = fileNames;
+          } else {
+            document.getElementById('attachmentsFileName').textContent = 'No files chosen';
+          }
+        });
+      }
+      
+      // Drag and drop functionality for resume
+      const resumeDropArea = document.getElementById('resumeDropArea');
+      if (resumeDropArea) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+          resumeDropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+          resumeDropArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+          resumeDropArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight(e) {
+          resumeDropArea.style.borderColor = '#007bff';
+          resumeDropArea.style.backgroundColor = '#e9f4ff';
+        }
+        
+        function unhighlight(e) {
+          resumeDropArea.style.borderColor = '#ced4da';
+          resumeDropArea.style.backgroundColor = '#f8f9fa';
+        }
+        
+        resumeDropArea.addEventListener('drop', handleResumeDrop, false);
+        
+        function handleResumeDrop(e) {
+          const dt = e.dataTransfer;
+          const files = dt.files;
+          if (files.length) {
+            document.getElementById('resume').files = files;
+            document.getElementById('resumeFileName').textContent = files[0].name;
+          }
+        }
+      }
+      
+      // Drag and drop functionality for attachments
+      const attachmentsDropArea = document.getElementById('attachmentsDropArea');
+      if (attachmentsDropArea) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+          attachmentsDropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+          attachmentsDropArea.addEventListener(eventName, highlightAttachments, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+          attachmentsDropArea.addEventListener(eventName, unhighlightAttachments, false);
+        });
+        
+        function highlightAttachments(e) {
+          attachmentsDropArea.style.borderColor = '#007bff';
+          attachmentsDropArea.style.backgroundColor = '#e9f4ff';
+        }
+        
+        function unhighlightAttachments(e) {
+          attachmentsDropArea.style.borderColor = '#ced4da';
+          attachmentsDropArea.style.backgroundColor = '#f8f9fa';
+        }
+        
+        attachmentsDropArea.addEventListener('drop', handleAttachmentsDrop, false);
+        
+        function handleAttachmentsDrop(e) {
+          const dt = e.dataTransfer;
+          const files = dt.files;
+          if (files.length) {
+            document.getElementById('attachments').files = files;
+            const fileNames = Array.from(files).map(file => file.name).join(', ');
+            document.getElementById('attachmentsFileName').textContent = fileNames;
+          }
+        }
+      }
+      
+      // Make openApplicationModal globally available
+      window.openApplicationModal = openApplicationModal;
+      window.closeApplicationModal = closeApplicationModal;
+    });
+
     /* ============================
        NOTIFICATION DROPDOWN
     ============================ */
@@ -242,6 +525,13 @@
                 showErrorMessage('Application Failed', 'Unable to submit application. Please try again.');
             }
         }, 1500);
+    }
+    
+    function closeApplicationSuccessModal() {
+      const overlay = document.getElementById('applicationSuccessOverlay');
+      if (overlay) {
+        overlay.classList.remove('active');
+      }
     }
   </script>
 </body>

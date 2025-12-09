@@ -8,7 +8,7 @@ from functools import wraps
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from Myapp.models import Posting
+from Myapp.models import Posting, Application
 from .models import Profile, Notification
 from Myapp.utils import can_user_apply
 from django.contrib.admin.views.decorators import staff_member_required
@@ -183,12 +183,42 @@ def student_dashboard(request):
 
     request.session['last_activity'] = now.isoformat()
     
+    # Handle application submission from modal
+    if request.method == "POST":
+        posting_id = request.POST.get('posting_id')
+        resume = request.FILES.get('resume')
+        note = request.POST.get('note', '')
+        
+        if posting_id and resume:
+            try:
+                posting = Posting.objects.get(id=posting_id)
+                
+                # Check if user has already applied
+                if Application.objects.filter(student=request.user, posting=posting).exists():
+                    messages.error(request, "You have already applied to this posting.")
+                else:
+                    # Create application
+                    application = Application.objects.create(
+                        student=request.user,
+                        posting=posting,
+                        resume=resume,
+                        note=note
+                    )
+                    messages.success(request, "Application submitted successfully!")
+            except Posting.DoesNotExist:
+                messages.error(request, "Invalid posting.")
+        else:
+            messages.error(request, "Please upload your resume.")
+    
     # Get approved postings from verified organizations
     postings = Posting.objects.filter(
         approval_status='approved',
         organization__profile__role='Organization',
         organization__profile__verification_status='verified'
     ).select_related('organization', 'organization__profile').order_by('-created_at')
+    
+    # Get user's applications to determine which postings they've applied to
+    user_applications = Application.objects.filter(student=request.user).values_list('posting_id', flat=True)
     
     # Process tags for each posting (convert comma-separated string to list)
     postings_list = []
@@ -197,6 +227,7 @@ def student_dashboard(request):
         postings_list.append({
             'posting': posting,
             'tags_list': tags_list,
+            'has_applied': posting.id in user_applications
         })
 
     # 🔢 DASHBOARD STATS
@@ -618,7 +649,21 @@ def delete_posting(request, post_id):
 @login_required
 @role_required(allowed_roles=['Student'])
 def my_applications(request):
-    applications = []
+    # Fetch applications for the current user
+    applications = Application.objects.filter(student=request.user).select_related('posting', 'posting__organization')
+    
+    # Process tags for each application's posting
+    for application in applications:
+        tags_list = [tag.strip() for tag in application.posting.tags.split(',') if tag.strip()] if application.posting.tags else []
+        application.posting.tags_list = tags_list
+    
+    # Calculate statistics
+    total_applications = applications.count()
+    submitted_count = applications.filter(status='submitted').count()
+    under_review_count = applications.filter(status='under_review').count()
+    accepted_count = applications.filter(status='accepted').count()
+    rejected_count = applications.filter(status='rejected').count()
+    withdrawn_count = applications.filter(status='withdrawn').count()
     
     # Get unread notification count for the user (ignore archived)
     unread_count = Notification.objects.filter(
@@ -634,6 +679,12 @@ def my_applications(request):
         'applications': applications,
         'unread_count': unread_count,
         'notifications': recent_notifications,
+        'total_applications': total_applications,
+        'submitted_count': submitted_count,
+        'under_review_count': under_review_count,
+        'accepted_count': accepted_count,
+        'rejected_count': rejected_count,
+        'withdrawn_count': withdrawn_count,
     })
 
 
@@ -1268,3 +1319,53 @@ def student_notification(request):
     # 👇 IMPORTANT: include the subfolder in the template path
     return render(request, 'student_notification.html', context)
 
+
+@login_required
+def create_application(request, posting_id):
+    """Create a new application for a posting"""
+    if not request.user.is_authenticated:
+        return redirect("login")
+    
+    posting = get_object_or_404(Posting, id=posting_id)
+    
+    # Check if user has already applied
+    if Application.objects.filter(student=request.user, posting=posting).exists():
+        messages.error(request, "You have already applied to this posting.")
+        return redirect('my_applications')
+    
+    if request.method == "POST":
+        resume = request.FILES.get('resume')
+        note = request.POST.get('note', '')
+        
+        # Process attachments (currently just storing the primary resume)
+        # Future enhancement: Handle multiple attachments
+        
+        if Application.objects.filter(student=request.user, posting=posting).exists():
+            messages.error(request, "You have already applied to this posting.")
+        else:
+            application = Application.objects.create(
+                student=request.user,
+                posting=posting,
+                resume=resume,
+                note=note
+            )
+            messages.success(request, "Application submitted successfully!")
+            return redirect('my_applications')
+    
+    # Process tags for the posting
+    tags_list = [tag.strip() for tag in posting.tags.split(',') if tag.strip()] if posting.tags else []
+    posting_data = {
+        'posting': posting,
+        'tags_list': tags_list
+    }
+    
+    # Get unread notification count for the user (ignore archived)
+    unread_count = Notification.objects.filter(
+        recipient=request.user,
+        read=False,
+        is_archived=False
+    ).count()
+    
+    posting_data['unread_count'] = unread_count
+    
+    return render(request, "create_application.html", posting_data)

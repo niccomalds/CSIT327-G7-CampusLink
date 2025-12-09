@@ -18,6 +18,7 @@ urlpatterns = [
     path('student/dashboard/profile/', views.profile, name='profile'),
     path('student/dashboard/profile/update/', views.update_profile, name='update_profile'),
     path('my-applications/', views.my_applications, name='my_applications'),
+    path('create-application/<int:posting_id>/', views.create_application, name='create_application'),
 
     # --- Organization Pages ---
     path('organization/dashboard/', views.organization_dashboard, name='organization_dashboard'),

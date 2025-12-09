@@ -1149,4 +1149,49 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    
+    // Show the application success modal if there's a success message
+    showApplicationSuccessModal();
+});
+
+// Application Success Modal Functions
+function showApplicationSuccessModal() {
+    // Since we can't directly access Django messages from JavaScript,
+    // we'll check if there are any success alerts with application submission messages
+    const successAlerts = document.querySelectorAll('.alert-success');
+    successAlerts.forEach(function(alert) {
+        const messageText = alert.querySelector('.alert-message')?.textContent || alert.textContent;
+        if (messageText.includes('Application submitted successfully')) {
+            // Hide the regular alert
+            alert.style.display = 'none';
+            
+            // Show the application success modal
+            const overlay = document.getElementById('applicationSuccessOverlay');
+            if (overlay) {
+                overlay.classList.add('active');
+            }
+        }
+    });
+}
+
+function closeApplicationSuccessModal() {
+    const overlay = document.getElementById('applicationSuccessOverlay');
+    if (overlay) {
+        overlay.classList.remove('active');
+    }
+}
+
+// Close modal when clicking outside of content
+document.addEventListener('click', function(event) {
+    const overlay = document.getElementById('applicationSuccessOverlay');
+    if (overlay && event.target === overlay) {
+        closeApplicationSuccessModal();
+    }
+});
+
+// Close modal with ESC key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeApplicationSuccessModal();
+    }
 });

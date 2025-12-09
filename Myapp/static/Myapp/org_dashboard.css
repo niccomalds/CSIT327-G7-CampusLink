@@ -869,6 +869,8 @@ body {
         gap: 8px;
     }
 }
+
+/* ===== VERIFICATION SUCCESS MODAL ===== */
 .verified-badge {
   background-color: #10b981; /* A more professional green */
   color: white;
