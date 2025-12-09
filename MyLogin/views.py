@@ -512,8 +512,18 @@ def manage_postings(request):
     # Get recent notifications for the dropdown (limit to 5 most recent)
     recent_notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')[:5]
 
+    # Process tags for each posting (convert comma-separated string to list)
+    postings_with_tags = []
+    for posting in postings:
+        tags_list = [tag.strip() for tag in posting.tags.split(',') if tag.strip()] if posting.tags else []
+        postings_with_tags.append({
+            'posting': posting,
+            'tags_list': tags_list,
+        })
+    
     return render(request, 'manage_posting.html', {
         'postings': postings,
+        'postings_with_tags': postings_with_tags,
         'unread_count': unread_count,
         'notifications': recent_notifications,
     })
@@ -543,6 +553,11 @@ def edit_posting(request, post_id):
                 # Add handling for opportunity_type field
                 if 'opportunity_type' in request.POST:
                     posting.opportunity_type = request.POST.get('opportunity_type')
+                # Add handling for tags
+                if 'tags' in request.POST:
+                    selected_tags = request.POST.getlist('tags')
+                    tags_str = ','.join(selected_tags)
+                    posting.tags = tags_str
                 posting.save()
                 return JsonResponse({'success': True, 'message': 'Posting updated successfully.'})
             except Exception as e:
@@ -557,6 +572,11 @@ def edit_posting(request, post_id):
             # Add handling for opportunity_type field
             if 'opportunity_type' in request.POST:
                 posting.opportunity_type = request.POST.get('opportunity_type')
+            # Add handling for tags
+            if 'tags' in request.POST:
+                selected_tags = request.POST.getlist('tags')
+                tags_str = ','.join(selected_tags)
+                posting.tags = tags_str
             posting.save()
             messages.success(request, "Posting updated successfully.")
             return redirect('manage_postings')

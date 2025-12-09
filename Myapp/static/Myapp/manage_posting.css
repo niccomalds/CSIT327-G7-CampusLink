@@ -268,7 +268,7 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
 }
 
 .action {
-  padding: 8px 16px;
+  padding: 10px 16px;
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.85rem;
@@ -283,7 +283,11 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
+}
+
+.action i {
+  margin: 0 2px;
 }
 
 .action.edit-btn { 
@@ -332,11 +336,13 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
 .modal-content {
   background: var(--card-bg);
   border-radius: var(--border-radius);
-  padding: 32px;
+  padding: 24px;
   width: 90%;
-  max-width: 480px;
+  max-width: 550px;
+  max-height: 85vh;
   box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-  margin: 20px;
+  margin: 20px auto;
+  overflow-y: auto;
 }
 
 .modal-content h3 {
@@ -349,7 +355,7 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
 .modal-content label {
   font-weight: 500;
   display: block;
-  margin-top: 16px;
+  margin-top: 12px;
   color: #374151;
 }
 
@@ -357,12 +363,23 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
 .modal-content select,
 .modal-content textarea {
   width: 100%;
-  padding: 12px;
+  padding: 10px;
   border: 1px solid #d1d5db;
-  border-radius: 8px;
+  border-radius: 6px;
   margin-top: 6px;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   transition: 0.3s;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.modal-content select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+  padding-right: 36px;
 }
 
 .modal-content input:focus,
@@ -374,19 +391,20 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
 }
 
 .modal-actions {
-  margin-top: 24px;
+  margin-top: 20px;
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 10px;
 }
 
 .modal-action-btn {
-  padding: 10px 20px;
-  border-radius: 8px;
+  padding: 8px 16px;
+  border-radius: 6px;
   border: none;
   cursor: pointer;
   font-weight: 500;
   transition: 0.3s;
+  font-size: 0.85rem;
 }
 
 .modal-action-btn.save { 
@@ -426,15 +444,7 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
 .toast.success { background-color: #10b981; }
 .toast.error { background-color: #ef4444; }
 
-/* ---------- Instruction text ---------- */
-.instruction {
-  display: block;
-  font-size: 0.8rem;
-  color: #6b7280;
-  margin-top: 4px;
-  margin-bottom: 12px;
-  line-height: 1.4;
-}
+
 
 /* ============================================================
    🔔 NOTIFICATION BELL — STUDENT STYLE

@@ -6,10 +6,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Manage Postings - CampusLink</title>
 
-  <link rel="stylesheet" href="{% static 'Myapp/manage_posting.css' %}?v=1.0">
+  <link rel="stylesheet" href="{% static 'Myapp/manage_posting.css' %}?v=1.2">
   <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
   <!-- Include the error message component CSS -->
   <link rel="stylesheet" href="{% static 'Myapp/error_message.css' %}">
+
+  <!-- 👉 Select2 styles + jQuery + Select2 JS -->
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
@@ -92,9 +97,10 @@
 
       <div class="recent-section">
         <div class="recent-postings">
-          {% if postings %}
-            {% for post in postings %}
-              <div class="posting-card" data-id="{{ post.id }}" data-opportunity-type="{{ post.opportunity_type }}">
+          {% if postings_with_tags %}
+            {% for item in postings_with_tags %}
+              {% with post=item.posting %}
+              <div class="posting-card" data-id="{{ post.id }}" data-opportunity-type="{{ post.opportunity_type }}" data-tags="{{ post.tags }}">
                 <div class="posting-info">
                   <span class="title">{{ post.title }}</span>
                   <span class="status {% if post.approval_status == 'approved' %}active{% elif post.approval_status == 'rejected' %}closed{% else %}pending{% endif %}">
@@ -119,6 +125,7 @@
                   <a href="#" class="action view-applicants"><i class="fas fa-users"></i> View Applicants</a>
                 </div>
               </div>
+              {% endwith %}
             {% endfor %}
           {% else %}
             <p>No postings found. Create your first opportunity!</p>
@@ -142,12 +149,10 @@
         <input type="hidden" id="editPostId" name="post_id">
 
         <label>Title:</label>
-        <input type="text" id="editTitle" name="title" required />
-        <small class="instruction">Enter a clear and concise title for your posting.</small>
+        <input type="text" id="editTitle" name="title" placeholder="Enter a clear and concise title for your posting" required />
 
         <label>Description:</label>
-        <textarea id="editDescription" name="description" rows="4"></textarea>
-        <small class="instruction">Describe the posting in detail. Include purpose, requirements, etc.</small>
+        <textarea id="editDescription" name="description" rows="2" placeholder="Describe the posting in detail. Include purpose, requirements, etc."></textarea>
 
         <label>Opportunity Type:</label>
         <select id="editOpportunityType" name="opportunity_type" required>
@@ -161,11 +166,9 @@
           <option value="leadership">Leadership</option>
           <option value="other">Other</option>
         </select>
-        <small class="instruction">Select the type of opportunity.</small>
 
         <label>Deadline:</label>
         <input type="date" id="editDeadline" name="deadline" required />
-        <small class="instruction">Select the last day that applicants can submit their application.</small>
 
         <label>Status:</label>
         <select id="editStatus" name="status">
@@ -173,7 +176,18 @@
           <option value="approved">Active</option>
           <option value="rejected">Rejected</option>
         </select>
-        <small class="instruction">Choose the approval status for this posting.</small>
+
+        <!-- Tags -->
+        <label for="editTags">Tags</label>
+        <select id="editTags" name="tags" multiple>
+          <option value="Communication">Communication</option>
+          <option value="Outreach">Outreach</option>
+          <option value="Events">Events</option>
+          <option value="Leadership">Leadership</option>
+          <option value="Marketing">Marketing</option>
+          <option value="Creative">Creative</option>
+          <option value="Technical">Technical</option>
+        </select>
 
         <div class="modal-actions">
           <button type="submit" class="modal-action-btn save">Save</button>
@@ -287,6 +301,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 opportunityTypeSelect.value = opportunityType;
             }
           
+            // Initialize and set tags (need to wait for Select2 to be ready)
+            setTimeout(function() {
+                if (typeof $ !== 'undefined' && $('#editTags').length) {
+                    // Clear previous selections
+                    $('#editTags').val(null).trigger('change');
+                    
+                    // Get current tags from data attribute
+                    const currentTags = card.dataset.tags || '';
+                    if (currentTags) {
+                        const tagsArray = currentTags.split(',').map(tag => tag.trim());
+                        $('#editTags').val(tagsArray).trigger('change');
+                    }
+                }
+            }, 100);
+          
             // Show modal
             editModal.classList.add('active');
         });
@@ -322,17 +351,19 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(data => {
                 if (data.success) {
                     // Show success message
-                    alert('Posting updated successfully!');
-                    // Reload page to show updated data
-                    location.reload();
+                    showToast('Posting updated successfully!', 'success');
+                    // Reload page to show updated data after a short delay
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
                 } else {
                     // Show error message
-                    alert('An error occurred while updating the posting: ' + data.message);
+                    showToast('An error occurred while updating the posting: ' + data.message, 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while updating the posting.');
+                showToast('An error occurred while updating the posting.', 'error');
             });
         });
     }
@@ -360,16 +391,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 .then(response => {
                     if (response.ok) {
                         // Show success message and reload page
-                        alert('Posting deleted successfully!');
-                        location.reload();
+                        showToast('Posting deleted successfully!', 'success');
+                        setTimeout(() => {
+                            location.reload();
+                        }, 2000);
                     } else {
                         // Show error message
-                        alert('An error occurred while deleting the posting.');
+                        showToast('An error occurred while deleting the posting.', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('An error occurred while deleting the posting.');
+                    showToast('An error occurred while deleting the posting.', 'error');
                 });
             }
         });
@@ -391,6 +424,39 @@ document.addEventListener("DOMContentLoaded", () => {
         if (event.target === deleteModal) {
             deleteModal.classList.remove('active');
             currentPostId = null;
+        }
+    });
+
+    // Toast notification function
+    function showToast(message, type) {
+        // Remove any existing toast
+        const existingToast = document.querySelector('.toast');
+        if (existingToast) {
+            existingToast.remove();
+        }
+
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+
+        // Add to document
+        document.body.appendChild(toast);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+
+    // Initialize Select2 for tags
+    $(document).ready(function() {
+        if ($('#editTags').length) {
+            $('#editTags').select2({
+                placeholder: "Select one or more tags",
+                allowClear: true,
+                width: '100%'
+            });
         }
     });
 });
