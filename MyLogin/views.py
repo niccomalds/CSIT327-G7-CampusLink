@@ -204,6 +204,17 @@ def student_dashboard(request):
                         resume=resume,
                         note=note
                     )
+                    
+                    # Send notification to the organization
+                    Notification.objects.create(
+                        recipient=posting.organization,
+                        sender=request.user,
+                        notification_type='new_application',
+                        title=f'New Application Received for "{posting.title}"',
+                        message=f'{request.user.get_full_name() or request.user.username} has applied for your opportunity "{posting.title}".',
+                        related_posting=posting,
+                    )
+                    
                     messages.success(request, "Application submitted successfully!")
             except Posting.DoesNotExist:
                 messages.error(request, "Invalid posting.")
