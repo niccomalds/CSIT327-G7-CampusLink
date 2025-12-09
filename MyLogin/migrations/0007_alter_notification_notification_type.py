@@ -6,11 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-<<<<<<< HEAD
-        ('MyLogin', '0006_notification_is_archived_notification_is_favorite_and_more'), 
-=======
         ('MyLogin', '0006_notification_is_archived_notification_is_favorite_and_more'),
->>>>>>> apply-now
     ]
 
     operations = [
@@ -19,8 +15,4 @@ class Migration(migrations.Migration):
             name='notification_type',
             field=models.CharField(choices=[('posting_approved', 'Posting Approved'), ('posting_rejected', 'Posting Rejected'), ('verification_approved', 'Verification Approved'), ('verification_rejected', 'Verification Rejected'), ('new_application', 'New Application')], max_length=50),
         ),
-<<<<<<< HEAD
     ]
-=======
-    ]
->>>>>>> apply-now
