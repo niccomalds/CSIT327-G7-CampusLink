@@ -407,20 +407,31 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    /* PROFILE AVATAR DROPDOWN — CORRECT VERSION */
-    const avatar = document.getElementById("profileAvatar");
-    const menu = document.getElementById("profileMenu");
+    /* PROFILE AVATAR DROPDOWN — robust version */
+    (function(){
+        try {
+            const avatarEl = document.getElementById("profileAvatar");
+            const menuEl = document.getElementById("profileMenu");
+            if (!avatarEl || !menuEl) return;
 
-    avatar.addEventListener("click", (event) => {
-        event.stopPropagation();
-        menu.parentElement.classList.toggle("show"); // correct behavior
-    });
+            avatarEl.addEventListener("click", (event) => {
+                try {
+                    event.stopPropagation();
+                    const wrapper = menuEl.parentElement;
+                    if (wrapper) wrapper.classList.toggle("show");
+                } catch (e) { console.warn('avatar click error', e); }
+            });
 
-    document.addEventListener("click", (event) => {
-        if (!menu.contains(event.target) && !avatar.contains(event.target)) {
-            menu.parentElement.classList.remove("show");
-        }
-    });
+            document.addEventListener("click", (event) => {
+                try {
+                    if (!menuEl.contains(event.target) && !avatarEl.contains(event.target)) {
+                        const wrapper = menuEl.parentElement;
+                        if (wrapper) wrapper.classList.remove("show");
+                    }
+                } catch (e) { /* swallow */ }
+            });
+        } catch (e) { console.warn('profile dropdown init failed', e); }
+    })();
 
 });
 </script>

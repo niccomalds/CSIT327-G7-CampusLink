@@ -242,20 +242,19 @@
         });
       }
 
-      // Profile dropdown toggle (same as org dashboard)
+      // Profile dropdown toggle (same behavior as student dashboard)
       const profileAvatar = document.getElementById("profileAvatar");
-      const orgDropdownMenu = document.getElementById("orgDropdownMenu");
+      const profileMenu = document.getElementById("profileMenu");
 
-      if (profileAvatar && orgDropdownMenu) {
+      if (profileAvatar && profileMenu) {
         profileAvatar.addEventListener("click", function (event) {
           event.stopPropagation();
-          const isVisible = orgDropdownMenu.style.display === "flex";
-          orgDropdownMenu.style.display = isVisible ? "none" : "flex";
+          profileMenu.parentElement.classList.toggle('show');
         });
 
         document.addEventListener("click", function (event) {
-          if (!event.target.closest(".profile-dropdown")) {
-            orgDropdownMenu.style.display = "none";
+          if (!profileMenu.contains(event.target) && !profileAvatar.contains(event.target)) {
+            profileMenu.parentElement.classList.remove('show');
           }
         });
       }
