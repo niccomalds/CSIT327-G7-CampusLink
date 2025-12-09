@@ -12,6 +12,12 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <!-- Include the error message component CSS -->
   <link rel="stylesheet" href="{% static 'Myapp/error_message.css' %}">
+    <style>
+        .skill-add-btn{background:#00c6ff;color:#fff;border:none;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:700;margin-left:6px}
+        .skill-add-btn:hover{filter:brightness(.95)}
+        .skill-item{display:inline-flex;align-items:center;gap:6px;background:#eef9ff;padding:6px 8px;border-radius:8px;margin:4px}
+        .remove-skill{margin-left:6px;color:#dc2626;cursor:pointer}
+    </style>
 </head>
 
 <body>
@@ -121,6 +127,8 @@
 
 <form class="profile-form" method="POST" action="{% url 'update_profile' %}" enctype="multipart/form-data">
     {% csrf_token %}
+    <input type="hidden" name="skills" id="skillsInput" />
+    <input type="hidden" name="portfolio_links" id="portfolioInput" />
     <fieldset>
         <legend><strong><i class="fa-regular fa-address-card"></i> Personal Information</strong></legend>
 
@@ -132,7 +140,8 @@
         <div class="profile-form-row">
             <div class="profile-form-group">
                 <label for="fullName">Full Name</label>
-                <input type="text" id="fullName" name="full_name" value="{{ profile.full_name }}" disabled>
+                <input type="text" id="fullName" name="full_name" value="{{ user.get_full_name }}" disabled>
+
             </div>
 
             <div class="profile-form-group">
@@ -170,6 +179,10 @@
     </fieldset>
 </form>
 
+{# Output existing data as safely-escaped JSON for client-side population #}
+<script id="initialSkills" type="application/json">{{ skills_json|safe }}</script>
+<script id="initialPortfolio" type="application/json">{{ portfolio_json|safe }}</script>
+
 <!-- SKILLS -->
 <div class="profile-skills">
     <fieldset>
@@ -179,7 +192,7 @@
 
         <div id="skillInputWrap" style="display:none; margin-top:10px;">
             <input type="text" id="newSkill" placeholder="Add a skill..." />
-            <button type="button" id="addSkillBtn">+</button>
+            <button type="button" id="addSkillBtn" class="skill-add-btn">+</button>
         </div>
     </fieldset>
 </div>
@@ -215,6 +228,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const inputs = document.querySelectorAll(".profile-form input, .profile-form textarea");
     const skillInputWrap = document.getElementById("skillInputWrap");
     const portfolioBlock = document.getElementById("portfolioLinkEditBlock");
+    let isEditing = false;
 
     editBtn.addEventListener("click", () => {
         inputs.forEach(i => i.disabled = false);
@@ -226,10 +240,30 @@ document.addEventListener("DOMContentLoaded", function () {
 
         skillInputWrap.style.display = "flex";
         portfolioBlock.style.display = "block";
+
+        // Enter edit mode: show remove controls for skills and portfolio
+        isEditing = true;
+        document.querySelectorAll('.remove-skill').forEach(b => b.style.display = 'inline-block');
+        document.querySelectorAll('.remove-link').forEach(b => b.style.display = 'inline-block');
     });
 
+    // When Save is clicked: serialize skills and portfolio links into hidden inputs, then submit
     saveBtn.addEventListener("click", () => {
-        document.querySelector(".profile-form").submit();
+        // collect skills
+        const skills = Array.from(skillsList.querySelectorAll('.skill-item')).map(el => {
+            // stored in data-skill when added, otherwise use textContent
+            return el.dataset.skill || el.textContent.replace('×','').trim();
+        });
+        document.getElementById('skillsInput').value = JSON.stringify(skills);
+
+        // collect portfolio links from edit area (each .portfolio-link may have data attrs)
+        const portfolio = Array.from(portfolioLinksEdit.querySelectorAll('.portfolio-link')).map(el => ({
+            name: el.dataset.name || (el.querySelector('a') ? el.querySelector('a').textContent.trim() : ''),
+            url: el.dataset.url || (el.querySelector('a') ? el.querySelector('a').href : '')
+        }));
+        document.getElementById('portfolioInput').value = JSON.stringify(portfolio);
+
+        document.querySelector('.profile-form').submit();
     });
 
     /* SKILLS MANAGEMENT */
@@ -237,21 +271,78 @@ document.addEventListener("DOMContentLoaded", function () {
     const addSkillBtn = document.getElementById("addSkillBtn");
     const newSkill = document.getElementById("newSkill");
 
+    // Populate existing skills from server JSON
+    try {
+        const existingSkills = JSON.parse(document.getElementById('initialSkills').textContent || '[]');
+        existingSkills.forEach(s => {
+            if (!s) return;
+            const skillDiv = document.createElement('div');
+            skillDiv.classList.add('skill-item');
+            skillDiv.textContent = s;
+            skillDiv.dataset.skill = s;
+
+            const removeBtn = document.createElement('span');
+            removeBtn.classList.add('remove-skill');
+            removeBtn.textContent = '×';
+            // hide remove control until edit mode
+            removeBtn.style.display = 'none';
+            removeBtn.onclick = () => { if (isEditing) skillDiv.remove(); };
+
+            skillDiv.appendChild(removeBtn);
+            skillsList.appendChild(skillDiv);
+        });
+    } catch (e) { console.warn('Failed to parse initial skills', e); }
+
     addSkillBtn.addEventListener("click", () => {
         const skill = newSkill.value.trim();
         if (skill) {
             const skillDiv = document.createElement("div");
             skillDiv.classList.add("skill-item");
             skillDiv.textContent = skill;
+            skillDiv.dataset.skill = skill;
 
             const removeBtn = document.createElement("span");
             removeBtn.classList.add("remove-skill");
             removeBtn.textContent = "×";
-            removeBtn.onclick = () => skillDiv.remove();
+            // removal only allowed in edit mode
+            removeBtn.style.display = isEditing ? 'inline-block' : 'none';
+            removeBtn.onclick = () => { if (isEditing) skillDiv.remove(); };
 
             skillDiv.appendChild(removeBtn);
             skillsList.appendChild(skillDiv);
             newSkill.value = "";
+
+            // Send updated skills to server immediately (AJAX)
+            try {
+                const currentSkills = Array.from(skillsList.querySelectorAll('.skill-item')).map(el => el.dataset.skill || el.textContent.replace('×','').trim());
+                const csrftoken = (function(){
+                    const name = 'csrftoken=';
+                    const cookies = document.cookie.split(';');
+                    for (let c of cookies) {
+                        c = c.trim(); if (c.startsWith(name)) return decodeURIComponent(c.slice(name.length));
+                    }
+                    return '';
+                })();
+
+                fetch("{% url 'save_skills' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify({skills: currentSkills})
+                }).then(r => r.json()).then(data => {
+                    if (!data.success) console.warn('Failed to save skills', data);
+                }).catch(err => console.error('Save skills error', err));
+            } catch (e) { console.warn('Auto-save skills failed', e); }
+        }
+    });
+
+    // Allow pressing Enter to add skill
+    newSkill.addEventListener('keydown', function(e){
+        if (e.key === 'Enter'){
+            e.preventDefault();
+            addSkillBtn.click();
         }
     });
 
@@ -261,6 +352,29 @@ document.addEventListener("DOMContentLoaded", function () {
     const portfolioURL = document.getElementById("portfolioURL");
     const linksListView = document.getElementById("linksListView");
     const portfolioLinksEdit = document.getElementById("portfolioLinksEdit");
+
+    // Populate existing portfolio links from server JSON
+    try {
+        const existingPortfolio = JSON.parse(document.getElementById('initialPortfolio').textContent || '[]');
+        existingPortfolio.forEach(item => {
+            if (!item || !item.name || !item.url) return;
+            const viewLink = document.createElement('div');
+            viewLink.classList.add('portfolio-link');
+            viewLink.innerHTML = `<a href="${item.url}" target="_blank">${item.name}</a>`;
+            linksListView.appendChild(viewLink);
+
+            const editLink = document.createElement('div');
+            editLink.classList.add('portfolio-link');
+            editLink.innerHTML = `\n                <a href="${item.url}" target="_blank">${item.name}</a>\n                <button type="button" class="remove-link" style="margin-left:8px;color:#dc2626;background:none;border:none;font-weight:bold;cursor:pointer;">×</button>\n            `;
+            // hide remove until edit mode; removal only allowed when editing
+            const removeBtn = editLink.querySelector('.remove-link');
+            removeBtn.style.display = 'none';
+            removeBtn.onclick = () => { if (isEditing) editLink.remove(); };
+            editLink.dataset.name = item.name;
+            editLink.dataset.url = item.url;
+            portfolioLinksEdit.appendChild(editLink);
+        });
+    } catch (e) { console.warn('Failed to parse initial portfolio', e); }
 
     addLinkBtn.addEventListener("click", () => {
         const name = portfolioName.value.trim();
@@ -283,6 +397,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 </button>
             `;
             editLink.querySelector(".remove-link").onclick = () => editLink.remove();
+            // store values so we can serialize later
+            editLink.dataset.name = name;
+            editLink.dataset.url = url;
             portfolioLinksEdit.appendChild(editLink);
 
             portfolioName.value = "";
