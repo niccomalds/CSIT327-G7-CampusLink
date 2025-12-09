@@ -8,6 +8,7 @@ from functools import wraps
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse
+import json
 from Myapp.models import Posting
 from .models import Profile, Notification
 from Myapp.utils import can_user_apply
@@ -453,10 +454,18 @@ def profile(request):
     # Get recent notifications for the dropdown (limit to 5 most recent)
     recent_notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')[:5]
     
+    # Provide JSON strings for client-side population (embedded safely in <script type="application/json">)
+    import json as _json
+    profile_obj = request.user.profile
+    skills_json = _json.dumps(profile_obj.skills or [])
+    portfolio_json = _json.dumps(profile_obj.portfolio_links or [])
+
     return render(request, 'profile.html', {
-        "profile": request.user.profile,
+        "profile": profile_obj,
         'unread_count': unread_count,
         'notifications': recent_notifications,
+        'skills_json': skills_json,
+        'portfolio_json': portfolio_json,
     })
 
 
@@ -464,6 +473,14 @@ def profile(request):
 def update_profile(request):
     if request.method == 'POST':
         profile = request.user.profile
+
+        # DEBUG: print incoming skills/portfolio payloads
+        try:
+            print("update_profile POST keys:", list(request.POST.keys()))
+            print("skills (raw):", request.POST.get('skills'))
+            print("portfolio_links (raw):", request.POST.get('portfolio_links'))
+        except Exception:
+            pass
 
         # Update user email (since students should update their main email)
         email = request.POST.get('email')
@@ -480,11 +497,61 @@ def update_profile(request):
         if 'profile_picture' in request.FILES:
             profile.profile_picture = request.FILES['profile_picture']
 
+        # Parse skills and portfolio links JSON posted from the form
+        skills_json = request.POST.get('skills')
+        if skills_json:
+            try:
+                parsed = json.loads(skills_json)
+                if isinstance(parsed, list):
+                    profile.skills = parsed
+            except Exception:
+                pass
+
+        portfolio_json = request.POST.get('portfolio_links')
+        if portfolio_json:
+            try:
+                parsed = json.loads(portfolio_json)
+                if isinstance(parsed, list):
+                    profile.portfolio_links = parsed
+            except Exception:
+                pass
+
         profile.save()
         messages.success(request, 'Profile updated successfully.')
         return redirect('profile')
 
     return redirect('profile')
+
+
+@login_required
+def save_skills(request):
+    """AJAX endpoint to save student's skills list immediately."""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid method'}, status=405)
+
+    try:
+        # Expect JSON body or form-encoded 'skills'
+        import json as _json
+        payload = None
+        if request.content_type == 'application/json':
+            payload = _json.loads(request.body.decode('utf-8') or '{}')
+            skills = payload.get('skills', [])
+        else:
+            skills_raw = request.POST.get('skills')
+            if skills_raw:
+                skills = _json.loads(skills_raw)
+            else:
+                skills = []
+
+        if not isinstance(skills, list):
+            return JsonResponse({'success': False, 'error': 'skills must be a list'}, status=400)
+
+        profile = request.user.profile
+        profile.skills = skills
+        profile.save()
+        return JsonResponse({'success': True, 'skills': skills})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
 # --- Organization / Posting Management ---

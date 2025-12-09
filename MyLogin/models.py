@@ -28,6 +28,10 @@ class Profile(models.Model):
     major = models.CharField(max_length=100, blank=True, default="")
     bio = models.TextField(blank=True, default="")
 
+    # Student extras: skills and portfolio links
+    skills = models.JSONField(default=list, blank=True)
+    portfolio_links = models.JSONField(default=list, blank=True)
+
     # PROFILE & LOGO
     profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
     org_logo = models.ImageField(upload_to="org_logos/", null=True, blank=True)
