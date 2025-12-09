@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Manage Postings - CampusLink</title>
-
+    <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="{% static 'Myapp/manage_posting.css' %}?v=1.2">
   <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
   <!-- Include the error message component CSS -->
@@ -29,58 +29,56 @@
   <!-- ========================================================= -->
   <!--                     HEADER SECTION                        -->
   <!-- ========================================================= -->
-  <header class="header">
-    <div class="logo">
-        <i class="fa-solid fa-graduation-cap"></i>
-        <span>CampusLink</span>
-    </div>
+  <header class="sticky top-0 z-40 bg-white">
+        <!-- full-width header background; inner container centers content -->
+        <div class="w-full left-0 right-0 shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
+            <div class="max-w-[1400px] mx-auto w-full flex items-center justify-between px-12 py-4 rounded-b-[16px]">
 
-    <nav>
-        <a href="{% url 'organization_dashboard' %}">Dashboard</a>
-        <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
-        <a href="{% url 'manage_postings' %}" class="active">Applicants</a>
-        <a href="{% url 'org_profile' %}">Profile</a>
-    </nav>
+                <div class="logo flex items-center gap-3 text-[#00c6ff]">
+                    <i class="fa-solid fa-graduation-cap text-2xl"></i>
+                    <span class="text-2xl font-bold">CampusLink</span>
+                </div>
 
-    <div class="search-profile">
+                <nav class="flex items-center space-x-6">
+                    <a href="{% url 'organization_dashboard' %}" class="text-gray-600 font-medium text-base pb-1 border-b-2 border-transparent hover:text-[#00c6ff] hover:border-[#00c6ff]">Dashboard</a>
+                    <a href="{% url 'post_opportunity' %}" class="text-gray-600 font-medium text-base pb-1 border-b-2 border-transparent hover:text-[#00c6ff] hover:border-[#00c6ff]">Post Opportunity</a>
+                    <a href="{% url 'manage_postings' %}" class="text-gray-600 font-medium text-base pb-1 border-b-2 border-transparent hover:text-[#00c6ff] hover:border-[#00c6ff] active">Applicants</a>
+                    <a href="{% url 'org_profile' %}" class="text-gray-600 font-medium text-base pb-1 border-b-2 border-transparent hover:text-[#00c6ff] hover:border-[#00c6ff]">Profile</a>
+                </nav>
 
-        <!-- Notification Bell  -->
-        <div class="notification-wrapper">
-            <a href="{% url 'notifications' %}" id="notifBell" class="notif-bell">
-                <i class="fa-solid fa-bell"></i>
-                {% if unread_count > 0 %}
-                    <span class="notif-badge">{{ unread_count }}</span>
-                {% endif %}
-            </a>
-        </div>
+                <div class="search-profile flex items-center gap-4">
 
-        <!-- Profile Dropdown -->
-        <div class="profile-dropdown" id="orgProfileDropdown">
-            <img 
-                src="{% if user.profile.profile_picture %}
-                        {{ user.profile.profile_picture.url }}
-                     {% else %}
-                        /static/Myapp/default-avatar.png
-                     {% endif %}"
-                alt="Profile"
-                class="avatar"
-                id="profileAvatar">
+                    <!-- 🔔 NOTIFICATION BELL -->
+                    <div class="notification-wrapper relative">
+                        <a href="{% url 'notifications' %}" id="notifBell" class="notif-bell text-gray-600 hover:text-[#00c6ff] relative">
+                            <i class="fa-solid fa-bell"></i>
+                            {% if unread_count > 0 %}
+                                <span class="notif-badge">{{ unread_count }}</span>
+                            {% endif %}
+                        </a>
+                    </div>
 
-            <div class="dropdown-menu" id="orgDropdownMenu">
-                <div class="dropdown-header">Organization</div>
+                    <!-- PROFILE DROPDOWN -->
+                    <div class="profile-dropdown" id="orgProfileDropdown">
+                        <img src="{% if user.profile.profile_picture %}{{ user.profile.profile_picture.url }}{% else %}/static/Myapp/default-avatar.png{% endif %}"
+                                 alt="Profile"
+                                 class="avatar"
+                                 id="profileAvatar"
+                                 tabindex="0"
+                                 style="cursor:pointer;pointer-events:auto;">
 
-                <a href="{% url 'org_profile' %}">
-                    <i class="fa-solid fa-user"></i> Profile
-                </a>
+                        <div class="dropdown-menu" id="orgDropdownMenu">
+                            <div class="dropdown-header">Organization</div>
+                            <a href="{% url 'org_profile' %}"><i class="fa-solid fa-user"></i>Profile</a>
+                            <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
+                        </div>
+                    </div>
 
-                <a href="{% url 'logout' %}">
-                    <i class="fa-solid fa-right-from-bracket"></i> Log out
-                </a>
+                </div>
+
             </div>
         </div>
-
-    </div>
-</header>
+    </header>
 
 
 
@@ -228,16 +226,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (avatar && wrapper && menu) {
 
-        // OPEN / CLOSE DROPDOWN
-        avatar.addEventListener("click", function(event) {
-            event.stopPropagation();
-            menu.classList.toggle("show");
+        // OPEN / CLOSE DROPDOWN — toggle wrapper .show so CSS rules like
+        // .profile-dropdown.show .dropdown-menu will take effect
+        const toggleDropdown = function(e) {
+            if (e) e.stopPropagation();
+            wrapper.classList.toggle("show");
+        };
+
+        avatar.addEventListener("click", toggleDropdown);
+        avatar.addEventListener("keydown", function(e) {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                toggleDropdown(e);
+            }
         });
+
+        // Prevent clicks inside wrapper from bubbling and immediately closing
+        wrapper.addEventListener("click", function(e) { e.stopPropagation(); });
 
         // CLOSE DROPDOWN WHEN CLICKING OUTSIDE
         document.addEventListener("click", function(event) {
-            if (!menu.contains(event.target) && !avatar.contains(event.target)) {
-                menu.classList.remove("show");
+            if (!wrapper.contains(event.target)) {
+                wrapper.classList.remove("show");
             }
         });
     }
