@@ -6,7 +6,7 @@
   <title>CampusLink Organization Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-
+    <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
 
   <!-- Django static CSS -->
@@ -19,49 +19,54 @@
   <!-- Alert container for global error messages -->
   <div class="alert-container"></div>
   
-  <header class="header">
-    <div class="logo">
-        <i class="fa-solid fa-graduation-cap"></i>
-        <span>CampusLink</span>
-    </div>
+    <header class="sticky top-0 z-40 bg-white">
+        <!-- full-width header background; inner container centers content -->
+        <div class="w-full left-0 right-0 shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
+            <div class="max-w-[1400px] mx-auto w-full flex items-center justify-between px-12 py-4 rounded-b-[16px]">
 
-    <nav>
-        <a href="{% url 'organization_dashboard' %}" class="active">Dashboard</a>
-        <a href="{% url 'post_opportunity' %}">Post Opportunity</a>
-        <a href="{% url 'manage_postings' %}">Applicants</a>
-        <a href="{% url 'org_profile' %}">Profile</a>
-    </nav>
+                <div class="logo flex items-center gap-3 text-[#00c6ff]">
+                    <i class="fa-solid fa-graduation-cap text-2xl"></i>
+                    <span class="text-2xl font-bold">CampusLink</span>
+                </div>
 
-    <div class="search-profile">
-      <!-- 🔔 NOTIFICATION BELL (CLEAN VERSION) -->
-<div class="notification-wrapper">
-    <a href="{% url 'notifications' %}" id="notifBell" class="notif-bell">
-        <i class="fa-solid fa-bell"></i>
-        {% if unread_count > 0 %}
-            <span class="notif-badge">{{ unread_count }}</span>
-        {% endif %}
-    </a>
-</div>
+                <nav class="flex items-center space-x-6">
+                    <a href="{% url 'organization_dashboard' %}" class="text-gray-600 font-medium text-base pb-1 border-b-2 border-transparent hover:text-[#00c6ff] hover:border-[#00c6ff]">Dashboard</a>
+                    <a href="{% url 'post_opportunity' %}" class="text-gray-600 font-medium text-base pb-1 border-b-2 border-transparent hover:text-[#00c6ff] hover:border-[#00c6ff]">Post Opportunity</a>
+                    <a href="{% url 'manage_postings' %}" class="text-gray-600 font-medium text-base pb-1 border-b-2 border-transparent hover:text-[#00c6ff] hover:border-[#00c6ff]">Applicants</a>
+                    <a href="{% url 'org_profile' %}" class="text-gray-600 font-medium text-base pb-1 border-b-2 border-transparent hover:text-[#00c6ff] hover:border-[#00c6ff]">Profile</a>
+                </nav>
 
-      <!-- PROFILE DROPDOWN -->
-      <div class="profile-dropdown" id="orgProfileDropdown">
-          <img src="{% if user.profile.profile_picture %}
-                        {{ user.profile.profile_picture.url }}
-                   {% else %}
-                        /static/Myapp/default-avatar.png
-                   {% endif %}"
-               alt="Profile"
-               class="avatar"
-               id="profileAvatar">
+                <div class="search-profile flex items-center gap-4">
 
-          <div class="dropdown-menu" id="orgDropdownMenu">
-              <div class="dropdown-header">Organization</div>
-              <a href="{% url 'org_profile' %}"><i class="fa-solid fa-user"></i>Profile</a>
-              <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
-          </div>
-      </div>
-    </div>
-</header>
+                    <!-- 🔔 NOTIFICATION BELL -->
+                    <div class="notification-wrapper relative">
+                        <a href="{% url 'notifications' %}" id="notifBell" class="notif-bell text-gray-600 hover:text-[#00c6ff] relative">
+                            <i class="fa-solid fa-bell"></i>
+                            {% if unread_count > 0 %}
+                                <span class="notif-badge">{{ unread_count }}</span>
+                            {% endif %}
+                        </a>
+                    </div>
+
+                    <!-- PROFILE DROPDOWN -->
+                    <div class="profile-dropdown" id="orgProfileDropdown">
+                        <img src="{% if user.profile.profile_picture %}{{ user.profile.profile_picture.url }}{% else %}/static/Myapp/default-avatar.png{% endif %}"
+                                 alt="Profile"
+                                 class="avatar"
+                                 id="profileAvatar">
+
+                        <div class="dropdown-menu" id="orgDropdownMenu">
+                            <div class="dropdown-header">Organization</div>
+                            <a href="{% url 'org_profile' %}"><i class="fa-solid fa-user"></i>Profile</a>
+                            <a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </header>
 
 
   <main>
@@ -131,7 +136,7 @@
 {% endif %}
 <!-- === END VERIFICATION OVERLAY === -->
     <div class="org-header-row">
-      <div class="org-header">
+      <div class="org-header mt-10">
     <h2>Organization <span class="accent">Dashboard</span> 
     </h2>
     <p>Manage your opportunities and connect with talented students.</p>

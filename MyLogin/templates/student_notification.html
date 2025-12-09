@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CampusLink – Notifications</title>
-
+  <script src="https://cdn.tailwindcss.com"></script>
   <!-- Same CSS stack as the student dashboard -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="{% static 'Myapp/student_dashboard.css' %}?v=3.5">
@@ -19,57 +19,59 @@
 
   <!-- HEADER: copied from org_dashboard, bell is a direct link -->
     <!-- HEADER: same as student dashboard -->
-  <header class="header">
-    <div class="logo">
-        <i class="fa-solid fa-graduation-cap"></i>
-        <span>CampusLink</span>
-    </div>
+  <header class="sticky top-0 z-40 bg-white">
+    <!-- full-width header background; inner container centers content -->
+    <div class="w-full left-0 right-0 shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
+        <div class="max-w-[1400px] mx-auto w-full flex items-center justify-between px-12 py-4 rounded-b-[16px] ">
 
-    <nav>
-        <a href="#" class="active">Home</a>
-        <a href="/my-applications/">My Applications</a>
-        <a href="{% url 'profile' %}">Profile</a>
-    </nav>
-
-    <div class="search-profile">
-
-        <!-- 🔔 NOTIFICATION BELL -->
-        <div class="notification-wrapper">
-            <a href="{% url 'student_notification' %}" id="notifBell" class="notif-bell notif-bell-active">
-                <i class="fa-solid fa-bell"></i>
-                {% if unread_count > 0 %}
-                <span class="notif-badge">{{ unread_count }}</span>
-                {% endif %}
-            </a>
-
-            <!-- Optional: you can add a dropdown here if you want,
-                 but for now the bell just links to this page -->
-        </div>
-
-        <!-- PROFILE DROPDOWN -->
-        <div class="profile-dropdown">
-            <img src="{% if user.profile.profile_picture %}
-                        {{ user.profile.profile_picture.url }}
-                    {% else %}
-                        /static/Myapp/default.png
-                    {% endif %}"
-                alt="Profile"
-                class="avatar"
-                id="profileAvatar">
-
-            <div class="dropdown-menu" id="profileMenu">
-                <div class="dropdown-header">Student</div>
-                <a href="{% url 'profile' %}">
-                    <i class="fa-solid fa-user"></i> Profile
-                </a>
-                <a href="{% url 'logout' %}">
-                    <i class="fa-solid fa-right-from-bracket"></i> Log out
-                </a>
+            <div class="logo flex items-center gap-3 text-[#00c6ff]">
+                <i class="fa-solid fa-graduation-cap text-2xl"></i>
+                <span class="text-2xl font-extrabold">CampusLink</span>
             </div>
-        </div>
 
+            <nav class="flex items-center">
+                <a href="{% url 'student_dashboard' %}" class="text-gray-600 font-medium text-base pb-1 border-b-2 border-transparent hover:text-[#00c6ff] hover:border-[#00c6ff] ">Home</a>
+                <a href="{% url 'my_applications' %}" class="text-gray-600 font-medium text-base pb-1 border-b-2 border-transparent hover:text-[#00c6ff] hover:border-[#00c6ff]">My Applications</a>
+                <a href="{% url 'profile' %}" class="font-medium text-base pb-1 border-b-2 border-transparent">Profile</a>
+            </nav>
+
+            <div class="search-profile flex items-center gap-4">
+
+                <!-- 🔔 NOTIFICATION BELL -->
+                <div class="notification-wrapper relative">
+                    <a href="{% url 'student_notification' %}" id="notifBell" class="notif-bell text-gray-600 hover:text-[#00c6ff] relative">
+                        <i class="fa-solid fa-bell"></i>
+                        {% if unread_count > 0 %}
+                        <span class="notif-badge">{{ unread_count }}</span>
+                        {% endif %}
+                    </a>
+                </div>
+
+                <!-- PROFILE DROPDOWN -->
+                <div class="profile-dropdown">
+                    <img src="{% if user.profile.profile_picture %}{{ user.profile.profile_picture.url }}{% else %}{% static 'Myapp/default-avatar.png' %}{% endif %}"
+                             alt="Profile"
+                             class="avatar"
+                             id="profileAvatar">
+
+                    <div class="dropdown-menu" id="profileMenu">
+                        <div class="dropdown-header">Student</div>
+
+                        <a href="{% url 'profile' %}">
+                            <i class="fa-solid fa-user"></i> Profile
+                        </a>
+
+                        <a href="{% url 'logout' %}">
+                            <i class="fa-solid fa-right-from-bracket"></i> Log out
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
     </div>
-  </header>
+</header>
 
 
   <!-- MAIN CONTENT -->

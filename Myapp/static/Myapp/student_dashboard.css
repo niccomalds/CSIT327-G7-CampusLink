@@ -24,14 +24,17 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  border-radius: 0 0 16px 16px;
-  max-width: 1400px;
-  margin: 0 auto;
+  border-radius: 0;
+  left: 0;
+  right: 0;
   width: 100%;
   -webkit-transform: translateZ(0); /* Force hardware acceleration for smoother scrolling */
   transform: translateZ(0);
   will-change: transform; /* Optimize for animations */
 }
+/* .header, .header > * {
+  outline: 1px solid red;
+} */
 
 .logo {
   display: flex;
@@ -1075,14 +1078,7 @@ main {
 }
 
 /* RESPONSIVE */
-@media (min-width: 1400px) {
-  .header,
-  .dashboard-main {
-    max-width: 1400px;
-    margin: 0 auto;
-    width: 100%;
-  }
-}
+
 
 @media (max-width: 900px) {
   .header {
