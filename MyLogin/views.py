@@ -206,7 +206,8 @@ def student_dashboard(request):
                         student=request.user,
                         posting=posting,
                         resume=resume,
-                        note=note
+                        note=note,
+                        uses_supabase_storage=False,
                     )
                     
                     # Upload resume to Supabase asynchronously
@@ -1501,7 +1502,8 @@ def create_application(request, posting_id):
                 student=request.user,
                 posting=posting,
                 resume=resume,
-                note=note
+                note=note,
+                uses_supabase_storage=False,
             )
             
             # Upload resume to Supabase
