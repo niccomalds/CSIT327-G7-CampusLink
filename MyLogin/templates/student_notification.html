@@ -25,8 +25,8 @@
             </div>
 
             <nav class="flex items-center">
-                <a href="{% url 'student_dashboard' %}" class="text-gray-600 font-medium text-base pb-1 border-b-2 border-transparent hover:text-[#00c6ff] hover:border-[#00c6ff] ">Home</a>
-                <a href="{% url 'my_applications' %}" class="text-gray-600 font-medium text-base pb-1 border-b-2 border-transparent hover:text-[#00c6ff] hover:border-[#00c6ff]">My Applications</a>
+                <a href="{% url 'student_dashboard' %}" class="text-gray-600 font-medium text-base pb-1 border-b-2 border-transparent hover:text-[#00c6ff] hover:border-[#00c6ff]">Home</a>
+                <a href="{% url 'my_applications' %}" class="text-gray-600 font-medium text-base pb-1 border-b-2 border-transparent hover:text-[#00c6ff] hover:border-[#00c6ff] active">My Applications</a>
                 <a href="{% url 'profile' %}" class="font-medium text-base pb-1 border-b-2 border-transparent">Profile</a>
             </nav>
 
@@ -34,7 +34,7 @@
 
                 <!-- 🔔 NOTIFICATION BELL -->
                 <div class="notification-wrapper relative">
-                    <a href="{% url 'notifications' %}" id="notifBell" class="notif-bell text-gray-600 hover:text-[#00c6ff] relative notif-bell-active">
+                    <a href="{% url 'student_notification' %}" id="notifBell" class="notif-bell text-gray-600 hover:text-[#00c6ff] relative notif-bell-active">
                         <i class="fa-solid fa-bell"></i>
                         {% if unread_count > 0 %}
                         <span class="notif-badge">{{ unread_count }}</span>
