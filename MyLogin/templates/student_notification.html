@@ -34,7 +34,7 @@
 
                 <!-- 🔔 NOTIFICATION BELL -->
                 <div class="notification-wrapper relative">
-                    <a href="{% url 'student_notification' %}" id="notifBell" class="notif-bell text-gray-600 hover:text-[#00c6ff] relative notif-bell-active">
+                    <a href="{% url 'notifications' %}" id="notifBell" class="notif-bell text-gray-600 hover:text-[#00c6ff] relative notif-bell-active">
                         <i class="fa-solid fa-bell"></i>
                         {% if unread_count > 0 %}
                         <span class="notif-badge">{{ unread_count }}</span>
@@ -92,7 +92,7 @@
         <div class="notif-toolbar">
           <div class="notif-tabs">
             <!-- Tabs now use links with ?tab= -->
-            <a href="{% url 'notifications' %}?tab=all"
+            <a href="{% url 'student_notification' %}?tab=all"
                class="notif-tab {% if active_tab == 'all' %}notif-tab-active{% endif %}">
               <span>All</span>
               <span class="notif-tab-pill">{{ notifications.count }}</span>
@@ -100,7 +100,7 @@
 
           
 
-            <a href="{% url 'notifications' %}?tab=favorite"
+            <a href="{% url 'student_notification' %}?tab=favorite"
      class="notif-tab {% if active_tab == 'favorite' %}notif-tab-active{% endif %}">
     <span>Favorite</span>
     <span class="notif-tab-pill">{{ favorite_count }}</span>
