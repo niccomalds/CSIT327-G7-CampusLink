@@ -20,6 +20,7 @@ urlpatterns = [
     path('student/dashboard/profile/save-skills/', views.save_skills, name='save_skills'),
     path('my-applications/', views.my_applications, name='my_applications'),
     path('create-application/<int:posting_id>/', views.create_application, name='create_application'),
+    path('download-resume/<int:application_id>/', views.download_resume, name='download_resume'),
 
     # --- Organization Pages ---
     path('organization/dashboard/', views.organization_dashboard, name='organization_dashboard'),

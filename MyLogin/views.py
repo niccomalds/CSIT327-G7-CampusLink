@@ -8,6 +8,7 @@ from functools import wraps
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse
+from io import BytesIO
 import json
 from Myapp.models import Posting, Application
 from .models import Profile, Notification
@@ -192,19 +193,47 @@ def student_dashboard(request):
         
         if posting_id and resume:
             try:
+                from MyLogin.supabase_storage import SupabaseStorageManager
+                
                 posting = Posting.objects.get(id=posting_id)
                 
                 # Check if user has already applied
                 if Application.objects.filter(student=request.user, posting=posting).exists():
                     messages.error(request, "You have already applied to this posting.")
                 else:
-                    # Create application
+                    # Create application with local resume first
                     application = Application.objects.create(
                         student=request.user,
                         posting=posting,
                         resume=resume,
                         note=note
                     )
+                    
+                    # Upload resume to Supabase asynchronously
+                    try:
+                        upload_result = SupabaseStorageManager.upload_resume(
+                            resume, 
+                            student_id=request.user.id,
+                            application_id=application.id
+                        )
+                        
+                        if upload_result['success']:
+                            # Update application with Supabase info
+                            application.resume_supabase_path = upload_result['path']
+                            application.uses_supabase_storage = True
+                            
+                            # Generate and cache signed URL
+                            signed_url = SupabaseStorageManager.get_signed_url(upload_result['path'])
+                            if signed_url:
+                                from datetime import timedelta
+                                application.resume_signed_url = signed_url
+                                application.signed_url_expires_at = timezone.now() + timedelta(days=7)
+                            
+                            application.save()
+                    except Exception as e:
+                        # Log error but don't fail the application
+                        print(f"Supabase upload error: {str(e)}")
+                        # Application will use local file as fallback
                     
                     # Send notification to the organization
                     Notification.objects.create(
@@ -1474,6 +1503,35 @@ def create_application(request, posting_id):
                 resume=resume,
                 note=note
             )
+            
+            # Upload resume to Supabase
+            try:
+                from MyLogin.supabase_storage import SupabaseStorageManager
+                
+                upload_result = SupabaseStorageManager.upload_resume(
+                    resume, 
+                    student_id=request.user.id,
+                    application_id=application.id
+                )
+                
+                if upload_result['success']:
+                    # Update application with Supabase info
+                    application.resume_supabase_path = upload_result['path']
+                    application.uses_supabase_storage = True
+                    
+                    # Generate and cache signed URL
+                    signed_url = SupabaseStorageManager.get_signed_url(upload_result['path'])
+                    if signed_url:
+                        from datetime import timedelta
+                        application.resume_signed_url = signed_url
+                        application.signed_url_expires_at = timezone.now() + timedelta(days=7)
+                    
+                    application.save()
+            except Exception as e:
+                # Log error but don't fail the application
+                print(f"Supabase upload error: {str(e)}")
+                # Application will use local file as fallback
+            
             messages.success(request, "Application submitted successfully!")
             return redirect('my_applications')
     
@@ -1561,7 +1619,7 @@ def get_application_details(request, application_id):
             'email': application.student.email,
             'applied_date': application.created_at.strftime("%B %d, %Y"),
             'note': application.note,
-            'resume': application.resume.url if application.resume else None,
+            'resume': application.get_resume_url(),  # Use new method that handles Supabase URLs
             'profile_picture': application.student.profile.profile_picture.url if application.student.profile.profile_picture else None,
             'status': application.status,
             'status_display': application.get_status_display(),
@@ -1573,3 +1631,70 @@ def get_application_details(request, application_id):
         return JsonResponse({'success': False, 'message': 'Application not found or access denied.'})
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)})
+
+
+# --- Download Resume from Supabase ---
+@login_required
+def download_resume(request, application_id):
+    """Download a resume file from Supabase storage with access control"""
+    try:
+        # Get the application
+        application = Application.objects.get(id=application_id)
+        
+        # Access control: Only student who submitted or organization reviewing can download
+        is_student = application.student == request.user
+        is_organization = (
+            hasattr(request.user, 'profile') and 
+            request.user.profile.role == 'Organization' and 
+            application.posting.organization == request.user
+        )
+        
+        if not (is_student or is_organization):
+            return JsonResponse({
+                'success': False, 
+                'message': 'Access denied.'
+            }, status=403)
+        
+        # If using Supabase storage, download from there
+        if application.uses_supabase_storage and application.resume_supabase_path:
+            from MyLogin.supabase_storage import SupabaseStorageManager
+            
+            file_content = SupabaseStorageManager.download_file(application.resume_supabase_path)
+            
+            if file_content:
+                from django.http import FileResponse
+                import os
+                
+                # Get original filename
+                file_name = os.path.basename(application.resume_supabase_path)
+                
+                response = FileResponse(
+                    BytesIO(file_content),
+                    content_type='application/pdf' if file_name.endswith('.pdf') else 'application/octet-stream'
+                )
+                response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+                return response
+        
+        # Fall back to local file if available
+        if application.resume:
+            from django.http import FileResponse
+            response = FileResponse(application.resume.open('rb'))
+            response['Content-Disposition'] = f'attachment; filename="{application.resume.name}"'
+            return response
+        
+        return JsonResponse({
+            'success': False,
+            'message': 'Resume file not found.'
+        }, status=404)
+        
+    except Application.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Application not found.'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error downloading file: {str(e)}'
+        }, status=500)
+
