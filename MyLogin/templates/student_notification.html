@@ -106,12 +106,6 @@
     <span class="notif-tab-pill">{{ favorite_count }}</span>
   </a>
 
-            <a href="{% url 'notifications' %}?tab=archive"
-     class="notif-tab {% if active_tab == 'archive' %}notif-tab-active{% endif %}">
-    <span>Archive</span>
-    <span class="notif-tab-pill">{{ archive_count }}</span>
-  </a>
-
           </div>
 
           <div class="notif-actions">
@@ -177,36 +171,24 @@
   {% endif %}
 </div>
 
-                  <p class="notification-message">
+                  <div class="notification-message">
                     {{ notification.message }}
-                  </p>
-                  <div class="notification-meta">
-                    <span class="notification-time">
-                      {{ notification.timestamp|date:"M d, Y \a\t g:i A" }}
-                    </span>
-                    {% if notification.related_posting %}
-                      <a href="#" class="notification-link">View Posting</a>
-                    {% endif %}
                   </div>
                 </div>
 
-                <!-- Right icons -->
+                <!-- Right side -->
                 <div class="notification-right">
-                  <!-- Archive form -->
-                  <form method="post" action="{% url 'notification_archive' notification.id %}" class="inline-form">
-                    {% csrf_token %}
-                    <button class="notif-icon-btn archive-btn" type="submit" title="Archive">
-                      <i class="fa-solid fa-archive"></i>
-                    </button>
-                  </form>
+                  <span class="notification-time-ago">
+                    {{ notification.timestamp|timesince }} ago
+                  </span>
 
-                  <!-- Mark as read/unread form -->
-                  <form method="post" action="{% url 'notification_toggle_read' notification.id %}" class="inline-form">
+                  <!-- Delete button -->
+                  <form method="post"
+                        action="{% url 'notification_delete' notification.id %}"
+                        style="display:inline-block;">
                     {% csrf_token %}
-                    <button class="notif-icon-btn {% if notification.read %}mark-unread-btn{% else %}mark-read-btn{% endif %}" 
-                            type="submit" 
-                            title="{% if notification.read %}Mark as unread{% else %}Mark as read{% endif %}">
-                      <i class="fa-solid {% if notification.read %}fa-envelope{% else %}fa-envelope-open{% endif %}"></i>
+                    <button class="notif-icon-btn delete-btn" type="submit" title="Delete">
+                      <i class="fa-regular fa-trash-can"></i>
                     </button>
                   </form>
                 </div>
@@ -214,10 +196,10 @@
             {% endfor %}
           </ul>
         {% else %}
-          <div class="no-notifications">
-            <i class="fa-solid fa-bell-slash"></i>
-            <h3>No notifications yet</h3>
-            <p>When you receive notifications, they'll appear here.</p>
+          <div class="empty-state">
+            <i class="far fa-bell"></i>
+            <h3>No Notifications Yet</h3>
+            <p>You don't have any notifications at the moment. We'll notify you when there are updates.</p>
           </div>
         {% endif %}
       </section>
