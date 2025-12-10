@@ -266,7 +266,7 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
 /* ---------- Actions grid/buttons ---------- */
 .actions-grid {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: auto;
   width: 100%;
@@ -282,16 +282,18 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
   text-align: center;
   border: none;
   transition: all 0.3s ease;
-  flex: 1;
-  min-width: 0;
   font-weight: 500;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+}
+
+.action.edit-btn,
+.action.delete-btn {
+  flex: 0 1 calc(50% - 4px);
+  min-width: 100px;
 }
 
 .action i {
@@ -312,7 +314,8 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
 .action.view-applicants { 
   background: linear-gradient(135deg, #4cc9f0, #3a86ff); 
   box-shadow: 0 4px 6px rgba(58, 134, 255, 0.2);
-  min-width: 190px; /* Further increased space for text and icons */
+  flex: 1 1 auto;
+  min-width: 180px;
 }
 
 .action:hover { 
