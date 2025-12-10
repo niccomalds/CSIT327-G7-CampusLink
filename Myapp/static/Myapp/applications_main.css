@@ -713,8 +713,7 @@ main {
 }
 
 .description-section h4,
-.submitted-materials h4,
-.application-timeline h4 {
+.submitted-materials h4 {
     color: #1f2937;
     margin-bottom: 1rem;
     font-size: 1.2rem;
@@ -813,92 +812,6 @@ main {
     margin: 0;
     color: #4b5563;
     line-height: 1.6;
-}
-
-.application-timeline {
-    background: #f8fafc;
-    padding: 1.5rem;
-    border-radius: 12px;
-}
-
-.timeline {
-    position: relative;
-    padding-left: 2rem;
-}
-
-.timeline::before {
-    content: '';
-    position: absolute;
-    left: 0.5rem;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: #d1d5db;
-}
-
-.timeline-item {
-    position: relative;
-    margin-bottom: 1.5rem;
-}
-
-.timeline-item:last-child {
-    margin-bottom: 0;
-}
-
-.timeline-marker {
-    position: absolute;
-    left: -2rem;
-    top: 0.25rem;
-    width: 1rem;
-    height: 1rem;
-    border-radius: 50%;
-    border: 3px solid #fff;
-    box-shadow: 0 0 0 2px #d1d5db;
-}
-
-.timeline-item.completed .timeline-marker {
-    background: #10b981;
-    box-shadow: 0 0 0 2px #10b981;
-}
-
-.timeline-item.current .timeline-marker {
-    background: #00c6ff;
-    box-shadow: 0 0 0 2px #00c6ff;
-    animation: pulse 2s infinite;
-}
-
-.timeline-item.upcoming .timeline-marker {
-    background: #d1d5db;
-    box-shadow: 0 0 0 2px #d1d5db;
-}
-
-@keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(0, 198, 255, 0.7);
-    }
-    70% {
-        box-shadow: 0 0 0 10px rgba(0, 198, 255, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(0, 198, 255, 0);
-    }
-}
-
-.timeline-content {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.timeline-date {
-    font-size: 0.85rem;
-    color: #6b7280;
-    font-weight: 500;
-}
-
-.timeline-event {
-    color: #374151;
-    font-weight: 600;
 }
 
 .modal-footer {
