@@ -210,30 +210,59 @@
       <span class="filter-label">Type:</span>
       <div class="type-filter-options-inline">
         <label class="type-checkbox-inline">
-          <input type="checkbox" name="opportunityType" value="assistantship">
-          <span class="checkmark-inline"></span>
-          <span class="type-label-inline">Assistantship</span>
-        </label>
-        <label class="type-checkbox-inline">
-          <input type="checkbox" name="opportunityType" value="volunteer">
-          <span class="checkmark-inline"></span>
-          <span class="type-label-inline">Volunteer</span>
-        </label>
-        <label class="type-checkbox-inline">
-          <input type="checkbox" name="opportunityType" value="sports">
-          <span class="checkmark-inline"></span>
-          <span class="type-label-inline">Sports</span>
-        </label>
-        <label class="type-checkbox-inline">
-          <input type="checkbox" name="opportunityType" value="leadership">
-          <span class="checkmark-inline"></span>
-          <span class="type-label-inline">Leadership</span>
-        </label>
-        <label class="type-checkbox-inline">
-          <input type="checkbox" name="opportunityType" value="other">
-          <span class="checkmark-inline"></span>
-          <span class="type-label-inline">Other</span>
-        </label>
+  <input type="checkbox" class="type-option" name="opportunityType" value="assistantship">
+  <span class="checkmark-inline"></span>
+  <span class="type-label-inline">Assistantship</span>
+</label>
+
+<label class="type-checkbox-inline">
+  <input type="checkbox" class="type-option" name="opportunityType" value="volunteer">
+  <span class="checkmark-inline"></span>
+  <span class="type-label-inline">Volunteer</span>
+</label>
+
+<label class="type-checkbox-inline">
+  <input type="checkbox" class="type-option" name="opportunityType" value="internship">
+  <span class="checkmark-inline"></span>
+  <span class="type-label-inline">Internship</span>
+</label>
+
+<label class="type-checkbox-inline">
+  <input type="checkbox" class="type-option" name="opportunityType" value="job">
+  <span class="checkmark-inline"></span>
+  <span class="type-label-inline">Job</span>
+</label>
+
+<label class="type-checkbox-inline">
+  <input type="checkbox" class="type-option" name="opportunityType" value="scholarship">
+  <span class="checkmark-inline"></span>
+  <span class="type-label-inline">Scholarship</span>
+</label>
+
+<label class="type-checkbox-inline">
+  <input type="checkbox" class="type-option" name="opportunityType" value="events">
+  <span class="checkmark-inline"></span>
+  <span class="type-label-inline">Events</span>
+</label>
+
+<label class="type-checkbox-inline">
+  <input type="checkbox" class="type-option" name="opportunityType" value="sports">
+  <span class="checkmark-inline"></span>
+  <span class="type-label-inline">Sports</span>
+</label>
+
+<label class="type-checkbox-inline">
+  <input type="checkbox" class="type-option" name="opportunityType" value="leadership">
+  <span class="checkmark-inline"></span>
+  <span class="type-label-inline">Leadership</span>
+</label>
+
+<label class="type-checkbox-inline">
+  <input type="checkbox" class="type-option" name="opportunityType" value="other">
+  <span class="checkmark-inline"></span>
+  <span class="type-label-inline">Other</span>
+</label>
+
       </div>
     </div>
   </div>
@@ -306,6 +335,15 @@
   <!-- Include the error message component JavaScript -->
   <script src="{% static 'Myapp/error_message.js' %}"></script>
   <script>
+    document.querySelectorAll(".type-option").forEach(cb => {
+  cb.addEventListener("change", function() {
+    if (this.checked) {
+      document.querySelectorAll(".type-option").forEach(other => {
+        if (other !== this) other.checked = false;
+      });
+    }
+  });
+});
     // Display Django messages when the page loads
     document.addEventListener("DOMContentLoaded", function() {
       {% if messages %}
