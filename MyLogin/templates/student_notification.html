@@ -34,7 +34,7 @@
 
                 <!-- 🔔 NOTIFICATION BELL -->
                 <div class="notification-wrapper relative">
-                    <a href="{% url 'student_notification' %}" id="notifBell" class="notif-bell text-gray-600 hover:text-[#00c6ff] relative">
+                    <a href="{% url 'student_notification' %}" id="notifBell" class="notif-bell text-gray-600 hover:text-[#00c6ff] relative notif-bell-active">
                         <i class="fa-solid fa-bell"></i>
                         {% if unread_count > 0 %}
                         <span class="notif-badge">{{ unread_count }}</span>
@@ -205,6 +205,53 @@
       </section>
     </div>
   </main>
+
+  <script>
+    // Highlight and scroll to a specific notification if opened with #notification-ID
+    document.addEventListener("DOMContentLoaded", function() {
+      const hash = window.location.hash;
+      if (hash && hash.startsWith("#notification-")) {
+        const target = document.querySelector(hash);
+        if (target) {
+          target.classList.add("focused");
+          target.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }
+    });
+
+    // Very basic front-end search filter
+    document.addEventListener("DOMContentLoaded", function () {
+      const searchInput = document.getElementById("notifSearchInput");
+      const notifList = document.getElementById("notificationList");
+      if (searchInput && notifList) {
+        searchInput.addEventListener("input", function () {
+          const term = this.value.toLowerCase();
+          document.querySelectorAll("#notificationList .notification-item").forEach(item => {
+            const text = item.textContent.toLowerCase();
+            item.style.display = text.includes(term) ? "" : "none";
+          });
+        });
+      }
+
+      // Profile dropdown toggle (same as student dashboard)
+      const profileAvatar = document.getElementById("profileAvatar");
+      const profileMenu = document.getElementById("profileMenu");
+
+      if (profileAvatar && profileMenu) {
+        profileAvatar.addEventListener("click", function (event) {
+          event.stopPropagation();
+          const isVisible = profileMenu.style.display === "flex";
+          profileMenu.style.display = isVisible ? "none" : "flex";
+        });
+
+        document.addEventListener("click", function (event) {
+          if (!event.target.closest(".profile-dropdown")) {
+            profileMenu.style.display = "none";
+          }
+        });
+      }
+    });
+  </script>
 
   <!-- Include the error message component JavaScript -->
   <script src="{% static 'Myapp/error_message.js' %}"></script>
