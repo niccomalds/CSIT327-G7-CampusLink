@@ -7,6 +7,7 @@ from datetime import timedelta
 from io import BytesIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from MyLogin.supabase_client import supabase
+import logging
 
 
 class SupabaseStorageManager:
@@ -29,6 +30,10 @@ class SupabaseStorageManager:
         Returns:
             dict: {'success': bool, 'path': str, 'error': str or None}
         """
+        # Ensure supabase client is available
+        if not supabase:
+            return {'success': False, 'path': None, 'error': 'Supabase client not configured'}
+
         try:
             # Generate unique file path: resumes/{student_id}/{application_id}_{filename}
             original_filename = file_obj.name
@@ -77,6 +82,10 @@ class SupabaseStorageManager:
         Returns:
             str: Signed URL for accessing the file
         """
+        if not supabase:
+            logging.warning('Supabase client not configured - cannot generate signed URL')
+            return None
+
         try:
             if expires_in is None:
                 expires_in = SupabaseStorageManager.SIGNED_URL_EXPIRY
@@ -105,6 +114,9 @@ class SupabaseStorageManager:
         Returns:
             dict: {'success': bool, 'error': str or None}
         """
+        if not supabase:
+            return {'success': False, 'error': 'Supabase client not configured'}
+
         try:
             supabase.storage.from_bucket(
                 SupabaseStorageManager.RESUME_BUCKET
@@ -132,6 +144,10 @@ class SupabaseStorageManager:
         Returns:
             bool: True if file exists, False otherwise
         """
+        if not supabase:
+            logging.warning('Supabase client not configured - cannot check file existence')
+            return False
+
         try:
             response = supabase.storage.from_bucket(
                 SupabaseStorageManager.RESUME_BUCKET
@@ -155,6 +171,10 @@ class SupabaseStorageManager:
         Returns:
             bytes: File content or None if error
         """
+        if not supabase:
+            logging.warning('Supabase client not configured - cannot download file')
+            return None
+
         try:
             response = supabase.storage.from_bucket(
                 SupabaseStorageManager.RESUME_BUCKET
@@ -163,5 +183,5 @@ class SupabaseStorageManager:
             return response
             
         except Exception as e:
-            print(f"Error downloading file: {str(e)}")
+            logging.warning(f"Error downloading file: {str(e)}")
             return None
