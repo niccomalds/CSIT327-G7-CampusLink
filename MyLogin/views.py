@@ -1462,17 +1462,14 @@ def create_application(request, posting_id):
         # Process attachments (currently just storing the primary resume)
         # Future enhancement: Handle multiple attachments
         
-        if Application.objects.filter(student=request.user, posting=posting).exists():
-            messages.error(request, "You have already applied to this posting.")
-        else:
-            application = Application.objects.create(
-                student=request.user,
-                posting=posting,
-                resume=resume,
-                note=note
-            )
-            messages.success(request, "Application submitted successfully!")
-            return redirect('my_applications')
+        application = Application.objects.create(
+            student=request.user,
+            posting=posting,
+            resume=resume,
+            note=note
+        )
+        messages.success(request, "Application submitted successfully!")
+        return redirect('my_applications')
     
     # Process tags for the posting
     tags_list = [tag.strip() for tag in posting.tags.split(',') if tag.strip()] if posting.tags else []

@@ -188,7 +188,6 @@
     <span class="type-badge {{ posting.opportunity_type|default:'other' }}">{{ posting.get_opportunity_type_display|default:'Other' }}</span>
     <div class="opp-details">
       <span class="opp-type"><i class="fa-solid fa-briefcase"></i> {{ posting.get_opportunity_type_display }}</span>
-      <span class="opp-applicants">0 applicants</span>
       <span class="opp-deadline"><i class="fa-solid fa-calendar"></i> Due: {{ posting.deadline|date:"M d, Y" }}</span>
     </div>
     <button class="apply-btn" onclick="applyToOpportunity({{ posting.id }})">Apply Now</button>
@@ -239,26 +238,10 @@
         }
     });
     
-    // Example function to demonstrate error message usage
+    // Function to apply for an opportunity
     function applyToOpportunity(opportunityId) {
-        // Simulate an AJAX request to apply for an opportunity
-        // In a real implementation, this would make an actual request
-        
-        // Show a loading message
-        const loadingMsg = showInfoMessage('Processing', 'Applying to opportunity...', false);
-        
-        // Simulate API call delay
-        setTimeout(function() {
-            // Dismiss the loading message
-            loadingMsg.querySelector('.alert-close').click();
-            
-            // Show success or error based on random chance (simulating real response)
-            if (Math.random() > 0.3) {
-                showSuccessMessage('Application Submitted', 'Your application has been successfully submitted!');
-            } else {
-                showErrorMessage('Application Failed', 'Unable to submit application. Please try again.');
-            }
-        }, 1500);
+        // Redirect to the application page for this opportunity
+        window.location.href = `/create-application/${opportunityId}/`;
     }
   </script>
 </body>
