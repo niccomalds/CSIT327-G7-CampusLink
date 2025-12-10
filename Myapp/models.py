@@ -95,55 +95,8 @@ class Application(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
-    # Supabase storage fields
-    resume_supabase_path = models.CharField(
-        max_length=500,
-        blank=True,
-        null=True,
-        help_text='Path to resume file in Supabase storage'
-    )
-    resume_signed_url = models.TextField(
-        blank=True,
-        null=True,
-        help_text='Cached signed URL for resume access'
-    )
-    signed_url_expires_at = models.DateTimeField(
-        blank=True,
-        null=True,
-        help_text='Timestamp when signed URL expires'
-    )
-    uses_supabase_storage = models.BooleanField(
-        default=False,
-        help_text='Whether this application uses Supabase storage for resume'
-    )
-    
     class Meta:
         unique_together = ['student', 'posting']
     
     def __str__(self):
         return f"{self.student.email} - {self.posting.title}"
-    
-    def get_resume_url(self):
-        """Get the appropriate resume URL (Supabase or local)"""
-        from django.utils import timezone
-        from MyLogin.supabase_storage import SupabaseStorageManager
-        
-        # If using Supabase storage
-        if self.uses_supabase_storage and self.resume_supabase_path:
-            # Check if signed URL is still valid
-            if (self.resume_signed_url and self.signed_url_expires_at and 
-                self.signed_url_expires_at > timezone.now()):
-                return self.resume_signed_url
-            
-            # Generate new signed URL
-            signed_url = SupabaseStorageManager.get_signed_url(self.resume_supabase_path)
-            if signed_url:
-                # Cache the signed URL for 7 days
-                from datetime import timedelta
-                self.resume_signed_url = signed_url
-                self.signed_url_expires_at = timezone.now() + timedelta(days=7)
-                self.save(update_fields=['resume_signed_url', 'signed_url_expires_at'])
-                return signed_url
-        
-        # Fall back to local file URL
-        return self.resume.url if self.resume else None
