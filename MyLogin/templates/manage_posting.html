@@ -144,58 +144,81 @@
   <!-- ========================================================= -->
 
   <!-- Edit Modal -->
-  <div id="editModal" class="modal">
+  <div id="editModal" class="modal" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-content">
-      <h3>Edit Posting</h3>
-      <form id="editForm">
-        <input type="hidden" id="editPostId" name="post_id">
+      <div class="modal-header">
+        <h2 id="editModalLabel">Edit Posting</h2>
+        <span class="close-modal" role="button" tabindex="0" aria-label="Close">&times;</span>
+      </div>
+      <div class="modal-body">
+        <form id="editForm" novalidate>
+          <input type="hidden" id="editPostId" name="post_id">
 
-        <label>Title:</label>
-        <input type="text" id="editTitle" name="title" placeholder="Enter a clear and concise title for your posting" required />
+          <div class="form-group required">
+            <label for="editTitle">Title:</label>
+            <input type="text" id="editTitle" name="title" placeholder="Enter a clear and concise title for your posting" required aria-required="true" />
+            <div class="error-message" id="title-error">Please enter a title</div>
+          </div>
 
-        <label>Description:</label>
-        <textarea id="editDescription" name="description" rows="2" placeholder="Describe the posting in detail. Include purpose, requirements, etc."></textarea>
+          <div class="form-group">
+            <label for="editDescription">Description:</label>
+            <textarea id="editDescription" name="description" rows="4" placeholder="Describe the posting in detail. Include purpose, requirements, etc."></textarea>
+          </div>
 
-        <label>Opportunity Type:</label>
-        <select id="editOpportunityType" name="opportunity_type" required>
-          <option value="assistantship">Assistantship</option>
-          <option value="volunteer">Volunteer</option>
-          <option value="internship">Internship</option>
-          <option value="job">Job</option>
-          <option value="scholarship">Scholarship</option>
-          <option value="events">Events</option>
-          <option value="sports">Sports</option>
-          <option value="leadership">Leadership</option>
-          <option value="other">Other</option>
-        </select>
+          <div class="form-row">
+            <div class="form-group half-width required">
+              <label for="editOpportunityType">Opportunity Type:</label>
+              <select id="editOpportunityType" name="opportunity_type" required aria-required="true">
+                <option value="">Select an opportunity type</option>
+                <option value="assistantship">Assistantship</option>
+                <option value="volunteer">Volunteer</option>
+                <option value="internship">Internship</option>
+                <option value="job">Job</option>
+                <option value="scholarship">Scholarship</option>
+                <option value="events">Events</option>
+                <option value="sports">Sports</option>
+                <option value="leadership">Leadership</option>
+                <option value="other">Other</option>
+              </select>
+              <div class="error-message" id="opportunity-type-error">Please select an opportunity type</div>
+            </div>
 
-        <label>Deadline:</label>
-        <input type="date" id="editDeadline" name="deadline" required />
+            <div class="form-group half-width required">
+              <label for="editDeadline">Deadline:</label>
+              <input type="date" id="editDeadline" name="deadline" required aria-required="true" />
+              <div class="error-message" id="deadline-error">Please select a deadline</div>
+            </div>
+          </div>
 
-        <label>Status:</label>
-        <select id="editStatus" name="status">
-          <option value="pending">Pending</option>
-          <option value="approved">Active</option>
-          <option value="rejected">Rejected</option>
-        </select>
+          <div class="form-group">
+            <label for="editStatus">Status:</label>
+            <select id="editStatus" name="status">
+              <option value="pending">Pending</option>
+              <option value="approved">Active</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
 
-        <!-- Tags -->
-        <label for="editTags">Tags</label>
-        <select id="editTags" name="tags" multiple>
-          <option value="Communication">Communication</option>
-          <option value="Outreach">Outreach</option>
-          <option value="Events">Events</option>
-          <option value="Leadership">Leadership</option>
-          <option value="Marketing">Marketing</option>
-          <option value="Creative">Creative</option>
-          <option value="Technical">Technical</option>
-        </select>
+          <!-- Tags -->
+          <div class="form-group">
+            <label for="editTags">Tags</label>
+            <select id="editTags" name="tags" multiple aria-label="Select one or more tags">
+              <option value="Communication">Communication</option>
+              <option value="Outreach">Outreach</option>
+              <option value="Events">Events</option>
+              <option value="Leadership">Leadership</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Creative">Creative</option>
+              <option value="Technical">Technical</option>
+            </select>
+          </div>
 
-        <div class="modal-actions">
-          <button type="submit" class="modal-action-btn save">Save</button>
-          <button type="button" id="cancelEdit" class="modal-action-btn cancel">Cancel</button>
-        </div>
-      </form>
+          <div class="modal-actions">
+            <button type="button" id="cancelEdit" class="modal-action-btn cancel">Cancel</button>
+            <button type="submit" class="modal-action-btn save">Save Changes</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -267,6 +290,34 @@ document.addEventListener("DOMContentLoaded", () => {
             window.location.href = "{% url 'notifications' %}";
         });
     }
+    
+    // Focus trapping function for modals
+    function trapFocus(modal) {
+        const focusableElements = modal.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        // If there are no focusable elements, return
+        if (!firstElement) return;
+
+        // Listen for tab key press
+        modal.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                // If shift + tab is pressed and focus is on first element, move to last
+                if (e.shiftKey && document.activeElement === firstElement) {
+                    e.preventDefault();
+                    lastElement.focus();
+                }
+                // If tab is pressed and focus is on last element, move to first
+                else if (!e.shiftKey && document.activeElement === lastElement) {
+                    e.preventDefault();
+                    firstElement.focus();
+                }
+            }
+        });
+    }
 
     // Add edit functionality
     const editButtons = document.querySelectorAll('.edit-btn');
@@ -332,6 +383,12 @@ document.addEventListener("DOMContentLoaded", () => {
           
             // Show modal
             editModal.classList.add('active');
+            
+            // Focus first input field for accessibility
+            document.getElementById('editTitle').focus();
+            
+            // Trap focus within modal
+            trapFocus(editModal);
         });
     });
 
@@ -341,11 +398,97 @@ document.addEventListener("DOMContentLoaded", () => {
             editModal.classList.remove('active');
         });
     }
-
+    
+    // Close modal with escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && editModal.classList.contains('active')) {
+            editModal.classList.remove('active');
+        }
+    });
+    
+    // Close modal when clicking on close button (with keyboard support)
+    const closeModalButton = document.querySelector('.close-modal');
+    if (closeModalButton) {
+        closeModalButton.addEventListener('click', function() {
+            editModal.classList.remove('active');
+        });
+        
+        // Add keyboard support for close button
+        closeModalButton.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                editModal.classList.remove('active');
+            }
+        });
+    }
+    
     // Handle form submission
     if (editForm) {
+        // Add form validation
+        function validateForm() {
+            let isValid = true;
+            
+            // Reset error states
+            document.querySelectorAll('.form-group').forEach(group => {
+                group.classList.remove('error');
+            });
+            
+            // Validate title
+            const title = document.getElementById('editTitle');
+            if (!title.value.trim()) {
+                document.querySelector('.form-group.required:nth-child(1)').classList.add('error');
+                isValid = false;
+            }
+            
+            // Validate opportunity type
+            const opportunityType = document.getElementById('editOpportunityType');
+            if (!opportunityType.value) {
+                document.querySelector('.form-group.required:nth-child(3)').classList.add('error');
+                isValid = false;
+            }
+            
+            // Validate deadline
+            const deadline = document.getElementById('editDeadline');
+            if (!deadline.value) {
+                document.querySelector('.form-group.required:nth-child(4)').classList.add('error');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+        
+        // Add real-time validation
+        document.getElementById('editTitle').addEventListener('blur', function() {
+            if (!this.value.trim()) {
+                document.querySelector('.form-group.required:nth-child(1)').classList.add('error');
+            } else {
+                document.querySelector('.form-group.required:nth-child(1)').classList.remove('error');
+            }
+        });
+        
+        document.getElementById('editOpportunityType').addEventListener('change', function() {
+            if (!this.value) {
+                document.querySelector('.form-group.required:nth-child(3)').classList.add('error');
+            } else {
+                document.querySelector('.form-group.required:nth-child(3)').classList.remove('error');
+            }
+        });
+        
+        document.getElementById('editDeadline').addEventListener('blur', function() {
+            if (!this.value) {
+                document.querySelector('.form-group.required:nth-child(4)').classList.add('error');
+            } else {
+                document.querySelector('.form-group.required:nth-child(4)').classList.remove('error');
+            }
+        });
+        
         editForm.addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            // Validate form
+            if (!validateForm()) {
+                return;
+            }
           
             const postId = document.getElementById('editPostId').value;
           

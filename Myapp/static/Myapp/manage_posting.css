@@ -453,9 +453,209 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
 }
 
 .modal-body {
-    padding: 0;
+    padding: 25px;
     max-height: calc(90vh - 80px);
     overflow-y: auto;
+}
+
+/* Enhanced Form Styles for Edit Modal */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #1a202c;
+  font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  transition: all 0.3s ease;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #0072ff;
+  box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.15);
+}
+
+.form-group textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.half-width {
+  flex: 1;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  padding-top: 20px;
+  margin-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.modal-action-btn {
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.modal-action-btn.save {
+  background: linear-gradient(135deg, #0072ff, #00c6ff);
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 114, 255, 0.2);
+}
+
+.modal-action-btn.save:hover {
+  background: linear-gradient(135deg, #0056b3, #00a2ff);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 114, 255, 0.3);
+}
+
+.modal-action-btn.cancel {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+.modal-action-btn.cancel:hover {
+  background: #e2e8f0;
+  transform: translateY(-1px);
+}
+
+/* Select2 Custom Styling */
+.select2-container {
+  width: 100% !important;
+}
+
+.select2-container--default .select2-selection--multiple {
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  min-height: 45px;
+  padding: 5px 10px;
+}
+
+.select2-container--default.select2-container--focus .select2-selection--multiple {
+  border-color: #0072ff;
+  box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.15);
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+  background-color: #0072ff;
+  border: none;
+  border-radius: 20px;
+  color: white;
+  padding: 3px 10px;
+  margin: 3px 5px;
+  font-size: 0.85rem;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+  color: white;
+  margin-right: 5px;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+  color: #ffcccc;
+}
+
+/* Enhanced form input styling */
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #a0aec0;
+  font-style: italic;
+}
+
+.form-group input:focus::placeholder,
+.form-group textarea:focus::placeholder {
+  color: transparent;
+}
+
+/* Form validation styles */
+.form-group.error input,
+.form-group.error select,
+.form-group.error textarea {
+  border-color: #e53e3e;
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.15);
+}
+
+.form-group .error-message {
+  color: #e53e3e;
+  font-size: 0.875rem;
+  margin-top: 5px;
+  display: none;
+}
+
+.form-group.error .error-message {
+  display: block;
+}
+
+/* Required field indicator */
+.form-group.required label::after {
+  content: " *";
+  color: #e53e3e;
+}
+
+/* Focus styles for accessibility */
+.close-modal:focus {
+  outline: 2px solid #0072ff;
+  outline-offset: 2px;
+}
+
+.modal-action-btn:focus {
+  outline: 2px solid #0072ff;
+  outline-offset: 2px;
+}
+
+/* Responsive adjustments for form */
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .half-width {
+    width: 100%;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+  
+  .modal-action-btn {
+    width: 100%;
+  }
+  
+  .modal-body {
+    padding: 20px;
+  }
 }
 
 /* ---------- Toast Notification ---------- */
@@ -474,8 +674,6 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
 
 .toast.success { background-color: #10b981; }
 .toast.error { background-color: #ef4444; }
-
-
 
 /* ============================================================
    🔔 NOTIFICATION BELL — STUDENT STYLE
@@ -546,7 +744,6 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
     gap: 20px;
 }
 
-
 /* Notification Item */
 .notif-item {
     padding: 12px 16px;
@@ -582,7 +779,6 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
     font-size: 2rem;
     margin-bottom: 5px;
 }
-
 
 /* Dropdown item styling */
 .dropdown-menu a {
@@ -1138,880 +1334,6 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
         padding: 10px 16px;
         font-size: 0.9rem;
     }
-}
-
-/* Modal Styles */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 10000;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal.active {
-    display: flex;
-}
-
-.modal-content {
-    background: white;
-    border-radius: 16px;
-    width: 90%;
-    max-width: 700px;
-    max-height: 90vh;
-    overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-    animation: modalSlideIn 0.3s ease-out;
-}
-
-@keyframes modalSlideIn {
-    from { transform: translateY(-50px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-.modal-header {
-    background: linear-gradient(135deg, #0072ff, #00c6ff);
-    color: white;
-    padding: 20px 25px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-header h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 600;
-}
-
-.close-modal {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.8rem;
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.3s;
-}
-
-.close-modal:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.modal-body {
-    padding: 0;
-    max-height: calc(90vh - 80px);
-    overflow-y: auto;
-}
-
-/* Applicant Detail Card in Modal */
-.applicant-detail-card {
-    display: flex;
-    flex-direction: column;
-    max-height: calc(90vh - 80px);
-}
-
-.applicant-header {
-    background: linear-gradient(135deg, #0072ff, #00c6ff);
-    padding: 30px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    position: relative;
-}
-
-.applicant-avatar-large {
-    position: relative;
-    z-index: 2;
-    margin-bottom: 15px;
-}
-
-.applicant-avatar-large .avatar-img {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 5px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    background: #fff;
-    padding: 3px;
-}
-
-.applicant-basic-info h3 {
-    margin: 0 0 8px 0;
-    font-size: 1.6rem;
-    color: white;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-}
-
-.applicant-basic-info .applicant-email {
-    margin: 0 0 12px 0;
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 1.1rem;
-    font-weight: 500;
-    text-decoration: none;
-}
-
-.applicant-basic-info .applicant-email:hover {
-    text-decoration: underline;
-}
-
-.application-date {
-    margin: 0;
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    font-weight: 400;
-}
-
-.application-details-section {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 30px;
-    background: white;
-    flex-grow: 1;
-    overflow-y: auto;
-}
-
-.detail-section {
-    background: #f8fafc;
-    border-radius: 12px;
-    padding: 20px;
-    border: 1px solid #e2e8f0;
-    transition: all 0.2s ease;
-}
-
-.detail-section:hover {
-    border-color: #cbd5e0;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-}
-
-.detail-section h4 {
-    margin: 0 0 15px 0;
-    color: #1a202c;
-    font-size: 1.2rem;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-weight: 600;
-}
-
-.detail-section h4 i {
-    color: #0072ff;
-    background: #e6f4ff;
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
-}
-
-.detail-section p {
-    margin: 0 0 12px 0;
-    color: #4a5568;
-    line-height: 1.7;
-    font-size: 1rem;
-}
-
-.detail-section:last-child p {
-    margin-bottom: 0;
-}
-
-.resume-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    color: #0072ff;
-    text-decoration: none;
-    font-weight: 500;
-    padding: 12px 20px;
-    border: 2px solid #0072ff;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-    background: #f0f9ff;
-    justify-content: center;
-    width: 100%;
-    font-size: 1rem;
-}
-
-.resume-link:hover {
-    background: #0072ff;
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 114, 255, 0.25);
-}
-
-.resume-link:active {
-    transform: translateY(0);
-}
-
-/* Actions section in modal */
-.applicant-actions-modal {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-    padding: 25px 30px;
-    background: #f8fafc;
-    border-top: 1px solid #e2e8f0;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.status-select-modal {
-    padding: 12px 16px;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 1rem;
-    background: white;
-    min-width: 200px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    font-weight: 500;
-    color: #2d3748;
-}
-
-.status-select-modal:focus {
-    outline: none;
-    border-color: #0072ff;
-    box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.15);
-}
-
-.update-status-btn-modal {
-    padding: 12px 24px;
-    background: linear-gradient(135deg, #0072ff, #00c6ff);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    box-shadow: 0 4px 10px rgba(0, 114, 255, 0.2);
-    font-size: 1rem;
-    min-width: 150px;
-}
-
-.update-status-btn-modal:hover {
-    background: linear-gradient(135deg, #0056b3, #00a2ff);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0, 114, 255, 0.3);
-}
-
-.update-status-btn-modal:active {
-    transform: translateY(0);
-}
-
-/* No applicants state */
-.no-applicants {
-    text-align: center;
-    padding: 50px 30px;
-    grid-column: 1 / -1;
-    background: var(--card-bg);
-    border-radius: 12px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.06);
-    border: 1px solid #eef2f7;
-}
-
-.no-applicants i {
-    color: #cbd5e1;
-    margin-bottom: 20px;
-    font-size: 3rem;
-}
-
-.no-applicants h3 {
-    margin: 0 0 12px 0;
-    color: #1a202c;
-    font-size: 1.5rem;
-    font-weight: 600;
-}
-
-.no-applicants p {
-    margin: 0;
-    color: #718096;
-    font-size: 1rem;
-    max-width: 500px;
-    margin: 0 auto;
-    line-height: 1.5;
-}
-
-/* Enhanced View Applicants Button */
-.view-applicants {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    justify-content: center;
-    font-weight: 500;
-    font-size: 0.95rem;
-}
-
-.applicant-count {
-    background: #e6f4ff;
-    color: #0072ff;
-    padding: 3px 10px;
-    border-radius: 16px;
-    font-weight: 600;
-    font-size: 0.85rem;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .applicants-table {
-        display: block;
-        overflow-x: auto;
-    }
-    
-    .applicants-table th,
-    .applicants-table td {
-        padding: 12px 15px;
-        font-size: 0.9rem;
-    }
-    
-    .applicant-info {
-        gap: 8px;
-    }
-    
-    .applicant-avatar-small {
-        width: 35px;
-        height: 35px;
-    }
-    
-    .modal-content {
-        width: 95%;
-        max-height: 95vh;
-    }
-    
-    .application-details-section {
-        padding: 20px;
-    }
-    
-    .applicant-actions-modal {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 15px;
-        padding: 20px;
-    }
-    
-    .status-select-modal {
-        min-width: auto;
-    }
-    
-    .update-status-btn-modal {
-        width: 100%;
-    }
-    
-    .no-applicants {
-        padding: 40px 20px;
-    }
-    
-    .no-applicants h3 {
-        font-size: 1.4rem;
-    }
-    
-    .no-applicants p {
-        font-size: 0.95rem;
-    }
-}
-
-/* Override main-content width to match admin dashboard */
-.main-content {
-    max-width: none;
-    padding: 24px 50px 60px;
-    display: block;
-    margin: 0 auto;
-    width: 100%;
-}
-
-/* Override content padding to ensure full width */
-.content { 
-    padding: 40px 0 !important; /* Remove side padding completely for full width */
-    width: 100%;
-    max-width: none;
-}
-
-/* Professional Applicant List Table Styles */
-.table-responsive {
-    background: var(--card-bg);
-    border-radius: 12px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.06);
-    overflow: hidden;
-    border: 1px solid #eef2f7;
-    margin-bottom: 30px;
-    width: 100%;
-    margin-left: 0;
-    margin-right: 0;
-}
-
-.applicants-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: var(--font-body);
-}
-
-.applicants-table thead {
-    background: linear-gradient(135deg, #0072ff, #00c6ff);
-    color: white;
-}
-
-.applicants-table th {
-    padding: 20px 25px;
-    text-align: left;
-    font-weight: 600;
-    font-size: 1.1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.applicants-table tbody tr {
-    border-bottom: 1px solid #eef2f7;
-    transition: all 0.2s ease;
-}
-
-.applicants-table tbody tr:hover {
-    background-color: #f8fafc;
-}
-
-.applicants-table td {
-    padding: 20px 25px;
-    color: #4a5568;
-    font-size: 1rem;
-}
-
-.applicant-info {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.applicant-avatar-small {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid #e2e8f0;
-}
-
-.applicant-avatar-placeholder {
-    font-size: 50px;
-    color: #cbd5e1;
-}
-
-.applicant-name {
-    font-weight: 600;
-    color: #1a202c;
-    font-size: 1.1rem;
-}
-
-.status-badge {
-    display: inline-block;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-}
-
-.status-badge.pending {
-    background: #fffbeb;
-    color: #d97706;
-    border: 1px solid #fbbf24;
-}
-
-.status-badge.active {
-    background: #f0fdf4;
-    color: #16a34a;
-    border: 1px solid #4ade80;
-}
-
-.status-badge.closed {
-    background: #fef2f2;
-    color: #dc2626;
-    border: 1px solid #f87171;
-}
-
-.btn-view-details {
-    background: #f0f9ff;
-    color: #0072ff;
-    border: 2px solid #0072ff;
-    border-radius: 10px;
-    padding: 12px 20px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 1rem;
-}
-
-.btn-view-details:hover {
-    background: #0072ff;
-    color: white;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 114, 255, 0.2);
-}
-
-.btn-view-details:active {
-    transform: translateY(0);
-}
-
-/* Responsive table for smaller screens */
-@media (max-width: 768px) {
-    .table-responsive {
-        overflow-x: auto;
-    }
-    
-    .applicants-table {
-        min-width: 900px;
-    }
-    
-    .applicants-table th,
-    .applicants-table td {
-        padding: 16px 20px;
-        font-size: 0.95rem;
-    }
-    
-    .applicant-info {
-        gap: 12px;
-    }
-    
-    .applicant-avatar-small {
-        width: 45px;
-        height: 45px;
-    }
-    
-    .btn-view-details {
-        padding: 10px 16px;
-        font-size: 0.9rem;
-    }
-}
-
-/* Modal Styles */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 10000;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal.active {
-    display: flex;
-}
-
-.modal-content {
-    background: white;
-    border-radius: 16px;
-    width: 90%;
-    max-width: 700px;
-    max-height: 90vh;
-    overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-    animation: modalSlideIn 0.3s ease-out;
-}
-
-@keyframes modalSlideIn {
-    from { transform: translateY(-50px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-.modal-header {
-    background: linear-gradient(135deg, #0072ff, #00c6ff);
-    color: white;
-    padding: 20px 25px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-header h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 600;
-}
-
-.close-modal {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.8rem;
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.3s;
-}
-
-.close-modal:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.modal-body {
-    padding: 0;
-    max-height: calc(90vh - 80px);
-    overflow-y: auto;
-}
-
-/* Applicant Detail Card in Modal */
-.applicant-detail-card {
-    display: flex;
-    flex-direction: column;
-    max-height: calc(90vh - 80px);
-}
-
-.applicant-header {
-    background: linear-gradient(135deg, #0072ff, #00c6ff);
-    padding: 30px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    position: relative;
-}
-
-.applicant-avatar-large {
-    position: relative;
-    z-index: 2;
-    margin-bottom: 15px;
-}
-
-.applicant-avatar-large .avatar-img {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 5px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    background: #fff;
-    padding: 3px;
-}
-
-.applicant-basic-info h3 {
-    margin: 0 0 8px 0;
-    font-size: 1.6rem;
-    color: white;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-}
-
-.applicant-basic-info .applicant-email {
-    margin: 0 0 12px 0;
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 1.1rem;
-    font-weight: 500;
-    text-decoration: none;
-}
-
-.applicant-basic-info .applicant-email:hover {
-    text-decoration: underline;
-}
-
-.application-date {
-    margin: 0;
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    font-weight: 400;
-}
-
-.application-details-section {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 30px;
-    background: white;
-    flex-grow: 1;
-    overflow-y: auto;
-}
-
-.detail-section {
-    background: #f8fafc;
-    border-radius: 12px;
-    padding: 20px;
-    border: 1px solid #e2e8f0;
-    transition: all 0.2s ease;
-}
-
-.detail-section:hover {
-    border-color: #cbd5e0;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-}
-
-.detail-section h4 {
-    margin: 0 0 15px 0;
-    color: #1a202c;
-    font-size: 1.2rem;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-weight: 600;
-}
-
-.detail-section h4 i {
-    color: #0072ff;
-    background: #e6f4ff;
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
-}
-
-.detail-section p {
-    margin: 0 0 12px 0;
-    color: #4a5568;
-    line-height: 1.7;
-    font-size: 1rem;
-}
-
-.detail-section:last-child p {
-    margin-bottom: 0;
-}
-
-.resume-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    color: #0072ff;
-    text-decoration: none;
-    font-weight: 500;
-    padding: 12px 20px;
-    border: 2px solid #0072ff;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-    background: #f0f9ff;
-    justify-content: center;
-    width: 100%;
-    font-size: 1rem;
-}
-
-.resume-link:hover {
-    background: #0072ff;
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 114, 255, 0.25);
-}
-
-.resume-link:active {
-    transform: translateY(0);
-}
-
-/* Actions section in modal */
-.applicant-actions-modal {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-    padding: 25px 30px;
-    background: #f8fafc;
-    border-top: 1px solid #e2e8f0;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.status-select-modal {
-    padding: 12px 16px;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 1rem;
-    background: white;
-    min-width: 200px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    font-weight: 500;
-    color: #2d3748;
-}
-
-.status-select-modal:focus {
-    outline: none;
-    border-color: #0072ff;
-    box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.15);
-}
-
-.update-status-btn-modal {
-    padding: 12px 24px;
-    background: linear-gradient(135deg, #0072ff, #00c6ff);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    box-shadow: 0 4px 10px rgba(0, 114, 255, 0.2);
-    font-size: 1rem;
-    min-width: 150px;
-}
-
-.update-status-btn-modal:hover {
-    background: linear-gradient(135deg, #0056b3, #00a2ff);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0, 114, 255, 0.3);
-}
-
-.update-status-btn-modal:active {
-    transform: translateY(0);
-}
-
-/* No applicants state */
-.no-applicants {
-    text-align: center;
-    padding: 50px 30px;
-    grid-column: 1 / -1;
-    background: var(--card-bg);
-    border-radius: 12px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.06);
-    border: 1px solid #eef2f7;
-}
-
-.no-applicants i {
-    color: #cbd5e1;
-    margin-bottom: 20px;
-    font-size: 3rem;
-}
-
-.no-applicants h3 {
-    margin: 0 0 12px 0;
-    color: #1a202c;
-    font-size: 1.5rem;
-    font-weight: 600;
-}
-
-.no-applicants p {
-    margin: 0;
-    color: #718096;
-    font-size: 1rem;
-    max-width: 500px;
-    margin: 0 auto;
-    line-height: 1.5;
 }
 
 /* Enhanced View Applicants Button */

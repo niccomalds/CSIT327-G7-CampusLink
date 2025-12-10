@@ -60,20 +60,6 @@
               <textarea id="note" name="note" placeholder="Tell us about your interest, relevant experience, and what you hope to gain from this opportunity..."></textarea>
             </div>
           </div>
-
-          <!-- Additional Attachments Section -->
-          <div class="form-section">
-            <h3><i class="fa-solid fa-paperclip"></i> Additional Attachments (Optional)</h3>
-            <div class="form-group">
-              <div class="file-upload" id="attachmentsDropArea">
-                <i class="fa-solid fa-folder-open"></i>
-                <p>Drag & drop additional files here or click to browse</p>
-                <input type="file" id="attachments" name="attachments" class="file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple>
-                <label for="attachments" class="file-label">Choose Files</label>
-                <div class="file-name" id="attachmentsFileName">No files chosen</div>
-              </div>
-            </div>
-          </div>
         </form>
       </div>
       <div class="modal-footer">
@@ -353,7 +339,6 @@
         // Reset form
         applicationForm.reset();
         document.getElementById('resumeFileName').textContent = 'No file chosen';
-        document.getElementById('attachmentsFileName').textContent = 'No files chosen';
       }
       
       // Event listeners for closing modal
@@ -388,18 +373,6 @@
         resumeElement.addEventListener('change', function(e) {
           const fileName = e.target.files[0] ? e.target.files[0].name : 'No file chosen';
           document.getElementById('resumeFileName').textContent = fileName;
-        });
-      }
-      
-      const attachmentsElement = document.getElementById('attachments');
-      if (attachmentsElement) {
-        attachmentsElement.addEventListener('change', function(e) {
-          if (e.target.files.length > 0) {
-            const fileNames = Array.from(e.target.files).map(file => file.name).join(', ');
-            document.getElementById('attachmentsFileName').textContent = fileNames;
-          } else {
-            document.getElementById('attachmentsFileName').textContent = 'No files chosen';
-          }
         });
       }
       
@@ -441,44 +414,6 @@
           if (files.length) {
             document.getElementById('resume').files = files;
             document.getElementById('resumeFileName').textContent = files[0].name;
-          }
-        }
-      }
-      
-      // Drag and drop functionality for attachments
-      const attachmentsDropArea = document.getElementById('attachmentsDropArea');
-      if (attachmentsDropArea) {
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-          attachmentsDropArea.addEventListener(eventName, preventDefaults, false);
-        });
-        
-        ['dragenter', 'dragover'].forEach(eventName => {
-          attachmentsDropArea.addEventListener(eventName, highlightAttachments, false);
-        });
-        
-        ['dragleave', 'drop'].forEach(eventName => {
-          attachmentsDropArea.addEventListener(eventName, unhighlightAttachments, false);
-        });
-        
-        function highlightAttachments(e) {
-          attachmentsDropArea.style.borderColor = '#007bff';
-          attachmentsDropArea.style.backgroundColor = '#e9f4ff';
-        }
-        
-        function unhighlightAttachments(e) {
-          attachmentsDropArea.style.borderColor = '#ced4da';
-          attachmentsDropArea.style.backgroundColor = '#f8f9fa';
-        }
-        
-        attachmentsDropArea.addEventListener('drop', handleAttachmentsDrop, false);
-        
-        function handleAttachmentsDrop(e) {
-          const dt = e.dataTransfer;
-          const files = dt.files;
-          if (files.length) {
-            document.getElementById('attachments').files = files;
-            const fileNames = Array.from(files).map(file => file.name).join(', ');
-            document.getElementById('attachmentsFileName').textContent = fileNames;
           }
         }
       }

@@ -124,7 +124,7 @@
                         <td>{{ application.created_at|date:"M d, Y" }}</td>
                         <td>
                           <span class="status-badge {% if application.status == 'submitted' %}pending{% elif application.status == 'under_review' %}pending{% elif application.status == 'accepted' %}active{% elif application.status == 'rejected' %}closed{% else %}pending{% endif %}">
-                            {{ application.get_status_display }}
+                            {% if application.status == 'submitted' %}Under Review{% else %}{{ application.get_status_display }}{% endif %}
                           </span>
                         </td>
                         <td>
@@ -264,7 +264,6 @@ document.addEventListener("DOMContentLoaded", () => {
                           
                           <div class="applicant-actions-modal">
                             <select class="status-select-modal" id="statusSelect-${applicationId}" data-application-id="${applicationId}">
-                              <option value="submitted" ${data.status === 'submitted' ? 'selected' : ''}>Submitted</option>
                               <option value="under_review" ${data.status === 'under_review' ? 'selected' : ''}>Under Review</option>
                               <option value="accepted" ${data.status === 'accepted' ? 'selected' : ''}>Accept</option>
                               <option value="rejected" ${data.status === 'rejected' ? 'selected' : ''}>Reject</option>
