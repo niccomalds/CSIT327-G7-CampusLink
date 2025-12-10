@@ -55,6 +55,11 @@ urlpatterns = [
         name='notification_archive'
     ),
     path(
+        'notifications/<int:pk>/read/',
+        views.notification_toggle_read,
+        name='notification_toggle_read'
+    ),
+    path(
         'notifications/<int:pk>/delete/',
         views.notification_delete,
         name='notification_delete'

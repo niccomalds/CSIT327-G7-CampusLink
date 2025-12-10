@@ -1218,7 +1218,14 @@ def notifications(request):
     return render(request, 'notifications.html', context)
 
 
-
+@login_required
+@require_POST
+def notification_toggle_read(request, pk):
+    """Toggle the read status of a notification"""
+    notif = get_object_or_404(Notification, pk=pk, recipient=request.user)
+    notif.read = not notif.read  # toggle read status
+    notif.save()
+    return redirect(request.META.get('HTTP_REFERER', 'notifications'))
 
 
 @login_required
@@ -1228,7 +1235,6 @@ def notification_toggle_favorite(request, pk):
     notif.is_favorite = not notif.is_favorite  # toggle favorite on/off
     notif.save()
     return redirect(request.META.get('HTTP_REFERER', 'notifications'))
-
 
 
 @login_required

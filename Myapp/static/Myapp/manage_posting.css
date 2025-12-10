@@ -327,16 +327,12 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
 
 /* Enhanced View Applicants Button */
 .view-applicants {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 8px;
   justify-content: center;
   font-weight: 500;
   font-size: 0.95rem;
-  white-space: nowrap;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .applicant-count {
@@ -346,7 +342,6 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
   border-radius: 16px;
   font-weight: 600;
   font-size: 0.85rem;
-  flex-shrink: 0;
 }
 
 /* Responsive adjustments for actions grid */
@@ -383,80 +378,7 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
   }
 }
 
-/* ---------- Modal ---------- */
-.modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
 
-.modal.active {
-  display: flex;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 16px;
-  width: 90%;
-  max-width: 700px;
-  max-height: 90vh;
-  overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-  animation: modalSlideIn 0.3s ease-out;
-}
-
-@keyframes modalSlideIn {
-    from { transform: translateY(-50px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-.modal-header {
-    background: linear-gradient(135deg, #0072ff, #00c6ff);
-    color: white;
-    padding: 20px 25px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-header h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 600;
-}
-
-.close-modal {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.8rem;
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.3s;
-}
-
-.close-modal:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.modal-body {
-    padding: 0;
-    max-height: calc(90vh - 80px);
-    overflow-y: auto;
-}
 
 /* ---------- Toast Notification ---------- */
 .toast {
@@ -1154,268 +1076,266 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
     align-items: center;
 }
 
-.modal.active {
-    display: flex;
-}
-
 .modal-content {
-    background: white;
-    border-radius: 16px;
+    background: var(--card-bg);
+    margin: 5% auto;
+    padding: 24px;
+    border: 1px solid #f3f4f6;
     width: 90%;
-    max-width: 700px;
-    max-height: 90vh;
-    overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-    animation: modalSlideIn 0.3s ease-out;
+    max-width: 500px;
+    border-radius: var(--border-radius);
+    position: relative;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    max-height: 85vh;
+    overflow-y: auto;
 }
 
-@keyframes modalSlideIn {
-    from { transform: translateY(-50px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+.form-container {
+    padding: 0;
 }
 
-.modal-header {
-    background: linear-gradient(135deg, #0072ff, #00c6ff);
-    color: white;
-    padding: 20px 25px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-header h2 {
-    margin: 0;
+.form-container h2 {
+    font-family: var(--font-body);
     font-size: 1.5rem;
     font-weight: 600;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #111827;
 }
 
-.close-modal {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.8rem;
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.3s;
-}
-
-.close-modal:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.modal-body {
+/* Form Group Structure */
+.form-group {
+    margin-bottom: 16px;
     padding: 0;
-    max-height: calc(90vh - 80px);
-    overflow-y: auto;
+}
+
+.form-group label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 6px;
+    color: #374151;
+    text-align: left;
+    font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: 0.3s;
+    background: #f9fafb;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* Custom dropdown arrow for select elements */
+.form-group select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+/* Input Focus Effect */
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: #00c6ff;
+    box-shadow: 0 0 0 3px rgba(0,198,255,0.2);
+    background: #fff;
+    outline: none;
+}
+
+/* Submit Button */
+.submit-btn {
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    opacity: 0.95;
+    box-shadow: 0 4px 12px rgba(0, 114, 255, 0.3);
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Modal Actions */
+.modal-actions {
+    display: none;
+}
+
+.modal-action-btn {
+    display: none;
+}
+
+.modal-action-btn.save {
+    display: none;
+}
+
+.modal-action-btn.save:hover {
+    display: none;
+}
+
+.modal-action-btn.cancel {
+    display: none;
+}
+
+.modal-action-btn.cancel:hover {
+    display: none;
+}
+
+.modal-action-btn.delete {
+    display: none;
+}
+
+.modal-action-btn.delete:hover {
+    display: none;
+}
+
+/* Responsive adjustments for modal actions */
+@media (max-width: 768px) {
+    .modal-actions {
+        display: none;
+    }
+    
+    .modal-action-btn {
+        display: none;
+    }
 }
 
 /* Applicant Detail Card in Modal */
 .applicant-detail-card {
-    display: flex;
-    flex-direction: column;
-    max-height: calc(90vh - 80px);
+    display: none;
 }
 
 .applicant-header {
-    background: linear-gradient(135deg, #0072ff, #00c6ff);
-    padding: 30px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    position: relative;
+    display: none;
 }
 
 .applicant-avatar-large {
-    position: relative;
-    z-index: 2;
-    margin-bottom: 15px;
+    display: none;
 }
 
 .applicant-avatar-large .avatar-img {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 5px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    background: #fff;
-    padding: 3px;
+    display: none;
 }
 
 .applicant-basic-info h3 {
-    margin: 0 0 8px 0;
-    font-size: 1.6rem;
-    color: white;
-    font-weight: 700;
-    letter-spacing: -0.3px;
+    display: none;
 }
 
 .applicant-basic-info .applicant-email {
-    margin: 0 0 12px 0;
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 1.1rem;
-    font-weight: 500;
-    text-decoration: none;
+    display: none;
 }
 
 .applicant-basic-info .applicant-email:hover {
-    text-decoration: underline;
+    display: none;
 }
 
 .application-date {
-    margin: 0;
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    font-weight: 400;
+    display: none;
 }
 
 .application-details-section {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 30px;
-    background: white;
-    flex-grow: 1;
-    overflow-y: auto;
+    display: none;
 }
 
 .detail-section {
-    background: #f8fafc;
-    border-radius: 12px;
-    padding: 20px;
-    border: 1px solid #e2e8f0;
-    transition: all 0.2s ease;
+    display: none;
 }
 
 .detail-section:hover {
-    border-color: #cbd5e0;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    display: none;
 }
 
 .detail-section h4 {
-    margin: 0 0 15px 0;
-    color: #1a202c;
-    font-size: 1.2rem;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-weight: 600;
+    display: none;
 }
 
 .detail-section h4 i {
-    color: #0072ff;
-    background: #e6f4ff;
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
+    display: none;
 }
 
 .detail-section p {
-    margin: 0 0 12px 0;
-    color: #4a5568;
-    line-height: 1.7;
-    font-size: 1rem;
+    display: none;
 }
 
 .detail-section:last-child p {
-    margin-bottom: 0;
+    display: none;
 }
 
 .resume-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    color: #0072ff;
-    text-decoration: none;
-    font-weight: 500;
-    padding: 12px 20px;
-    border: 2px solid #0072ff;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-    background: #f0f9ff;
-    justify-content: center;
-    width: 100%;
-    font-size: 1rem;
+    display: none;
 }
 
 .resume-link:hover {
-    background: #0072ff;
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 114, 255, 0.25);
+    display: none;
 }
 
 .resume-link:active {
-    transform: translateY(0);
+    display: none;
 }
 
 /* Actions section in modal */
 .applicant-actions-modal {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-    padding: 25px 30px;
-    background: #f8fafc;
-    border-top: 1px solid #e2e8f0;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: none;
 }
 
 .status-select-modal {
-    padding: 12px 16px;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 1rem;
-    background: white;
-    min-width: 200px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    font-weight: 500;
-    color: #2d3748;
+    display: none;
 }
 
 .status-select-modal:focus {
-    outline: none;
-    border-color: #0072ff;
-    box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.15);
+    display: none;
 }
 
 .update-status-btn-modal {
-    padding: 12px 24px;
-    background: linear-gradient(135deg, #0072ff, #00c6ff);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    box-shadow: 0 4px 10px rgba(0, 114, 255, 0.2);
-    font-size: 1rem;
-    min-width: 150px;
+    display: none;
 }
 
 .update-status-btn-modal:hover {
-    background: linear-gradient(135deg, #0056b3, #00a2ff);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0, 114, 255, 0.3);
+    display: none;
 }
 
 .update-status-btn-modal:active {
-    transform: translateY(0);
+    display: none;
 }
 
 /* No applicants state */
@@ -1703,80 +1623,7 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
     }
 }
 
-/* Modal Styles */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 10000;
-    justify-content: center;
-    align-items: center;
-}
 
-.modal.active {
-    display: flex;
-}
-
-.modal-content {
-    background: white;
-    border-radius: 16px;
-    width: 90%;
-    max-width: 700px;
-    max-height: 90vh;
-    overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-    animation: modalSlideIn 0.3s ease-out;
-}
-
-@keyframes modalSlideIn {
-    from { transform: translateY(-50px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-.modal-header {
-    background: linear-gradient(135deg, #0072ff, #00c6ff);
-    color: white;
-    padding: 20px 25px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-header h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 600;
-}
-
-.close-modal {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.8rem;
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.3s;
-}
-
-.close-modal:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.modal-body {
-    padding: 0;
-    max-height: calc(90vh - 80px);
-    overflow-y: auto;
-}
 
 /* Applicant Detail Card in Modal */
 .applicant-detail-card {
@@ -2089,5 +1936,94 @@ body { background: var(--bg); color:#111827; line-height:1.5; font-size:0.95rem;
     
     .no-applicants p {
         font-size: 0.95rem;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .modal-content {
+        padding: 20px;
+        width: 95%;
+        max-width: none;
+        margin: 8% auto;
+        max-height: 85vh;
+    }
+    
+    .form-container {
+        padding: 0;
+    }
+    
+    .form-container h2 {
+        font-size: 1.4rem;
+        margin-bottom: 16px;
+    }
+    
+    .form-group {
+        padding: 0;
+        margin-bottom: 14px;
+    }
+    
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        padding: 10px 14px;
+        font-size: 0.95rem;
+    }
+    
+    /* Adjust padding for smaller screens */
+    .form-group select {
+        padding-right: 35px;
+        background-position: right 10px center;
+        background-size: 14px;
+    }
+    
+    .submit-btn {
+        padding: 10px 16px;
+        font-size: 0.95rem;
+    }
+    
+    .close {
+        font-size: 26px;
+        top: 8px;
+        right: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        padding: 16px;
+        width: 95%;
+        margin: 5% auto;
+        max-height: 90vh;
+    }
+    
+    .form-container h2 {
+        font-size: 1.3rem;
+        margin-bottom: 14px;
+    }
+    
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+    
+    /* Adjust padding for smaller screens */
+    .form-group select {
+        padding-right: 30px;
+        background-position: right 8px center;
+        background-size: 12px;
+    }
+    
+    .submit-btn {
+        padding: 8px 14px;
+        font-size: 0.9rem;
+    }
+    
+    .close {
+        font-size: 24px;
+        top: 6px;
+        right: 10px;
     }
 }

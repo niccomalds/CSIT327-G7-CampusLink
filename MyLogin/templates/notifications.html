@@ -108,11 +108,23 @@
     <span class="notif-tab-pill">{{ favorite_count }}</span>
   </a>
 
+            <a href="{% url 'notifications' %}?tab=archive"
+               class="notif-tab {% if active_tab == 'archive' %}notif-tab-active{% endif %}">
+              <span>Archived</span>
+              <span class="notif-tab-pill">{{ archive_count }}</span>
+            </a>
+
           </div>
 
           <div class="notif-actions">
             <!-- REAL "Mark all as read" POST form -->
-          
+            <form method="post" action="{% url 'notification_mark_all_read' %}" style="display:inline-block;">
+              {% csrf_token %}
+              <button class="notif-mark-all-read" type="submit">
+                <i class="fa-solid fa-check-double"></i>
+                Mark all as read
+              </button>
+            </form>
 
             <div class="notif-search">
               <i class="fa-solid fa-magnifying-glass"></i>
@@ -186,7 +198,26 @@
                   </span>
 
                   <!-- Archive button -->
-                
+                  <form method="post"
+                        action="{% url 'notification_archive' notification.id %}"
+                        style="display:inline-block;">
+                    {% csrf_token %}
+                    <button class="notif-icon-btn archive-btn" type="submit" title="Archive">
+                      <i class="fa-solid fa-archive"></i>
+                    </button>
+                  </form>
+
+                  <!-- Mark as read/unread button -->
+                  <form method="post"
+                        action="{% url 'notification_toggle_read' notification.id %}"
+                        style="display:inline-block;">
+                    {% csrf_token %}
+                    <button class="notif-icon-btn {% if notification.read %}mark-unread-btn{% else %}mark-read-btn{% endif %}" 
+                            type="submit" 
+                            title="{% if notification.read %}Mark as unread{% else %}Mark as read{% endif %}">
+                      <i class="fa-solid {% if notification.read %}fa-envelope{% else %}fa-envelope-open{% endif %}"></i>
+                    </button>
+                  </form>
 
                   <!-- Delete button -->
                   <form method="post"

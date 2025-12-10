@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Manage Postings - CampusLink</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="{% static 'Myapp/manage_posting.css' %}?v=1.3">
+  <link rel="stylesheet" href="{% static 'Myapp/manage_posting.css' %}?v=1.4">
   <link rel="stylesheet" href="{% static 'Myapp/org_dashboard.css' %}">
   <!-- Include the error message component CSS -->
   <link rel="stylesheet" href="{% static 'Myapp/error_message.css' %}">
@@ -146,56 +146,65 @@
   <!-- Edit Modal -->
   <div id="editModal" class="modal">
     <div class="modal-content">
-      <h3>Edit Posting</h3>
-      <form id="editForm">
-        <input type="hidden" id="editPostId" name="post_id">
-
-        <label>Title:</label>
-        <input type="text" id="editTitle" name="title" placeholder="Enter a clear and concise title for your posting" required />
-
-        <label>Description:</label>
-        <textarea id="editDescription" name="description" rows="2" placeholder="Describe the posting in detail. Include purpose, requirements, etc."></textarea>
-
-        <label>Opportunity Type:</label>
-        <select id="editOpportunityType" name="opportunity_type" required>
-          <option value="assistantship">Assistantship</option>
-          <option value="volunteer">Volunteer</option>
-          <option value="internship">Internship</option>
-          <option value="job">Job</option>
-          <option value="scholarship">Scholarship</option>
-          <option value="events">Events</option>
-          <option value="sports">Sports</option>
-          <option value="leadership">Leadership</option>
-          <option value="other">Other</option>
-        </select>
-
-        <label>Deadline:</label>
-        <input type="date" id="editDeadline" name="deadline" required />
-
-        <label>Status:</label>
-        <select id="editStatus" name="status">
-          <option value="pending">Pending</option>
-          <option value="approved">Active</option>
-          <option value="rejected">Rejected</option>
-        </select>
-
-        <!-- Tags -->
-        <label for="editTags">Tags</label>
-        <select id="editTags" name="tags" multiple>
-          <option value="Communication">Communication</option>
-          <option value="Outreach">Outreach</option>
-          <option value="Events">Events</option>
-          <option value="Leadership">Leadership</option>
-          <option value="Marketing">Marketing</option>
-          <option value="Creative">Creative</option>
-          <option value="Technical">Technical</option>
-        </select>
-
-        <div class="modal-actions">
-          <button type="submit" class="modal-action-btn save">Save</button>
-          <button type="button" id="cancelEdit" class="modal-action-btn cancel">Cancel</button>
-        </div>
-      </form>
+      <span class="close">&times;</span>
+      <div class="form-container">
+        <h2>Edit Posting</h2>
+        <form id="editForm">
+          <input type="hidden" id="editPostId" name="post_id">
+          <div class="form-group">
+            <label for="editTitle">Title:</label>
+            <input type="text" id="editTitle" name="title" placeholder="Enter a clear and concise title for your posting" required>
+          </div>
+          <div class="form-group">
+            <label for="editDescription">Description:</label>
+            <textarea id="editDescription" name="description" rows="4" placeholder="Describe the posting in detail. Include purpose, requirements, etc."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="editOpportunityType">Opportunity Type:</label>
+            <select id="editOpportunityType" name="opportunity_type" required>
+              <option value="assistantship">Assistantship</option>
+              <option value="volunteer">Volunteer</option>
+              <option value="job">Job</option>
+              <option value="events">Events</option>
+              <option value="sports">Sports</option>
+              <option value="leadership">Leadership</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="editDeadline">Deadline:</label>
+            <input type="date" id="editDeadline" name="deadline" required>
+          </div>
+          <div class="form-group">
+            <label for="editStatus">Status:</label>
+            <select id="editStatus" name="status">
+              <option value="pending">Pending</option>
+              <option value="approved">Active</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="editTags">Tags:</label>
+            <select id="editTags" name="tags" multiple>
+              <option value="Communication">Communication</option>
+              <option value="Outreach">Outreach</option>
+              <option value="Events">Events</option>
+              <option value="Leadership">Leadership</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Creative">Creative</option>
+              <option value="Technical">Technical</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <button type="submit" class="submit-btn">
+              <i class="fas fa-save"></i> Save Changes
+            </button>
+            <button type="button" id="cancelEdit" class="submit-btn" style="background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; margin-top: 10px;">
+              <i class="fas fa-times"></i> Cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -273,6 +282,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const editModal = document.getElementById('editModal');
     const editForm = document.getElementById('editForm');
     const cancelEdit = document.getElementById('cancelEdit');
+    const closeModalButtons = document.querySelectorAll('.close-modal');
+    const closeBtn = document.querySelector(".modal .close");
     
     // Add delete functionality
     const deleteButtons = document.querySelectorAll('.delete-btn');
@@ -282,7 +293,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     let currentPostId = null;
 
-    // Add event listeners to edit buttons
+    // Open edit modal
     editButtons.forEach(button => {
         button.addEventListener('click', function() {
             const card = this.closest('.posting-card');
@@ -331,16 +342,34 @@ document.addEventListener("DOMContentLoaded", () => {
             }, 100);
           
             // Show modal
-            editModal.classList.add('active');
+            editModal.style.display = 'block';
         });
     });
 
-    // Cancel edit
-    if (cancelEdit) {
-        cancelEdit.addEventListener('click', function() {
-            editModal.classList.remove('active');
+    // Close edit modal with close button
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            editModal.style.display = 'none';
         });
     }
+
+    // Close edit modal with cancel button
+    if (cancelEdit) {
+        cancelEdit.addEventListener('click', function() {
+            editModal.style.display = 'none';
+        });
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target === editModal) {
+            editModal.style.display = 'none';
+        }
+        if (event.target === deleteModal) {
+            deleteModal.style.display = 'none';
+            currentPostId = null;
+        }
+    });
 
     // Handle form submission
     if (editForm) {
@@ -429,17 +458,6 @@ document.addEventListener("DOMContentLoaded", () => {
             currentPostId = null;
         });
     }
-
-    // Close modals when clicking outside
-    window.addEventListener('click', function(event) {
-        if (event.target === editModal) {
-            editModal.classList.remove('active');
-        }
-        if (event.target === deleteModal) {
-            deleteModal.classList.remove('active');
-            currentPostId = null;
-        }
-    });
 
     // Toast notification function
     function showToast(message, type) {
