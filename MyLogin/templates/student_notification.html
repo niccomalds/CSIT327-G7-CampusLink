@@ -106,6 +106,12 @@
     <span class="notif-tab-pill">{{ favorite_count }}</span>
   </a>
 
+            <a href="{% url 'notifications' %}?tab=archive"
+     class="notif-tab {% if active_tab == 'archive' %}notif-tab-active{% endif %}">
+    <span>Archive</span>
+    <span class="notif-tab-pill">{{ archive_count }}</span>
+  </a>
+
           </div>
 
           <div class="notif-actions">
@@ -187,7 +193,7 @@
                 <!-- Right icons -->
                 <div class="notification-right">
                   <!-- Archive form -->
-                  <form method="post" action="{% url 'archive_notification' notification.id %}" class="inline-form">
+                  <form method="post" action="{% url 'notification_archive' notification.id %}" class="inline-form">
                     {% csrf_token %}
                     <button class="notif-icon-btn archive-btn" type="submit" title="Archive">
                       <i class="fa-solid fa-archive"></i>
@@ -195,7 +201,7 @@
                   </form>
 
                   <!-- Mark as read/unread form -->
-                  <form method="post" action="{% url 'toggle_read_status' notification.id %}" class="inline-form">
+                  <form method="post" action="{% url 'notification_toggle_read' notification.id %}" class="inline-form">
                     {% csrf_token %}
                     <button class="notif-icon-btn {% if notification.read %}mark-unread-btn{% else %}mark-read-btn{% endif %}" 
                             type="submit" 
